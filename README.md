@@ -4,9 +4,11 @@ Modern LGPLv3* C++14 library for handling *.obj/mtl 3D model files - originally 
 Basic architecture:
 -------------------
 
-1.) MaterializedObjModel + ObjMeshObject, MaterializedObjMeshObject...
+1.) MaterializedObjModel + ObjMeshObject, MaterializedObjMeshObject
+
 2.) Obj
-3.) MtlLib, VertexElement, FaceElement, UseMtl, ...
+
+3.) MtlLib, VertexElement, FaceElement, UseMtl,
 
 - The classes on the first level are the end-user classes and are prepared to aid rendering of the obj files with a 3D rendering API of choice. They are built upon the second level of classes and use them as a source, but they adhere to a logical structure that is optimized for rendering. The obj file format supports varoius things that are not supported by APIs and 3D cards directly and these are being translated to adhere this representation while construction. One example of this is that the obj file format handle faces with points having different index values for vertex positions, normals, texture coordinates. This is hardly optimally handled in current 3D hardware so an algorithm translates the representation to use one index value for all data and we regenerate the data like this etc. Any further changes that are in the representation for being render-friendly should go to this logical layer.
 - The second layer is basically tries to be 1-1 corresponding to how the data are in the *.obj and *.mtl files. This is basically a parser where every line corresponds to various descriptor classes. Reading in a file results in a complete parse of the logical structure and loading of the lightweights of the material library. In case we are writing a converter application or want to do batched changes to *.obj or *.mtl files and such things, we can decide to stay on this level. The design tries to make it easy to use data in this representation when translating to the 3D API-friendly one by some c++ tricks like making it available to copy whole vectors and such, but not more than that and it is just a representation of the file structure logic as is. Changes in the parser logic and fixes to it should go to this logical level.
