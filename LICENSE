@@ -1,14 +1,31 @@
-                   GNU LESSER GENERAL PUBLIC LICENSE
+        MODIFIED VERSION OF GNU LESSER GENERAL PUBLIC LICENSE
                        Version 3, 29 June 2007
 
+  -1. Modifications to the original LGPLv3 licence, preface
+
  Copyright (C) 2007 Free Software Foundation, Inc. <http://fsf.org/>
+ Copyright (C) 2016 Grepton Zrt. <www.grepton.hu>
  Everyone is permitted to copy and distribute verbatim copies
  of this license document, but changing it is not allowed.
 
+  This modified version of the GNU Lesser General Public License
+incorporates the terms and conditions of version 3 of the GNU General
+Public License, supplemented by the additional permissions listed below.
 
-  This version of the GNU Lesser General Public License incorporates
-the terms and conditions of version 3 of the GNU General Public
-License, supplemented by the additional permissions listed below.
+  Additionally to the terms and conditions of the LGPLv3 licence it must
+be noted that the contents of this repository are open for unrestricted
+use of the Hungarian company Grepton Zrt. This unrestricted use includes
+forking the source code by adding changes and supplying the resulting
+library with a proprietary license or using the source code in
+propriately products without supplying the source code.
+
+Any direct or indirect uses of the source code of this repository in any
+non-free applications should show a clear reference to the repository 
+along with the grapfical logo of Grepton Zrt. The logo should be shown 
+on the screen in case the user is a graphic application or provided in
+the application directory in case it is a console mode character 
+application (like a file format converter) in which case a textual 
+reference should be provided in interactive use cases and help displays.
 
   0. Additional Definitions.
 
