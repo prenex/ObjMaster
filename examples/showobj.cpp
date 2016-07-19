@@ -42,7 +42,9 @@
 #define DEBUG 1
 
 #include "objmaster/Obj.h"
+#include "objmaster/ObjMeshObject.h"
 #include "objmaster/objmasterlog.h"
+#include "objmaster/FileAssetLibrary.h"
 
 #ifndef HAVE_BUILTIN_SINCOS
 #define sincos _sincos
@@ -63,6 +65,9 @@ static GLuint ModelViewProjectionMatrix_location,
 static GLfloat ProjectionMatrix[16];
 /** The direction of the directional light for the scene */
 static const GLfloat LightSourcePosition[4] = { 5.0, 5.0, 10.0, 1.0};
+
+/** Holds the model of the lady */
+static ObjMaster::ObjMeshObject ladyModel;
 
 /**
  * Multiplies two 4x4 matrices.
@@ -416,7 +421,8 @@ static void init(void) {
    /* Set the LightSourcePosition uniform which is constant throught the program */
    glUniform4fv(LightSourcePosition_location, 1, LightSourcePosition);
 
-   // TODO: Load models
+   // Load models
+   ObjMaster::Obj ladyObj = ObjMaster::Obj(ObjMaster::FileAssetLibrary(), "./models/", "red_clothes_lady.obj");
 }
 
 int main(int argc, char *argv[]) {
