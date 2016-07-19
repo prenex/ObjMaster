@@ -2,7 +2,7 @@
 *.slo
 *.lo
 *.o
-*.obj
+#*.obj # haha - this made me nuts in a *.obj loader library :D
 
 # Precompiled Headers
 *.gch
