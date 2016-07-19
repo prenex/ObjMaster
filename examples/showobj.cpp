@@ -422,7 +422,8 @@ static void init(void) {
    glUniform4fv(LightSourcePosition_location, 1, LightSourcePosition);
 
    // Load models
-   ObjMaster::Obj ladyObj = ObjMaster::Obj(ObjMaster::FileAssetLibrary(), "./models/", "red_clothes_lady.obj");
+   //ObjMaster::Obj ladyObj = ObjMaster::Obj(ObjMaster::FileAssetLibrary(), "./models/", "red_clothes_lady.obj");
+   ObjMaster::Obj ladyObj = ObjMaster::Obj(ObjMaster::FileAssetLibrary(), "./models/", "cube.obj");
 }
 
 int main(int argc, char *argv[]) {
