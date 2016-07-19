@@ -14,7 +14,7 @@
  * Compilations:
  *   g++ showobj.cpp -o showobj.out -lglut -lGLESv2 -lm -std=c++14
  *   em++ showobj.cpp -o showobj.html -std=c++14
- * Usage:
+ * TODO: Usage:
  *   ./showobj <model>     - shows the given model
  *   ./showobj             - shows default.obj (as the html build)
  *   palemoon showobj.html - open webgl build to show embedded default.obj
