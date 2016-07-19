@@ -8,6 +8,7 @@
  * gcc and emscripten (to provide webgl html)
  * 
  * Prerequisite:
+ *   freeglut3, freeglut3-dev (both)
  *   libegl1-mesa-dev, libgles2-mesa-dev (EGL/GLES2)
  *   emsdk (JS/WEBGL - full toolchain: nodejs, LLVM, etc.)
  * Compilations:
@@ -38,7 +39,10 @@
 #include <GL/glut.h>
 #endif
 
+#define DEBUG 1
+
 #include "objmaster/Obj.h"
+#include "objmaster/objmasterlog.h"
 
 #ifndef HAVE_BUILTIN_SINCOS
 #define sincos _sincos

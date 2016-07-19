@@ -8,6 +8,7 @@
  * gcc and emscripten (to provide webgl html)
  * 
  * Prerequisite:
+ *   freeglut3, freeglut3-dev (both)
  *   libegl1-mesa-dev, libgles2-mesa-dev (EGL/GLES2)
  *   emsdk (JS/WEBGL - full toolchain: nodejs, LLVM, etc.)
  * Compilations:
