@@ -66,8 +66,8 @@ static GLfloat ProjectionMatrix[16];
 /** The direction of the directional light for the scene */
 static const GLfloat LightSourcePosition[4] = { 5.0, 5.0, 10.0, 1.0};
 
-/** Holds the model of the lady */
-static ObjMaster::ObjMeshObject ladyModel;
+/** Holds the model of the obj */
+static ObjMaster::ObjMeshObject objModel;
 
 /**
  * Multiplies two 4x4 matrices.
@@ -221,6 +221,57 @@ void perspective(GLfloat *m, GLfloat fovy, GLfloat aspect, GLfloat zNear, GLfloa
    tmp[15] = 0;
 
    memcpy(m, tmp, sizeof(tmp));
+}
+
+/** Draw the mesh of the obj file - first version, no material handling */
+static void draw_model(ObjMaster::ObjMeshObject model, GLfloat *transform, const GLfloat color[4]){
+   GLfloat model_view[16];
+   GLfloat normal_matrix[16];
+   GLfloat model_view_projection[16];
+
+   /* creating model_view */
+   memcpy(model_view, transform, sizeof (model_view));
+   // translate and rotate a little bit to "animate" the thing
+   //translate(model_view, x, y, 0);
+   //rotate(model_view, 2 * M_PI * angle / 360.0, 0, 0, 1);
+
+   /* Create and set the ModelViewProjectionMatrix */
+   memcpy(model_view_projection, ProjectionMatrix, sizeof(model_view_projection));
+   multiply(model_view_projection, model_view);
+
+   glUniformMatrix4fv(ModelViewProjectionMatrix_location, 1, GL_FALSE,
+                      model_view_projection);
+
+   /*
+    * Create and set the NormalMatrix. It's the inverse transpose of the
+    * ModelView matrix.
+    */
+   memcpy(normal_matrix, model_view, sizeof (normal_matrix));
+   invert(normal_matrix);
+   transpose(normal_matrix);
+   glUniformMatrix4fv(NormalMatrix_location, 1, GL_FALSE, normal_matrix);
+
+   /* Set the model color */
+   glUniform4fv(MaterialColor_location, 1, color);
+
+   /* Set the vertex buffer object to use */
+   glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+   // TODO: we should use the index buffer for rendering! This is just a test!
+   /* Set up the position of the attributes in the vertex buffer object */
+   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(VertexStructure), &(objModel.vertexData[0].x));
+   glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(VertexStructure), &(objModel.vertexData[0].i));
+   /* Enable the attributes */
+   glEnableVertexAttribArray(0);
+   glEnableVertexAttribArray(1);
+
+   /* Draw the triangle strips that comprise the gear */
+   // TODO: real count should be here!!!
+   glDrawArrays(GL_TRIANGLE_STRIP, 0, 5);
+
+   /* Disable the attributes */
+   glDisableVertexAttribArray(1);
+   glDisableVertexAttribArray(0);
 }
 
 /**
@@ -379,7 +430,7 @@ static void init(void) {
    const char *p;
    char msg[512];
 
-   glEnable(GL_CULL_FACE);
+   //glEnable(GL_CULL_FACE);
    glEnable(GL_DEPTH_TEST);
 
    /* Compile the vertex shader */
@@ -422,8 +473,14 @@ static void init(void) {
    glUniform4fv(LightSourcePosition_location, 1, LightSourcePosition);
 
    // Load models
-   //ObjMaster::Obj ladyObj = ObjMaster::Obj(ObjMaster::FileAssetLibrary(), "./models/", "red_clothes_lady.obj");
-   ObjMaster::Obj ladyObj = ObjMaster::Obj(ObjMaster::FileAssetLibrary(), "./models/", "cube.obj");
+   //ObjMaster::Obj obj = ObjMaster::Obj(ObjMaster::FileAssetLibrary(), "./models/", "red_clothes_lady.obj");
+
+   // In this example this should never be inited at this point, but wanted to show how to do that check
+   // For example in case of android applications with complex app life-cycles it is better to have this...
+   if(!objModel.inited) {
+	ObjMaster::Obj obj = ObjMaster::Obj(ObjMaster::FileAssetLibrary(), "./models/", "cube.obj");
+	objModel = ObjMaster::ObjMeshObject(obj);
+   }
 }
 
 int main(int argc, char *argv[]) {
