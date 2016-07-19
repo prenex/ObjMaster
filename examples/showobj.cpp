@@ -22,12 +22,12 @@
 #define GL_GLEXT_PROTOTYPES
 #define EGL_EGLEXT_PROTOTYPES
 
-#define _GNU_SOURCE
+//#define _GNU_SOURCE
 
-#include <math.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
+#include <cmath>
+#include <cstdlib>
+#include <cstdio>
+#include <cstring>
 #include <sys/time.h>
 #include <unistd.h>
 #ifdef __APPLE__
@@ -93,9 +93,10 @@ static void multiply(GLfloat *m, const GLfloat *n) {
  * @param z the z component of the direction to rotate to
  */
 static void rotate(GLfloat *m, GLfloat angle, GLfloat x, GLfloat y, GLfloat z) {
-   double s, c;
-
-   sincos(angle, &s, &c);
+   double sd, cd;
+   sincos(angle, &sd, &cd);
+   float s = (float)sd;
+   float c = (float)cd;
    GLfloat r[16] = {
       x * x * (1 - c) + c,     y * x * (1 - c) + z * s, x * z * (1 - c) - y * s, 0,
       x * y * (1 - c) - z * s, y * y * (1 - c) + c,     y * z * (1 - c) + x * s, 0,

@@ -1,7 +1,7 @@
 /*
- * ObjMaster/examples/gleskeleton
+ * ObjMaster/examples/showobj
  *  
- * OpenGL ES skeleton file - useful when creating a new example!
+ * Example obj model renderer using the library.
  * 
  * This example uses a subset of GLESv2 and EGL
  * in a way that it can be compiled both with
@@ -11,23 +11,23 @@
  *   libegl1-mesa-dev, libgles2-mesa-dev (EGL/GLES2)
  *   emsdk (JS/WEBGL - full toolchain: nodejs, LLVM, etc.)
  * Compilations:
- *   g++ gleskeleton.cpp -o gleskeleton.out -lglut -lGLESv2 -lm -std=c++14
- *   em++ gleskeleton.cpp -o gleskeleton.html -std=c++14
+ *   g++ showobj.cpp -o showobj.out -lglut -lGLESv2 -lm -std=c++14
+ *   em++ showobj.cpp -o showobj.html -std=c++14
  * Usage:
- *   ./gleskeleton <model>     - shows the given model
- *   ./gleskeleton             - shows default.obj (as the html build)
- *   palemoon gleskeleton.html - open webgl build to show embedded default.obj
+ *   ./showobj <model>     - shows the given model
+ *   ./showobj             - shows default.obj (as the html build)
+ *   palemoon showobj.html - open webgl build to show embedded default.obj
  */
 
 #define GL_GLEXT_PROTOTYPES
 #define EGL_EGLEXT_PROTOTYPES
 
-#define _GNU_SOURCE
+//#define _GNU_SOURCE
 
-#include <math.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
+#include <cmath>
+#include <cstdlib>
+#include <cstdio>
+#include <cstring>
 #include <sys/time.h>
 #include <unistd.h>
 #ifdef __APPLE__
@@ -93,9 +93,10 @@ static void multiply(GLfloat *m, const GLfloat *n) {
  * @param z the z component of the direction to rotate to
  */
 static void rotate(GLfloat *m, GLfloat angle, GLfloat x, GLfloat y, GLfloat z) {
-   double s, c;
-
-   sincos(angle, &s, &c);
+   double sd, cd;
+   sincos(angle, &sd, &cd);
+   float s = (float)sd;
+   float c = (float)cd;
    GLfloat r[16] = {
       x * x * (1 - c) + c,     y * x * (1 - c) + z * s, x * z * (1 - c) - y * s, 0,
       x * y * (1 - c) - z * s, y * y * (1 - c) + c,     y * z * (1 - c) + x * s, 0,
