@@ -132,7 +132,7 @@ OMLOGD(" - vns[vnIndex]: (%f, %f, %f)", obj.vns[fp.vnIndex].x, obj.vns[fp.vnInde
                     // Create a target slice from the target data
                     // This slicer is only used for hashing out duplications. Ownership of data
                     // is not transferred as this is a read-only operation!
-                    IndexTargetSlice its = IndexTargetSlice::IndexTargetSlice(fv, fvt, fvn);
+                    IndexTargetSlice its = IndexTargetSlice(fv, fvt, fvn);
 
                     // See if the data for this face-point can be found among the earlier ones
                     if(alreadyHandledFacePointTargets.find(its)
@@ -174,8 +174,8 @@ OMLOGD(" - Found already handled facePoint!");
         }
 
         // Log relevant counts
-        OMLOGD(" - Number of vertices after conversion: %d", vertexData.size());
-        OMLOGD(" - Number of indices after conversion: %d", indices.size());
+        OMLOGD(" - Number of vertices after conversion: %d", (int)vertexData.size());
+        OMLOGD(" - Number of indices after conversion: %d", (int)indices.size());
         OMLOGD(" - Maximum indexNo: %d", lastIndex);
 
         // Say that the mesh has been initialized

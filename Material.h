@@ -89,7 +89,7 @@ namespace ObjMaster {
         OMLOGE("TEST_Material...");
 #endif
 
-        Material test1 = Material::Material("test1", (std::vector<std::string>) {
+        Material test1 = Material("test1", (std::vector<std::string>) {
                 std::string("Ka 1.0 2.0 4.0"),
                 std::string("badline"),
                 std::string("map_Ka ambient.png"),

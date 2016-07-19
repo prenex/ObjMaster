@@ -38,6 +38,8 @@
 #include <GL/glut.h>
 #endif
 
+#include "objmaster/Obj.h"
+
 #ifndef HAVE_BUILTIN_SINCOS
 #define sincos _sincos
 static void sincos (double a, double *s, double *c) {
@@ -422,7 +424,7 @@ int main(int argc, char *argv[]) {
    glutInitWindowSize(300, 300);
    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
 
-   glutCreateWindow("es2gears");
+   glutCreateWindow("showobj");
 
    /* Set up glut callback functions */
    glutIdleFunc (idle);
