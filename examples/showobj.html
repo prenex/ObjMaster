@@ -89,10 +89,6 @@
         height: 200px;
         margin: 0 auto;
         margin-top: 10px;
-        border-left: 0px;
-        border-right: 0px;
-        padding-left: 0px;
-        padding-right: 0px;
         display: block;
         background-color: black;
         color: white;
@@ -1295,25 +1291,6 @@
         };
       };
     </script>
-    <script>
-
-          (function() {
-            var memoryInitializer = 'showobj.html.mem';
-            if (typeof Module['locateFile'] === 'function') {
-              memoryInitializer = Module['locateFile'](memoryInitializer);
-            } else if (Module['memoryInitializerPrefixURL']) {
-              memoryInitializer = Module['memoryInitializerPrefixURL'] + memoryInitializer;
-            }
-            var xhr = Module['memoryInitializerRequest'] = new XMLHttpRequest();
-            xhr.open('GET', memoryInitializer, true);
-            xhr.responseType = 'arraybuffer';
-            xhr.send(null);
-          })();
-
-          var script = document.createElement('script');
-          script.src = "showobj.js";
-          document.body.appendChild(script);
-
-</script>
+    <script async type="text/javascript" src="showobj.js"></script>
   </body>
 </html>
