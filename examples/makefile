@@ -1,11 +1,12 @@
-# TODO: Currently only compiles the showobj example with the gcc toolchain...
+# TODO: Currently only compiles the showobj example
+# TODO: used models should be bundled in case of emscripten
 
 # for gcc5.1+:
 #CC=g++
 # for clang3.4+:
-#CC=clang++
+CC=clang++
 # for emscripten / webgl
-CC=em++
+#CC=em++
 
 ifeq ($(CC),g++)
 	# g++ (ver 5.1+ tested)
@@ -14,11 +15,11 @@ ifeq ($(CC),g++)
 else 
 ifeq ($(CC),em++)
 	# em++ (ver 1.3+ tested)
-	CFLAGS=-c -stdlib=libc++ -std=c++1y # clang 3.4 uses 1y instead of 14 here, we need the LLVM libc so that streams are copyable (or a more recent gcc toolchain than the 4.9 at my work!)
-	LDFLAGS=-lglut -stdlib=libc++
+	CFLAGS=-c -stdlib=libc++ -std=c++1y -O2 # clang 3.4 uses 1y instead of 14 here, we need the LLVM libc so that streams are copyable (or a more recent gcc toolchain than the 4.9 at my work!)
+	LDFLAGS=-lglut -stdlib=libc++ -O2
 else
 	# em++ / clang++ (ver 3.4+ tested)
-	CFLAGS=-c -stdlib=libc++ -std=c++1y # clang 3.4 uses 1y instead of 14 here, we need the LLVM libc so that streams are copyable (or a more recent gcc toolchain than the 4.9 at my work!)
+	CFLAGS=-c -stdlib=libc++ -std=c++1y # em++ clang uses 1y instead of 14 here, we need the LLVM libc so that streams are copyable (or a more recent gcc toolchain than the 4.9 at my work!)
 	LDFLAGS=-lglut -lGLESv2 -lm -stdlib=libc++
 endif
 endif
@@ -33,6 +34,7 @@ all: $(SOURCES) $(EXECUTABLE)
 # because of some lazyness in newer toolchains!
 $(EXECUTABLE): $(OBJECTS) 
 ifeq ($(CC),em++)
+	# In case of emscripten build, we make a html5/webgl output
 	$(CC) $(OBJECTS) -o $@.html $(LDFLAGS)
 else
 	$(CC) $(OBJECTS) -o $@ $(LDFLAGS)

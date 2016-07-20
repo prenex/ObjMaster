@@ -264,40 +264,40 @@ static void printGlError() {
    }
 }
 
-/** Setup the familiar test triangle buffers */
-static void setup_tri() {
-	static const GLfloat s_vertices[] = {
-		-1, -1,		// vertx
-		1, 0, 0,	// color
-		1, -1 ,		// vertx
-		0, 1, 0,	// color
-		0,  1 ,
-		0, 0, 1,
-		1,  0 ,
-		1, 1, 1
-	};
-	static const GLuint s_indices[6] = {
-		0, 1, 2,
-		0, 1, 3
-	};
+/** Setup the test buffers */
+static void setup_tri(GLfloat* s_vertices, GLuint* s_indices, int vertDataSize, int vdCount, int iCount) {
+// 	static const GLfloat s_vertices[] = {
+// 		-1, -1, 0,	// vertx
+// 		1, 0, 0,	// color
+// 		1, -1 ,	0,	// vertx
+// 		0, 1, 0,	// color
+// 		0,  1 , 0,
+// 		0, 0, 1,
+// 		1,  0 , 0,
+// 		1, 1, 1
+// 	};
+// 	static const GLuint s_indices[6] = {
+// 		0, 1, 2,
+// 		0, 1, 3
+// 	};
 
 	GLuint	s_vertexPosObject, s_indexObject;
 
 	// Gen VBO
 	glGenBuffers(1, &s_vertexPosObject);
 	glBindBuffer(GL_ARRAY_BUFFER, s_vertexPosObject );
-	glBufferData(GL_ARRAY_BUFFER, sizeof(s_vertices), s_vertices, GL_STATIC_DRAW );
+	glBufferData(GL_ARRAY_BUFFER, vertDataSize * vdCount, s_vertices, GL_STATIC_DRAW );
 
 	// Gen IBO
 	glGenBuffers(1, &s_indexObject);
 	glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, s_indexObject );
-	glBufferData( GL_ELEMENT_ARRAY_BUFFER, sizeof(s_indices), s_indices, GL_STATIC_DRAW );
+	glBufferData( GL_ELEMENT_ARRAY_BUFFER, iCount * 4, s_indices, GL_STATIC_DRAW );
 
 	// Bind VBO
 	glBindBuffer(GL_ARRAY_BUFFER, s_vertexPosObject);
 	// Create attric pointers
-	glVertexAttribPointer( 0, 2, GL_FLOAT, GL_FALSE, 5 * 4, 0 );
-	glVertexAttribPointer( 1, 3, GL_FLOAT, GL_FALSE, 5 * 4, (const GLvoid *)(2 * 4) );
+	glVertexAttribPointer( 0, 2, GL_FLOAT, GL_FALSE, vertDataSize, 0 );
+	glVertexAttribPointer( 1, 3, GL_FLOAT, GL_FALSE, vertDataSize, (const GLvoid *)(3 * 4) );
 	// Enable attrib pointers
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
@@ -628,13 +628,13 @@ static void init(void) {
     // In this example this should never be inited at this point, but wanted to show how to do that check
     // For example in case of android applications with complex app life-cycles it is better to have this...
     if(!objModel.inited) {
- 	ObjMaster::Obj obj = ObjMaster::Obj(ObjMaster::FileAssetLibrary(), "./models/", "red_clothes_lady.obj");
+ 	ObjMaster::Obj obj = ObjMaster::Obj(ObjMaster::FileAssetLibrary(), "./models/", "cube.obj");
  	objModel = ObjMaster::ObjMeshObject(obj);
  
 // TODO:
 // 	// Load data onto the GPU and setup buffers for rendering
 // 	setup_buffers(0, 1, objModel);
-	setup_tri();
+	setup_tri(&(objModel.vertexData[0].x), &(objModel.indices[0]), (int)sizeof(VertexStructure), objModel.vertexData.size(), objModel.indices.size());
     }
 }
 
