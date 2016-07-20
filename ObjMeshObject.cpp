@@ -3,7 +3,7 @@
 //
 
 // Un-comment in case of hard debugging
-#define DEBUG
+/*#define DEBUG*/
 
 #include "objmasterlog.h"
 #include "ObjMeshObject.h"

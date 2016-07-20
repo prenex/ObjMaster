@@ -44,16 +44,16 @@ namespace ObjMaster {
         std::string currentObjectGroupName;
         // This holds the current pointer to the start of the faces in case of the material and/or
         // object grouping...
-        FaceElement* currentObjectMaterialFacesPointer = &(fs[0]);
+        int currentObjectMaterialFacesPointer = 0;
         // We hold the pointer to the last of the faces for pointer arithmetics common to the
         // various cases below
-        FaceElement* currentLastFacesPointer = &(fs[0]);
+        int currentLastFacesPointer = 0;
 
         // Parse the given file line-by-line
         OMLOGI("Reading obj data file line-by-line");
         char line[Obj::DEFAULT_LINE_PARSE_LEN];
         while(input->getline(line, Obj::DEFAULT_LINE_PARSE_LEN)) {
-            currentLastFacesPointer = &(fs[fs.size()]);
+            currentLastFacesPointer =( int)fs.size();;
             if(VertexElement::isParsable(line)) {
                 // v
                 VertexElement v = VertexElement((const char*)line);
@@ -90,14 +90,14 @@ OMLOGE(" - Using current-material: %s", currentMaterial.name);
                 // so that the faces will be "collected" for the group
                 // BEWARE: This let us overindex the array if no faces are coming!!!
                 //         We need to check this overindexint below!
-                currentObjectMaterialFacesPointer = &(fs[fs.size()]);
+                currentObjectMaterialFacesPointer = (int)fs.size();
             } else if(ObjectGroupElement::isParsable(line)) {
                 // o
                 // End the collection of the currentObjectMaterialFaceGroup
                 extendObjectMaterialGroups(currentObjectGroupName,
                                            currentMaterial,
                                            currentObjectMaterialFacesPointer,
-                currentLastFacesPointer - currentObjectMaterialFacesPointer);
+                                           currentLastFacesPointer - currentObjectMaterialFacesPointer);
                 currentObjectGroupName = ObjectGroupElement::getObjectGroupName(line);
 #ifdef DEBUG
 OMLOGE(" - Start of object group: %s", currentObjectGroupName);
@@ -106,18 +106,18 @@ OMLOGE(" - Start of object group: %s", currentObjectGroupName);
                 // so that the faces will be "collected" for the group
                 // BEWARE: This let us overindex the array if no faces are coming!!!
                 //         We need to check this overindexint below!
-                currentObjectMaterialFacesPointer = &(fs[fs.size()]);
+                currentObjectMaterialFacesPointer = (int)fs.size();
             } else {
                 OMLOGW("Cannot parse line: %s", line);
             }
         }
         // End the collection of the currentObjectMaterialFaceGroup by extending with the elements
         // of the last obj/material group (and pointer update is necessary here too!)
-        currentLastFacesPointer = &(fs[fs.size()]);
+        currentLastFacesPointer = (int)fs.size();
         extendObjectMaterialGroups(currentObjectGroupName,
                                    currentMaterial,
                                    currentObjectMaterialFacesPointer,
-                currentLastFacesPointer - currentObjectMaterialFacesPointer);
+                                   currentLastFacesPointer - currentObjectMaterialFacesPointer);
 
         OMLOGI("Finished loading of Obj data.");
         OMLOGI(" - Read vertices: %d", (int)vs.size());
@@ -133,7 +133,7 @@ OMLOGE(" - Start of object group: %s", currentObjectGroupName);
      */
     void Obj::extendObjectMaterialGroups(std::string &currentObjectGroupName,
                                     TextureDataHoldingMaterial &currentMaterial,
-                                    FaceElement* currentObjectMaterialFacesPointer,
+                                    int currentObjectMaterialFacesPointer,
                                     int sizeOfFaceStripe) {
         // If the size is zero, we are not saving the group
         // this is not only an optimization, but this is how we handle mtllib ...; o ... after each

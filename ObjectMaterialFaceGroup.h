@@ -29,9 +29,8 @@ namespace ObjMaster {
          */
         TextureDataHoldingMaterial textureDataHoldingMaterial;
 
-        /** Pointer to the first faceElement for this object name and material */
-        // TODO: think about bare pointer usage - can we remove it while keeping speed?
-        FaceElement *faces;
+        /** Index of the first faceElement for this object name and material */
+        int faceIndex;
 
         /** Defines how many faces are in the group with this material after the pointed address */
         int meshFaceCount;

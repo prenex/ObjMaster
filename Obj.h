@@ -72,7 +72,7 @@ namespace ObjMaster {
          */
         void extendObjectMaterialGroups(std::string &currentObjectGroupName,
                                         TextureDataHoldingMaterial &currentMaterial,
-                                        FaceElement* currentObjectMaterialFacesPointer,
+                                        int currentObjectMaterialFacesPointer,
                                         int sizeOfFaceStripe);
     };
 
