@@ -224,7 +224,7 @@ void perspective(GLfloat *m, GLfloat fovy, GLfloat aspect, GLfloat zNear, GLfloa
 }
 
 /** Draw the mesh of the obj file - first version, no material handling */
-static void draw_model(ObjMaster::ObjMeshObject model, GLfloat *transform, const GLfloat color[4]){
+static void draw_model(const ObjMaster::ObjMeshObject &model, GLfloat *transform, const GLfloat color[4]){
    GLfloat model_view[16];
    GLfloat normal_matrix[16];
    GLfloat model_view_projection[16];
@@ -251,27 +251,67 @@ static void draw_model(ObjMaster::ObjMeshObject model, GLfloat *transform, const
    transpose(normal_matrix);
    glUniformMatrix4fv(NormalMatrix_location, 1, GL_FALSE, normal_matrix);
 
-   /* Set the model color */
+
    glUniform4fv(MaterialColor_location, 1, color);
 
-   /* Set the vertex buffer object to use */
-   glBindBuffer(GL_ARRAY_BUFFER, 0);
+   glDrawElements(GL_TRIANGLES, model.indices.size(), GL_UNSIGNED_INT, 0);
+}
 
-   // TODO: we should use the index buffer for rendering! This is just a test!
-   /* Set up the position of the attributes in the vertex buffer object */
-   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(VertexStructure), &(objModel.vertexData[0].x));
-   glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(VertexStructure), &(objModel.vertexData[0].i));
-   /* Enable the attributes */
-   glEnableVertexAttribArray(0);
-   glEnableVertexAttribArray(1);
+static void printGlError() {
+   GLenum err = glGetError();
+   if(err != GL_NO_ERROR) {
+   	printf("glError: %d \n", glGetError());
+   }
+}
 
-   /* Draw the triangle strips that comprise the gear */
-   // TODO: real count should be here!!!
-   glDrawArrays(GL_TRIANGLE_STRIP, 0, 5);
+static void draw_tri(void)
+{
+   GLfloat model_view_projection[16];
+   identity(model_view_projection);
+   glUniformMatrix4fv(ModelViewProjectionMatrix_location, 1, GL_FALSE,
+                      model_view_projection);
+   static const GLfloat verts[4][2] = {
+      { -1, -1 },
+      {  1, -1 },
+      {  0,  1 },
+      {  1,  0 }
+   };
+   static const GLfloat colors[4][3] = {
+      { 1, 0, 0 },
+      { 0, 1, 0 },
+      { 0, 0, 1 },
+      { 1, 1, 1}
+   };
 
-   /* Disable the attributes */
-   glDisableVertexAttribArray(1);
-   glDisableVertexAttribArray(0);
+   static const GLuint indices[6] = {
+	0, 1, 2,
+	0, 1, 3
+   };
+   GLfloat mat[16], rot[16], scale[16];
+
+// TODO:
+//   /* Set modelview/projection matrix */
+//   make_z_rot_matrix(view_rotx, rot);
+//   make_scale_matrix(0.5, 0.5, 0.5, scale);
+//   mul_matrix(mat, rot, scale);
+//   glUniformMatrix4fv(u_matrix, 1, GL_FALSE, mat);
+
+   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+   {
+      glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, verts);
+      glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, colors);
+      glEnableVertexAttribArray(0);
+      glEnableVertexAttribArray(1);
+
+      //glDrawArrays(GL_TRIANGLES, 0, 3);
+      glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, &indices[0]);
+
+      glDisableVertexAttribArray(0);
+      glDisableVertexAttribArray(1);
+   }
+
+   glutSwapBuffers();
 }
 
 /**
@@ -288,13 +328,16 @@ static void draw() {
    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
    /* Translate and rotate the view */
-   translate(transform, 0, 0, -20);
+   translate(transform, 0, 0, -4);
    rotate(transform, 2 * M_PI * view_rot[0] / 360.0, 1, 0, 0);
    rotate(transform, 2 * M_PI * view_rot[1] / 360.0, 0, 1, 0);
    rotate(transform, 2 * M_PI * view_rot[2] / 360.0, 0, 0, 1);
 
-   // TODO: render the model
+   // Render the model mesh
+   draw_model(objModel, transform, red);
+   printGlError();
 
+   // Render the scene
    glutSwapBuffers();
 
 #ifdef LONGTEST
@@ -310,7 +353,7 @@ static void draw() {
  */
 static void handleViewportReshape(int width, int height) {
    /* Update the projection matrix */
-   perspective(ProjectionMatrix, 60.0, width / (float)height, 1.0, 1024.0);
+   perspective(ProjectionMatrix, 60.0, width / (float)height, 1.0, 64.0);
 
    /* Set the viewport */
    glViewport(0, 0, (GLint) width, (GLint) height);
@@ -386,44 +429,122 @@ static void idle(void) {
    }
 }
 
-static const char vertex_shader[] =
-"attribute vec3 position;\n"
-"attribute vec3 normal;\n"
-"\n"
-"uniform mat4 ModelViewProjectionMatrix;\n"
-"uniform mat4 NormalMatrix;\n"
-"uniform vec4 LightSourcePosition;\n"
-"uniform vec4 MaterialColor;\n"
-"\n"
-"varying vec4 Color;\n"
-"\n"
-"void main(void)\n"
-"{\n"
-"    // Transform the normal to eye coordinates\n"
-"    vec3 N = normalize(vec3(NormalMatrix * vec4(normal, 1.0)));\n"
-"\n"
-"    // The LightSourcePosition is actually its direction for directional light\n"
-"    vec3 L = normalize(LightSourcePosition.xyz);\n"
-"\n"
-"    // Multiply the diffuse value by the vertex color (which is fixed in this case)\n"
-"    // to get the actual color that we will use to draw this vertex with\n"
-"    float diffuse = max(dot(N, L), 0.0);\n"
-"    Color = diffuse * MaterialColor;\n"
-"\n"
-"    // Transform the position to clip coordinates\n"
-"    gl_Position = ModelViewProjectionMatrix * vec4(position, 1.0);\n"
-"}";
-
-static const char fragment_shader[] =
+static const char *fragment_shader=
 "#ifdef GL_ES\n"
 "precision mediump float;\n"
 "#endif\n"
-"varying vec4 Color;\n"
-"\n"
-"void main(void)\n"
-"{\n"
-"    gl_FragColor = Color;\n"
-"}";
+"varying vec4 v_color;\n"
+"void main() {\n"
+"   gl_FragColor = v_color;\n"
+"}\n";
+static const char *vertex_shader=
+"uniform mat4 ModelViewProjectionMatrix;\n"
+"attribute vec4 pos;\n"
+"attribute vec4 color;\n"
+"varying vec4 v_color;\n"
+"void main() {\n"
+"   gl_Position = pos;\n"
+"   v_color = color;\n"
+"}\n";
+
+// TODO:
+// static const char vertex_shader[] =
+// "attribute vec3 position;\n"
+// "attribute vec3 normal;\n"
+// "\n"
+// "uniform mat4 ModelViewProjectionMatrix;\n"
+// "uniform mat4 NormalMatrix;\n"
+// "uniform vec4 LightSourcePosition;\n"
+// "uniform vec4 MaterialColor;\n"
+// "\n"
+// "varying vec4 Color;\n"
+// "\n"
+// "void main(void)\n"
+// "{\n"
+// "    // Transform the normal to eye coordinates\n"
+// "    vec3 N = normalize(vec3(NormalMatrix * vec4(normal, 1.0)));\n"
+// "\n"
+// "    // The LightSourcePosition is actually its direction for directional light\n"
+// "    vec3 L = normalize(LightSourcePosition.xyz);\n"
+// "\n"
+// "    // Multiply the diffuse value by the vertex color (which is fixed in this case)\n"
+// "    // to get the actual color that we will use to draw this vertex with\n"
+// "    float diffuse = max(dot(N, L), 0.0);\n"
+// "    Color = diffuse * MaterialColor;\n"
+// "\n"
+// "    // Transform the position to clip coordinates\n"
+// "    gl_Position = ModelViewProjectionMatrix * vec4(position, 1.0);\n"
+// "}";
+// 
+// static const char fragment_shader[] =
+// "#ifdef GL_ES\n"
+// "precision mediump float;\n"
+// "#endif\n"
+// "varying vec4 Color;\n"
+// "\n"
+// "void main(void)\n"
+// "{\n"
+// "    gl_FragColor = Color;\n"
+// "}";
+
+/** Setup various vertex and index buffers for the given model to get ready for rendering - call only once! */
+static void setup_buffers(GLuint positionLoc, GLuint normalLoc, const ObjMaster::ObjMeshObject &model) {
+	if(model.inited && (model.vertexData.size() > 0) && (model.indices.size() > 0)) {
+		// This little program is really a one-shot renderer so we do not save
+		// the object handles. In a bigger application you should handle them properly!
+		// Rem.: This is why you call the method at most only once...
+		GLuint s_vertexPosObject, s_indexObject;
+
+		// Generate vertex buffer object
+		glGenBuffers(1, &s_vertexPosObject);
+		glBindBuffer(GL_ARRAY_BUFFER, s_vertexPosObject );
+		glBufferData(GL_ARRAY_BUFFER, model.vertexData.size() * sizeof(VertexStructure), &(model.vertexData[0].x), GL_STATIC_DRAW);
+// #ifdef DEBUG_EXTRA
+// OMLOGE("Vertex data sent to the GPU:");
+// for(int i = 0; i < model.vertexData.size(); ++i) {
+// 	OMLOGE("v(%f, %f, %f) vn(%f, %f, %f) vt(%f, %f)", 
+// 			model.vertexData[i].x,
+// 			model.vertexData[i].y,
+// 			model.vertexData[i].z,
+// 			model.vertexData[i].i,
+// 			model.vertexData[i].j,
+// 			model.vertexData[i].k,
+// 			model.vertexData[i].u,
+// 			model.vertexData[i].v
+// 	);
+// }
+// OMLOGE("Index data sent to the GPU:");
+// for(int i = 0; i < model.indices.size(); ++i) {
+// 	OMLOGE("f %d", model.indices[i]);
+// }
+// #endif
+
+		// Generate index buffer object
+		glGenBuffers(1, &s_indexObject);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, s_indexObject);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint32_t), &(model.indices[0]), GL_STATIC_DRAW);
+
+		// Bind the vertex buffer object and create two vertex attributes from the bound buffer
+		glBindBuffer(GL_ARRAY_BUFFER, s_vertexPosObject);
+		// By design, we know that the positions are the first elements in the VertexStructure
+		// so we can use zero as the pointer/index in the vertex data!
+		glVertexAttribPointer(positionLoc, 3, GL_FLOAT, GL_FALSE, sizeof(VertexStructure), 0);
+		// Calculate the offset where the normal vector data starts in the vertex data
+		// This is much better than writing "3" as this handles changes in the structure...
+		auto normalOffset = (&(objModel.vertexData[0].x) - &(objModel.vertexData[0].i));
+		// Use the calculated offset for getting the pointer to the normals in the vertex data
+		glVertexAttribPointer(normalLoc, 3, GL_FLOAT, GL_FALSE, sizeof(VertexStructure), (const GLvoid *)(normalOffset * 4));
+
+		// Enable the vertex attributes as arrays
+		glEnableVertexAttribArray(positionLoc);
+		glEnableVertexAttribArray(normalLoc);
+
+		// Bind the index buffer object we have created
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, s_indexObject);
+	} else {
+		fprintf(stderr, "No available model, vertex data or indices to setup!");
+	}
+}
 
 static void init(void) {
    GLuint v, f, program;
@@ -453,8 +574,13 @@ static void init(void) {
    program = glCreateProgram();
    glAttachShader(program, v);
    glAttachShader(program, f);
-   glBindAttribLocation(program, 0, "position");
-   glBindAttribLocation(program, 1, "normal");
+   // Attribute location handling is simple enough for this app
+   // We just use manual values for the shader variables...
+// TODO:
+//    glBindAttribLocation(program, 0, "position");
+//    glBindAttribLocation(program, 1, "normal");
+   glBindAttribLocation(program, 0, "pos");
+   glBindAttribLocation(program, 1, "color");
 
    glLinkProgram(program);
    glGetProgramInfoLog(program, sizeof msg, NULL, msg);
@@ -463,24 +589,29 @@ static void init(void) {
    /* Enable the shaders */
    glUseProgram(program);
 
-   /* Get the locations of the uniforms so we can access them */
-   ModelViewProjectionMatrix_location = glGetUniformLocation(program, "ModelViewProjectionMatrix");
-   NormalMatrix_location = glGetUniformLocation(program, "NormalMatrix");
-   LightSourcePosition_location = glGetUniformLocation(program, "LightSourcePosition");
-   MaterialColor_location = glGetUniformLocation(program, "MaterialColor");
-
-   /* Set the LightSourcePosition uniform which is constant throught the program */
-   glUniform4fv(LightSourcePosition_location, 1, LightSourcePosition);
+    /* Get the locations of the uniforms so we can access them */
+    ModelViewProjectionMatrix_location = glGetUniformLocation(program, "ModelViewProjectionMatrix");
+// TODO:
+//    NormalMatrix_location = glGetUniformLocation(program, "NormalMatrix");
+//    LightSourcePosition_location = glGetUniformLocation(program, "LightSourcePosition");
+//    MaterialColor_location = glGetUniformLocation(program, "MaterialColor");
+// 
+//    /* Set the LightSourcePosition uniform which is constant throught the program */
+//    glUniform4fv(LightSourcePosition_location, 1, LightSourcePosition);
 
    // Load models
    //ObjMaster::Obj obj = ObjMaster::Obj(ObjMaster::FileAssetLibrary(), "./models/", "red_clothes_lady.obj");
 
-   // In this example this should never be inited at this point, but wanted to show how to do that check
-   // For example in case of android applications with complex app life-cycles it is better to have this...
-   if(!objModel.inited) {
-	ObjMaster::Obj obj = ObjMaster::Obj(ObjMaster::FileAssetLibrary(), "./models/", "cube.obj");
-	objModel = ObjMaster::ObjMeshObject(obj);
-   }
+    // In this example this should never be inited at this point, but wanted to show how to do that check
+    // For example in case of android applications with complex app life-cycles it is better to have this...
+    if(!objModel.inited) {
+ 	ObjMaster::Obj obj = ObjMaster::Obj(ObjMaster::FileAssetLibrary(), "./models/", "red_clothes_lady.obj");
+ 	objModel = ObjMaster::ObjMeshObject(obj);
+ 
+// TODO:
+// 	// Load data onto the GPU and setup buffers for rendering
+// 	setup_buffers(0, 1, objModel);
+    }
 }
 
 int main(int argc, char *argv[]) {
@@ -497,7 +628,8 @@ int main(int argc, char *argv[]) {
    /* Set up glut callback functions */
    glutIdleFunc (idle);
    glutReshapeFunc(handleViewportReshape);
-   glutDisplayFunc(draw);
+   // TODO: set to draw instead of this!
+   glutDisplayFunc(draw_tri);
    glutSpecialFunc(handleSpecialGlutEvents);
 
    /* Do our initialization */

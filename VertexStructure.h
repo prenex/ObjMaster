@@ -13,6 +13,7 @@
  * element of it. For example like this:
  * glVertexAttribPointer(positionAttribLocation, 3, GL_FLOAT, GL_FALSE, sizeof(VertexStructure), &modelVertices[0].x);
  * glVertexAttribPointer(texCoordAttribLocation, 2, GL_FLOAT, GL_FALSE, sizeof(VertexStructure), &modelVertices[0].u);
+ * The vertex structure MUST start with the position attribute x,y,z - this is the reference point!
  *
  * Using the above approach is surely one that works in the long term as the corresponding elements
  * will be always after each other in this structure in the future by definition. So even if the
