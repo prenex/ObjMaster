@@ -15,16 +15,19 @@ ifeq ($(CC),g++)
 else 
 ifeq ($(CC),em++)
 	# em++ (ver 1.3+ tested)
-	CFLAGS=-c -stdlib=libc++ -std=c++1y -O2 # clang 3.4 uses 1y instead of 14 here, we need the LLVM libc so that streams are copyable (or a more recent gcc toolchain than the 4.9 at my work!)
+	# TODO: added debug symbols
+	# use 1y instead of 14 here, we need the LLVM libc so that streams are copyable (or a more recent gcc toolchain than the 4.9 at my work!)
+	CFLAGS=-c -stdlib=libc++ -std=c++1y -O2
 	LDFLAGS=-lglut -stdlib=libc++ -O2
 else
 	# em++ / clang++ (ver 3.4+ tested)
-	CFLAGS=-c -stdlib=libc++ -std=c++1y # em++ clang uses 1y instead of 14 here, we need the LLVM libc so that streams are copyable (or a more recent gcc toolchain than the 4.9 at my work!)
-	LDFLAGS=-lglut -lGLESv2 -lm -stdlib=libc++
+	# em++ clang uses 1y instead of 14 here, we need the LLVM libc so that streams are copyable (or a more recent gcc toolchain than the 4.9 at my work!)
+	CFLAGS=-c -stdlib=libc++ -std=c++1y -g -fsanitize=address -fno-omit-frame-pointer
+	LDFLAGS=-lglut -lGLESv2 -lm -stdlib=libc++ -g -fsanitize=address -fsanitize-memory-track-origins
 endif
 endif
 
-SOURCES=showobj.cpp objmaster/Obj.cpp objmaster/VertexElement.cpp objmaster/VertexNormalElement.cpp objmaster/VertexTextureElement.cpp objmaster/FaceElement.cpp objmaster/FacePoint.cpp objmaster/ObjMeshObject.cpp objmaster/Material.cpp objmaster/TextureDataHoldingMaterial.cpp objmaster/ObjectGroupElement.cpp objmaster/MtlLib.cpp objmaster/FileAssetLibrary.cpp
+SOURCES=showobj.cpp objmaster/Obj.cpp objmaster/VertexElement.cpp objmaster/VertexNormalElement.cpp objmaster/VertexTextureElement.cpp objmaster/FaceElement.cpp objmaster/FacePoint.cpp objmaster/ObjMeshObject.cpp objmaster/Material.cpp objmaster/TextureDataHoldingMaterial.cpp objmaster/ObjectGroupElement.cpp objmaster/MtlLib.cpp objmaster/FileAssetLibrary.cpp objmaster/MaterializedObjModel.cpp objmaster/MaterializedObjMeshObject.cpp
 OBJECTS=$(SOURCES:.cpp=.o)
 EXECUTABLE=showobj
 

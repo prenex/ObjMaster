@@ -17,7 +17,7 @@ namespace ObjMaster {
 	std::vector<MaterializedObjMeshObject> meshes;
 
 	/** Create a materialized obj model using the given obj representation */
-	MaterializedObjModel(Obj obj);
+	MaterializedObjModel(const Obj &obj);
 	/** Create a materialized obj model that is not inited (empty) */
 	MaterializedObjModel() {}
     };

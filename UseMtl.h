@@ -34,8 +34,9 @@ namespace ObjMaster {
             // <material_name>
             char *mtlNameCstr = strtok_r(nullptr, OBJ_DELIMITER, &savePtr);
             // return a string corresponding the current material name
+	    std::string ret = std::string(mtlNameCstr);
             free(copy);
-            return std::string(mtlNameCstr);
+	    return ret;
         }
     };
 }

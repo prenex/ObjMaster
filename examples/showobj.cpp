@@ -47,7 +47,6 @@
 #include "objmaster/MaterializedObjModel.h"
 #include "objmaster/objmasterlog.h"
 #include "objmaster/FileAssetLibrary.h"
-#include "objmaster/NopTexturePreparationLibrary.h"
 
 /** The view rotation [x, y, z] */
 static GLfloat view_rot[3] = { 20.0, 30.0, 0.0 };
@@ -62,7 +61,7 @@ static GLfloat ProjectionMatrix[16];
 static const GLfloat LightSourcePosition[4] = { 5.0, 5.0, 10.0, 1.0};
 
 /** Holds the model of the obj */
-static ObjMaster::ObjMeshObject objModel;
+//static ObjMaster::ObjMeshObject objModel;
 static ObjMaster::MaterializedObjModel model;
 
 static void printGlError(std::string where) {
@@ -73,7 +72,7 @@ static void printGlError(std::string where) {
 }
 
 /** Draw the mesh of the obj file - first version, no material handling */
-static void draw_model(const ObjMaster::ObjMeshObject &model, GLfloat *transform, const GLfloat color[4]){
+static void draw_model(const ObjMaster::MaterializedObjMeshObject &model, GLfloat *transform, const GLfloat color[4]){
    GLfloat model_view[16];
    GLfloat normal_matrix[16];
    GLfloat model_view_projection[16];
@@ -125,8 +124,11 @@ static void draw() {
    rotate(transform, 2 * M_PI * view_rot[2] / 360.0, 0, 0, 1);
 
    // Render the model mesh
-   draw_model(objModel, transform, red);
-   printGlError("after draw_model");
+   //draw_model(objModel, transform, red);
+   if(model.inited && model.meshes.size() > 0) {
+	draw_model(model.meshes[0], transform, red);
+	printGlError("after draw_model");
+   }
 
    // Render the scene
    glutSwapBuffers();
@@ -285,7 +287,7 @@ static void setup_buffers(GLuint positionLoc, GLuint normalLoc, const ObjMaster:
 		glVertexAttribPointer(positionLoc, 3, GL_FLOAT, GL_FALSE, sizeof(VertexStructure), 0);
 		// Calculate the offset where the normal vector data starts in the vertex data
 		// This is much better than writing "3" as this handles changes in the structure...
-		auto normalOffset = (&(objModel.vertexData[0].i) - &(objModel.vertexData[0].x));
+		auto normalOffset = (&(model.vertexData[0].i) - &(model.vertexData[0].x));
 		// Use the calculated offset for getting the pointer to the normals in the vertex data
 		glVertexAttribPointer(normalLoc, 3, GL_FLOAT, GL_FALSE, sizeof(VertexStructure), (const GLvoid *)(normalOffset * 4));
 
@@ -372,12 +374,15 @@ static void init(void) {
    // Load models
    // In this example this should never be inited at this point, but wanted to show how to do that check
    // For example in case of android applications with complex app life-cycles it is better to have this...
-   if(!objModel.inited) {
+   if(!model.inited) {
 	ObjMaster::Obj obj = ObjMaster::Obj(ObjMaster::FileAssetLibrary(), "./models/", "redlady.obj");
-	objModel = ObjMaster::ObjMeshObject(obj);
+	//objModel = ObjMaster::ObjMeshObject(obj);
+	model = ObjMaster::MaterializedObjModel(obj);
  
  	// Load data onto the GPU and setup buffers for rendering
- 	setup_buffers(0, 1, objModel);
+	if(model.inited && model.meshes.size() > 0) {
+ 		setup_buffers(0, 1, model.meshes[0]);
+	}
     }
 }
 

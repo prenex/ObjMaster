@@ -3,7 +3,7 @@
 //
 
 // Un-comment in case of hard debugging
-//#define DEBUG
+#define DEBUG
 
 #include "objmasterlog.h"
 #include "ObjMeshObject.h"
@@ -169,7 +169,7 @@ OMLOGD(" - Found already handled facePoint!");
                 }
             } else {
                 // TODO: Should we handle non-triangles ever?
-                OMLOGE(" - Found a face that has more than 3 vertices - skipping face!");
+                OMLOGE(" - Found a face that has more than 3 vertices(%d) - skipping face!", face.facePointCount);
             }
         }
 

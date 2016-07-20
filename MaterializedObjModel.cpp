@@ -6,10 +6,11 @@
 
 namespace ObjMaster {
 
-	MaterializedObjModel::MaterializedObjModel(Obj obj) {
+	MaterializedObjModel::MaterializedObjModel(const Obj &obj) {
 		// We create one mesh per object material groups
 		for(auto gPair : obj.objectMaterialGroups) {
-			meshes.push_back(MaterializedObjMeshObject(obj, gPair.second.faces, gPair.second.meshFaceCount, gPair.second.textureDataHoldingMaterial));
+			printf("asdfasdf\n");
+			meshes.push_back(MaterializedObjMeshObject(obj, gPair.second.faces, 1 /*gPair.second.meshFaceCount*/, gPair.second.textureDataHoldingMaterial));
 		}
 
 		// Indicate that the model is loaded
