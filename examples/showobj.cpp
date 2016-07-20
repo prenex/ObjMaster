@@ -25,12 +25,12 @@
 
 //#define _GNU_SOURCE
 
-#include <cmath>
-#include <cstdlib>
+#include "mathelper.h"
 #include <cstdio>
 #include <cstring>
 #include <sys/time.h>
 #include <unistd.h>
+
 #ifdef __APPLE__
 #include <OpenGL/gl.h>
 #include <Glut/glut.h>
@@ -47,14 +47,6 @@
 #include "objmaster/objmasterlog.h"
 #include "objmaster/FileAssetLibrary.h"
 
-#ifndef HAVE_BUILTIN_SINCOS
-#define sincos _sincos
-static void sincos (double a, double *s, double *c) {
-  *s = sin (a);
-  *c = cos (a);
-}
-#endif
-
 /** The view rotation [x, y, z] */
 static GLfloat view_rot[3] = { 20.0, 30.0, 0.0 };
 /** The location of the shader uniforms */
@@ -70,158 +62,11 @@ static const GLfloat LightSourcePosition[4] = { 5.0, 5.0, 10.0, 1.0};
 /** Holds the model of the obj */
 static ObjMaster::ObjMeshObject objModel;
 
-/**
- * Multiplies two 4x4 matrices.
- *
- * The result is stored in matrix m.
- *
- * @param m the first matrix to multiply
- * @param n the second matrix to multiply
- */
-static void multiply(GLfloat *m, const GLfloat *n) {
-   GLfloat tmp[16];
-   const GLfloat *row, *column;
-   div_t d;
-   int i, j;
-
-   for (i = 0; i < 16; i++) {
-      tmp[i] = 0;
-      d = div(i, 4);
-      row = n + d.quot * 4;
-      column = m + d.rem;
-      for (j = 0; j < 4; j++)
-         tmp[i] += row[j] * column[j * 4];
+static void printGlError(std::string where) {
+   GLenum err = glGetError();
+   if(err != GL_NO_ERROR) {
+   	OMLOGE((where + " - glError: 0x%x").c_str(), err);
    }
-   memcpy(m, &tmp, sizeof tmp);
-}
-
-/**
- * Rotates a 4x4 matrix.
- *
- * @param[in,out] m the matrix to rotate
- * @param angle the angle to rotate
- * @param x the x component of the direction to rotate to
- * @param y the y component of the direction to rotate to
- * @param z the z component of the direction to rotate to
- */
-static void rotate(GLfloat *m, GLfloat angle, GLfloat x, GLfloat y, GLfloat z) {
-   double sd, cd;
-   sincos(angle, &sd, &cd);
-   float s = (float)sd;
-   float c = (float)cd;
-   GLfloat r[16] = {
-      x * x * (1 - c) + c,     y * x * (1 - c) + z * s, x * z * (1 - c) - y * s, 0,
-      x * y * (1 - c) - z * s, y * y * (1 - c) + c,     y * z * (1 - c) + x * s, 0,
-      x * z * (1 - c) + y * s, y * z * (1 - c) - x * s, z * z * (1 - c) + c,     0,
-      0, 0, 0, 1
-   };
-
-   multiply(m, r);
-}
-
-
-/**
- * Translates a 4x4 matrix.
- *
- * @param[in,out] m the matrix to translate
- * @param x the x component of the direction to translate to
- * @param y the y component of the direction to translate to
- * @param z the z component of the direction to translate to
- */
-static void translate(GLfloat *m, GLfloat x, GLfloat y, GLfloat z) {
-   GLfloat t[16] = { 1, 0, 0, 0,  0, 1, 0, 0,  0, 0, 1, 0,  x, y, z, 1 };
-
-   multiply(m, t);
-}
-
-/**
- * Creates an identity 4x4 matrix.
- *
- * @param m the matrix make an identity matrix
- */
-static void identity(GLfloat *m) {
-   GLfloat t[16] = {
-      1.0, 0.0, 0.0, 0.0,
-      0.0, 1.0, 0.0, 0.0,
-      0.0, 0.0, 1.0, 0.0,
-      0.0, 0.0, 0.0, 1.0,
-   };
-
-   memcpy(m, t, sizeof(t));
-}
-
-/**
- * Transposes a 4x4 matrix.
- *
- * @param m the matrix to transpose
- */
-static void transpose(GLfloat *m) {
-   GLfloat t[16] = {
-      m[0], m[4], m[8],  m[12],
-      m[1], m[5], m[9],  m[13],
-      m[2], m[6], m[10], m[14],
-      m[3], m[7], m[11], m[15]};
-
-   memcpy(m, t, sizeof(t));
-}
-
-/**
- * Inverts a 4x4 matrix.
- *
- * This function can currently handle only pure translation-rotation matrices.
- * Read http://www.gamedev.net/community/forums/topic.asp?topic_id=425118
- * for an explanation.
- */
-static void invert(GLfloat *m) {
-   GLfloat t[16];
-   identity(t);
-
-   // Extract and invert the translation part 't'. The inverse of a
-   // translation matrix can be calculated by negating the translation
-   // coordinates.
-   t[12] = -m[12]; t[13] = -m[13]; t[14] = -m[14];
-
-   // Invert the rotation part 'r'. The inverse of a rotation matrix is
-   // equal to its transpose.
-   m[12] = m[13] = m[14] = 0;
-   transpose(m);
-
-   // inv(m) = inv(r) * inv(t)
-   multiply(m, t);
-}
-
-/**
- * Calculate a perspective projection transformation.
- *
- * @param m the matrix to save the transformation in
- * @param fovy the field of view in the y direction
- * @param aspect the view aspect ratio
- * @param zNear the near clipping plane
- * @param zFar the far clipping plane
- */
-void perspective(GLfloat *m, GLfloat fovy, GLfloat aspect, GLfloat zNear, GLfloat zFar) {
-   GLfloat tmp[16];
-   identity(tmp);
-
-   double sine, cosine, cotangent, deltaZ;
-   GLfloat radians = fovy / 2 * M_PI / 180;
-
-   deltaZ = zFar - zNear;
-   sincos(radians, &sine, &cosine);
-
-   if ((deltaZ == 0) || (sine == 0) || (aspect == 0))
-      return;
-
-   cotangent = cosine / sine;
-
-   tmp[0] = cotangent / aspect;
-   tmp[5] = cotangent;
-   tmp[10] = -(zFar + zNear) / deltaZ;
-   tmp[11] = -1;
-   tmp[14] = -2 * zNear * zFar / deltaZ;
-   tmp[15] = 0;
-
-   memcpy(m, tmp, sizeof(tmp));
 }
 
 /** Draw the mesh of the obj file - first version, no material handling */
@@ -255,85 +100,6 @@ static void draw_model(const ObjMaster::ObjMeshObject &model, GLfloat *transform
    glUniform4fv(MaterialColor_location, 1, color);
 
    glDrawElements(GL_TRIANGLES, model.indices.size(), GL_UNSIGNED_INT, 0);
-}
-
-static void printGlError(std::string where) {
-   GLenum err = glGetError();
-   if(err != GL_NO_ERROR) {
-   	OMLOGE((where + " - glError: 0x%x").c_str(), err);
-   }
-}
-
-/** Setup the test buffers */
-static void setup_tri(GLfloat* s_vertices, GLuint* s_indices, int vertDataSize, int vdCount, int iCount) {
-// 	static const GLfloat s_vertices[] = {
-// 		-1, -1, 0,	// vertx
-// 		1, 0, 0,	// color
-// 		1, -1 ,	0,	// vertx
-// 		0, 1, 0,	// color
-// 		0,  1 , 0,
-// 		0, 0, 1,
-// 		1,  0 , 0,
-// 		1, 1, 1
-// 	};
-// 	static const GLuint s_indices[6] = {
-// 		0, 1, 2,
-// 		0, 1, 3
-// 	};
-
-	GLuint	s_vertexPosObject, s_indexObject;
-
-	// Gen VBO
-	glGenBuffers(1, &s_vertexPosObject);
-	glBindBuffer(GL_ARRAY_BUFFER, s_vertexPosObject );
-	glBufferData(GL_ARRAY_BUFFER, vertDataSize * vdCount, s_vertices, GL_STATIC_DRAW );
-
-	// Gen IBO
-	glGenBuffers(1, &s_indexObject);
-	glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, s_indexObject );
-	glBufferData( GL_ELEMENT_ARRAY_BUFFER, iCount * 4, s_indices, GL_STATIC_DRAW );
-
-	// Bind VBO
-	glBindBuffer(GL_ARRAY_BUFFER, s_vertexPosObject);
-	// Create attric pointers
-	glVertexAttribPointer( 0, 2, GL_FLOAT, GL_FALSE, vertDataSize, 0 );
-	glVertexAttribPointer( 1, 3, GL_FLOAT, GL_FALSE, vertDataSize, (const GLvoid *)(3 * 4) );
-	// Enable attrib pointers
-	glEnableVertexAttribArray(0);
-	glEnableVertexAttribArray(1);
-	// Bind IBO
-	glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, s_indexObject );
-}
-
-/** Draws the familiar test triangle if setup properly */
-static void draw_tri() {
-   GLfloat model_view_projection[16];
-   identity(model_view_projection);
-   glUniformMatrix4fv(ModelViewProjectionMatrix_location, 1, GL_FALSE,
-                      model_view_projection);
-//   GLfloat mat[16], rot[16], scale[16];
-//   /* Set modelview/projection matrix */
-//   make_z_rot_matrix(view_rotx, rot);
-//   make_scale_matrix(0.5, 0.5, 0.5, scale);
-//   mul_matrix(mat, rot, scale);
-//   glUniformMatrix4fv(u_matrix, 1, GL_FALSE, mat);
-
-   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-   {
-//       glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, verts);
-//       glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, colors);
-      glEnableVertexAttribArray(0);
-      glEnableVertexAttribArray(1);
-
-      //glDrawArrays(GL_TRIANGLES, 0, 3);
-      glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-
-      glDisableVertexAttribArray(0);
-      glDisableVertexAttribArray(1);
-   }
-
-   glutSwapBuffers();
 }
 
 /**
@@ -451,24 +217,6 @@ static void idle(void) {
    }
 }
 
-// static const char *fragment_shader=
-// "#ifdef GL_ES\n"
-// "precision mediump float;\n"
-// "#endif\n"
-// "varying vec4 v_color;\n"
-// "void main() {\n"
-// "   gl_FragColor = v_color;\n"
-// "}\n";
-// static const char *vertex_shader=
-// "uniform mat4 ModelViewProjectionMatrix;\n"
-// "attribute vec4 pos;\n"
-// "attribute vec4 color;\n"
-// "varying vec4 v_color;\n"
-// "void main() {\n"
-// "   gl_Position = pos;\n"
-// "   v_color = color;\n"
-// "}\n";
-
 static const char vertex_shader[] =
 "attribute vec3 position;\n"
 "attribute vec3 normal;\n"
@@ -575,7 +323,7 @@ static void init(void) {
    const char *p;
    char msg[512];
 
-   //glEnable(GL_CULL_FACE);
+   glDisable(GL_CULL_FACE);
    glEnable(GL_DEPTH_TEST);
 
    /* Compile the vertex shader */
@@ -602,8 +350,6 @@ static void init(void) {
    // We just use manual values for the shader variables...
    glBindAttribLocation(program, 0, "position");
    glBindAttribLocation(program, 1, "normal");
-//   glBindAttribLocation(program, 0, "pos");
-//   glBindAttribLocation(program, 1, "color");
 
    glLinkProgram(program);
    glGetProgramInfoLog(program, sizeof msg, NULL, msg);
@@ -624,12 +370,11 @@ static void init(void) {
    // In this example this should never be inited at this point, but wanted to show how to do that check
    // For example in case of android applications with complex app life-cycles it is better to have this...
    if(!objModel.inited) {
-	ObjMaster::Obj obj = ObjMaster::Obj(ObjMaster::FileAssetLibrary(), "./models/", "red_clothes_lady.obj");
+	ObjMaster::Obj obj = ObjMaster::Obj(ObjMaster::FileAssetLibrary(), "./models/", "redlady.obj");
 	objModel = ObjMaster::ObjMeshObject(obj);
  
  	// Load data onto the GPU and setup buffers for rendering
  	setup_buffers(0, 1, objModel);
-//	setup_tri(&(objModel.vertexData[0].x), &(objModel.indices[0]), (int)sizeof(VertexStructure), objModel.vertexData.size(), objModel.indices.size());
     }
 }
 
