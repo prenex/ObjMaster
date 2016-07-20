@@ -15,11 +15,11 @@ namespace ObjMaster {
      * same mesh. The template parameter is used to set the library to use for manipulating various
      * texture memories. For the template parameter see TextureDataHoldingMaterial doc-comments!
      */
-    template<class TexturePreparationLibrary>
     class MaterializedObjMeshObject : ObjMeshObject {
     public:
         /** The corresponding material and possibly the texture data in it */
-        const TextureDataHoldingMaterial<TexturePreparationLibrary> material;
+        TextureDataHoldingMaterial material;
+	//TextureDataHoldingMaterial material;
 
         /** Create an obj mesh-object that is having an associated material */
         MaterializedObjMeshObject(const Obj& obj, const FaceElement *meshFaces, int meshFaceCount, TextureDataHoldingMaterial textureDataHoldingMaterial);

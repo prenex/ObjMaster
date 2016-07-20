@@ -7,16 +7,19 @@
 
 #include <vector>
 #include "MaterializedObjMeshObject.h"
+#include "Obj.h"
 
 namespace ObjMaster {
 
-    template<class TexturePreparationLibrary>
     class MaterializedObjModel {
     public:
-        std::vector<MaterializedObjMeshObject<TexturePreparationLibrary>> meshes;
+	bool inited = false;
+	std::vector<MaterializedObjMeshObject> meshes;
 
-        /** Create a materialized obj model */
-        MaterializedObjModel(Obj obj, std::string texturePath);
+	/** Create a materialized obj model using the given obj representation */
+	MaterializedObjModel(Obj obj);
+	/** Create a materialized obj model that is not inited (empty) */
+	MaterializedObjModel() {}
     };
 }
 

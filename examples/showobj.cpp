@@ -40,12 +40,14 @@
 #endif
 
 #define DEBUG 1
-#define DEBUG_EXTRA
+/* #define DEBUG_EXTRA */
 
 #include "objmaster/Obj.h"
 #include "objmaster/ObjMeshObject.h"
+#include "objmaster/MaterializedObjModel.h"
 #include "objmaster/objmasterlog.h"
 #include "objmaster/FileAssetLibrary.h"
+#include "objmaster/NopTexturePreparationLibrary.h"
 
 /** The view rotation [x, y, z] */
 static GLfloat view_rot[3] = { 20.0, 30.0, 0.0 };
@@ -61,6 +63,7 @@ static const GLfloat LightSourcePosition[4] = { 5.0, 5.0, 10.0, 1.0};
 
 /** Holds the model of the obj */
 static ObjMaster::ObjMeshObject objModel;
+static ObjMaster::MaterializedObjModel model;
 
 static void printGlError(std::string where) {
    GLenum err = glGetError();
