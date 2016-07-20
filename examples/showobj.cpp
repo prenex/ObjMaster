@@ -264,31 +264,54 @@ static void printGlError() {
    }
 }
 
-static void draw_tri(void)
-{
+/** Setup the familiar test triangle buffers */
+static void setup_tri() {
+	static const GLfloat s_vertices[] = {
+		-1, -1,		// vertx
+		1, 0, 0,	// color
+		1, -1 ,		// vertx
+		0, 1, 0,	// color
+		0,  1 ,
+		0, 0, 1,
+		1,  0 ,
+		1, 1, 1
+	};
+	static const GLuint s_indices[6] = {
+		0, 1, 2,
+		0, 1, 3
+	};
+
+	GLuint	s_vertexPosObject, s_indexObject;
+
+	// Gen VBO
+	glGenBuffers(1, &s_vertexPosObject);
+	glBindBuffer(GL_ARRAY_BUFFER, s_vertexPosObject );
+	glBufferData(GL_ARRAY_BUFFER, sizeof(s_vertices), s_vertices, GL_STATIC_DRAW );
+
+	// Gen IBO
+	glGenBuffers(1, &s_indexObject);
+	glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, s_indexObject );
+	glBufferData( GL_ELEMENT_ARRAY_BUFFER, sizeof(s_indices), s_indices, GL_STATIC_DRAW );
+
+	// Bind VBO
+	glBindBuffer(GL_ARRAY_BUFFER, s_vertexPosObject);
+	// Create attric pointers
+	glVertexAttribPointer( 0, 2, GL_FLOAT, GL_FALSE, 5 * 4, 0 );
+	glVertexAttribPointer( 1, 3, GL_FLOAT, GL_FALSE, 5 * 4, (const GLvoid *)(2 * 4) );
+	// Enable attrib pointers
+	glEnableVertexAttribArray(0);
+	glEnableVertexAttribArray(1);
+	// Bind IBO
+	glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, s_indexObject );
+}
+
+/** Draws the familiar test triangle if setup properly */
+static void draw_tri() {
    GLfloat model_view_projection[16];
    identity(model_view_projection);
    glUniformMatrix4fv(ModelViewProjectionMatrix_location, 1, GL_FALSE,
                       model_view_projection);
-   static const GLfloat verts[4][2] = {
-      { -1, -1 },
-      {  1, -1 },
-      {  0,  1 },
-      {  1,  0 }
-   };
-   static const GLfloat colors[4][3] = {
-      { 1, 0, 0 },
-      { 0, 1, 0 },
-      { 0, 0, 1 },
-      { 1, 1, 1}
-   };
-
-   static const GLuint indices[6] = {
-	0, 1, 2,
-	0, 1, 3
-   };
-   GLfloat mat[16], rot[16], scale[16];
-
+//   GLfloat mat[16], rot[16], scale[16];
 // TODO:
 //   /* Set modelview/projection matrix */
 //   make_z_rot_matrix(view_rotx, rot);
@@ -299,13 +322,13 @@ static void draw_tri(void)
    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
    {
-      glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, verts);
-      glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, colors);
+//       glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, verts);
+//       glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, colors);
       glEnableVertexAttribArray(0);
       glEnableVertexAttribArray(1);
 
       //glDrawArrays(GL_TRIANGLES, 0, 3);
-      glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, &indices[0]);
+      glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
       glDisableVertexAttribArray(0);
       glDisableVertexAttribArray(1);
@@ -611,6 +634,7 @@ static void init(void) {
 // TODO:
 // 	// Load data onto the GPU and setup buffers for rendering
 // 	setup_buffers(0, 1, objModel);
+	setup_tri();
     }
 }
 

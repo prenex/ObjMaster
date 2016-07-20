@@ -120,12 +120,12 @@ OMLOGE(" - Start of object group: %s", currentObjectGroupName);
                 currentLastFacesPointer - currentObjectMaterialFacesPointer);
 
         OMLOGI("Finished loading of Obj data.");
-        OMLOGI(" - Read vertices: %d", vs.size());
-        OMLOGI(" - Read vertex-textures: %d", vts.size());
-        OMLOGI(" - Read vertex-normals: %d", vns.size());
-        OMLOGI(" - Read faces: %d", fs.size());
+        OMLOGI(" - Read vertices: %d", (int)vs.size());
+        OMLOGI(" - Read vertex-textures: %d", (int)vts.size());
+        OMLOGI(" - Read vertex-normals: %d", (int)vns.size());
+        OMLOGI(" - Read faces: %d", (int)fs.size());
         OMLOGI(" - Read materials: %d", mtlLib.getMaterialCount());
-        OMLOGI(" - Read object/material groups: %d", objectMaterialGroups.size());
+        OMLOGI(" - Read object/material groups: %d", (int)objectMaterialGroups.size());
     }
 
     /**
