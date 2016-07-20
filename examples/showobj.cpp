@@ -240,8 +240,8 @@ static void draw_model(const ObjMaster::ObjMeshObject &model, GLfloat *transform
    memcpy(model_view_projection, ProjectionMatrix, sizeof(model_view_projection));
    multiply(model_view_projection, model_view);
 
-//   glUniformMatrix4fv(ModelViewProjectionMatrix_location, 1, GL_FALSE,
-//                      model_view_projection);
+   glUniformMatrix4fv(ModelViewProjectionMatrix_location, 1, GL_FALSE,
+                      model_view_projection);
 
    /*
     * Create and set the NormalMatrix. It's the inverse transpose of the
@@ -250,10 +250,9 @@ static void draw_model(const ObjMaster::ObjMeshObject &model, GLfloat *transform
    memcpy(normal_matrix, model_view, sizeof (normal_matrix));
    invert(normal_matrix);
    transpose(normal_matrix);
-//   glUniformMatrix4fv(NormalMatrix_location, 1, GL_FALSE, normal_matrix);
+   glUniformMatrix4fv(NormalMatrix_location, 1, GL_FALSE, normal_matrix);
 
-
-//   glUniform4fv(MaterialColor_location, 1, color);
+   glUniform4fv(MaterialColor_location, 1, color);
 
    glDrawElements(GL_TRIANGLES, model.indices.size(), GL_UNSIGNED_INT, 0);
 }
@@ -351,13 +350,11 @@ static void draw() {
    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
    /* Translate and rotate the view */
-   translate(transform, 0, 0, -4);
+   translate(transform, 0, 0, -40);
    rotate(transform, 2 * M_PI * view_rot[0] / 360.0, 1, 0, 0);
    rotate(transform, 2 * M_PI * view_rot[1] / 360.0, 0, 1, 0);
    rotate(transform, 2 * M_PI * view_rot[2] / 360.0, 0, 0, 1);
 
-   // TODO: just for testing!!
-   identity(transform);
    // Render the model mesh
    draw_model(objModel, transform, red);
    printGlError("after draw_model");
@@ -454,66 +451,62 @@ static void idle(void) {
    }
 }
 
-// TODO
-static const char *fragment_shader=
-"#ifdef GL_ES\n"
-"precision mediump float;\n"
-"#endif\n"
-"varying vec4 v_color;\n"
-"void main() {\n"
-"   gl_FragColor = v_color;\n"
-"}\n";
-static const char *vertex_shader=
-"uniform mat4 ModelViewProjectionMatrix;\n"
-"attribute vec4 pos;\n"
-"attribute vec4 color;\n"
-"varying vec4 v_color;\n"
-"void main() {\n"
-"   gl_Position = pos;\n"
-"   v_color = color;\n"
-"}\n";
-
-// TODO
-// static const char vertex_shader[] =
-// "attribute vec4 position;\n"
-// "attribute vec3 normal;\n"
-// "\n"
-// "uniform mat4 ModelViewProjectionMatrix;\n"
-// "uniform mat4 NormalMatrix;\n"
-// "uniform vec4 LightSourcePosition;\n"
-// "uniform vec4 MaterialColor;\n"
-// "\n"
-// "varying vec4 Color;\n"
-// "\n"
-// "void main(void)\n"
-// "{\n"
-// "    // Transform the normal to eye coordinates\n"
-// "    vec3 N = normalize(vec3(NormalMatrix * vec4(normal, 1.0)));\n"
-// "\n"
-// "    // The LightSourcePosition is actually its direction for directional light\n"
-// "    vec3 L = normalize(LightSourcePosition.xyz);\n"
-// "\n"
-// "    // Multiply the diffuse value by the vertex color (which is fixed in this case)\n"
-// "    // to get the actual color that we will use to draw this vertex with\n"
-// "    float diffuse = max(dot(N, L), 0.0);\n"
-// "    Color = diffuse * MaterialColor;\n"
-// //"    Color = vec4(1.0,1.0,1.0,1.0);\n"
-// "\n"
-// "    // Transform the position to clip coordinates\n"
-// "    gl_Position = ModelViewProjectionMatrix * vec4(position, 1.0);\n"
-// //"    gl_Position = position;\n"
-// "}";
-// 
-// static const char fragment_shader[] =
+// static const char *fragment_shader=
 // "#ifdef GL_ES\n"
 // "precision mediump float;\n"
 // "#endif\n"
-// "varying vec4 Color;\n"
-// "\n"
-// "void main(void)\n"
-// "{\n"
-// "    gl_FragColor = Color;\n"
-// "}";
+// "varying vec4 v_color;\n"
+// "void main() {\n"
+// "   gl_FragColor = v_color;\n"
+// "}\n";
+// static const char *vertex_shader=
+// "uniform mat4 ModelViewProjectionMatrix;\n"
+// "attribute vec4 pos;\n"
+// "attribute vec4 color;\n"
+// "varying vec4 v_color;\n"
+// "void main() {\n"
+// "   gl_Position = pos;\n"
+// "   v_color = color;\n"
+// "}\n";
+
+static const char vertex_shader[] =
+"attribute vec3 position;\n"
+"attribute vec3 normal;\n"
+"\n"
+"uniform mat4 ModelViewProjectionMatrix;\n"
+"uniform mat4 NormalMatrix;\n"
+"uniform vec4 LightSourcePosition;\n"
+"uniform vec4 MaterialColor;\n"
+"\n"
+"varying vec4 Color;\n"
+"\n"
+"void main(void)\n"
+"{\n"
+"    // Transform the normal to eye coordinates\n"
+"    vec3 N = normalize(vec3(NormalMatrix * vec4(normal, 1.0)));\n"
+"\n"
+"    // The LightSourcePosition is actually its direction for directional light\n"
+"    vec3 L = normalize(LightSourcePosition.xyz);\n"
+"\n"
+"    // Multiply the diffuse value by the vertex color (which is fixed in this case)\n"
+"    // to get the actual color that we will use to draw this vertex with\n"
+"    float diffuse = max(dot(N, L), 0.0);\n"
+"    Color = diffuse * MaterialColor;\n"
+"\n"
+"    // Transform the position to clip coordinates\n"
+"    gl_Position = ModelViewProjectionMatrix * vec4(position, 1.0);\n"
+"}";
+
+static const char fragment_shader[] =
+"#ifdef GL_ES\n"
+"precision mediump float;\n"
+"#endif\n"
+"varying vec4 Color;\n"
+"\n"
+"void main(void)\n"
+"{\n"
+"    gl_FragColor = Color;\n"
+"}";
 
 /** Setup various vertex and index buffers for the given model to get ready for rendering - call only once! */
 static void setup_buffers(GLuint positionLoc, GLuint normalLoc, const ObjMaster::ObjMeshObject &model) {
@@ -538,7 +531,7 @@ static void setup_buffers(GLuint positionLoc, GLuint normalLoc, const ObjMaster:
 		glBindBuffer(GL_ARRAY_BUFFER, s_vertexPosObject);
 		// By design, we know that the positions are the first elements in the VertexStructure
 		// so we can use zero as the pointer/index in the vertex data!
-		glVertexAttribPointer(positionLoc, 2, GL_FLOAT, GL_FALSE, sizeof(VertexStructure), 0);
+		glVertexAttribPointer(positionLoc, 3, GL_FLOAT, GL_FALSE, sizeof(VertexStructure), 0);
 		// Calculate the offset where the normal vector data starts in the vertex data
 		// This is much better than writing "3" as this handles changes in the structure...
 		auto normalOffset = (&(objModel.vertexData[0].i) - &(objModel.vertexData[0].x));
@@ -607,11 +600,10 @@ static void init(void) {
    glAttachShader(program, f);
    // Attribute location handling is simple enough for this app
    // We just use manual values for the shader variables...
-// TODO
-//   glBindAttribLocation(program, 0, "position");
-//   glBindAttribLocation(program, 1, "normal");
-   glBindAttribLocation(program, 0, "pos");
-   glBindAttribLocation(program, 1, "color");
+   glBindAttribLocation(program, 0, "position");
+   glBindAttribLocation(program, 1, "normal");
+//   glBindAttribLocation(program, 0, "pos");
+//   glBindAttribLocation(program, 1, "color");
 
    glLinkProgram(program);
    glGetProgramInfoLog(program, sizeof msg, NULL, msg);
@@ -622,23 +614,22 @@ static void init(void) {
 
    /* Get the locations of the uniforms so we can access them */
    ModelViewProjectionMatrix_location = glGetUniformLocation(program, "ModelViewProjectionMatrix");
-// TODO
-//   NormalMatrix_location = glGetUniformLocation(program, "NormalMatrix");
-//   LightSourcePosition_location = glGetUniformLocation(program, "LightSourcePosition");
-//   MaterialColor_location = glGetUniformLocation(program, "MaterialColor");
-//   /* Set the LightSourcePosition uniform which is constant throught the program */
-//   glUniform4fv(LightSourcePosition_location, 1, LightSourcePosition);
+   NormalMatrix_location = glGetUniformLocation(program, "NormalMatrix");
+   LightSourcePosition_location = glGetUniformLocation(program, "LightSourcePosition");
+   MaterialColor_location = glGetUniformLocation(program, "MaterialColor");
+   /* Set the LightSourcePosition uniform which is constant throught the program */
+   glUniform4fv(LightSourcePosition_location, 1, LightSourcePosition);
 
    // Load models
    // In this example this should never be inited at this point, but wanted to show how to do that check
    // For example in case of android applications with complex app life-cycles it is better to have this...
    if(!objModel.inited) {
-	ObjMaster::Obj obj = ObjMaster::Obj(ObjMaster::FileAssetLibrary(), "./models/", "cube.obj");
+	ObjMaster::Obj obj = ObjMaster::Obj(ObjMaster::FileAssetLibrary(), "./models/", "red_clothes_lady.obj");
 	objModel = ObjMaster::ObjMeshObject(obj);
  
  	// Load data onto the GPU and setup buffers for rendering
-// 	setup_buffers(0, 1, objModel);
-	setup_tri(&(objModel.vertexData[0].x), &(objModel.indices[0]), (int)sizeof(VertexStructure), objModel.vertexData.size(), objModel.indices.size());
+ 	setup_buffers(0, 1, objModel);
+//	setup_tri(&(objModel.vertexData[0].x), &(objModel.indices[0]), (int)sizeof(VertexStructure), objModel.vertexData.size(), objModel.indices.size());
     }
 }
 
