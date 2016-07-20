@@ -1,5 +1,4 @@
 # TODO: Currently only compiles the showobj example
-# TODO: used models should be bundled in case of emscripten
 
 # for gcc5.1+:
 #CC=g++
@@ -18,7 +17,7 @@ ifeq ($(CC),em++)
 	# TODO: added debug symbols
 	# use 1y instead of 14 here, we need the LLVM libc so that streams are copyable (or a more recent gcc toolchain than the 4.9 at my work!)
 	CFLAGS=-c -stdlib=libc++ -std=c++1y -O2
-	LDFLAGS=--preload-file models -lglut -stdlib=libc++ -O2 
+	LDFLAGS=--shell-file shell_minimal.html --preload-file models -lglut -stdlib=libc++ -O2 
 else
 	# em++ / clang++ (ver 3.4+ tested)
 	# em++ clang uses 1y instead of 14 here, we need the LLVM libc so that streams are copyable (or a more recent gcc toolchain than the 4.9 at my work!)
@@ -36,8 +35,8 @@ all: $(SOURCES) $(EXECUTABLE)
 # The LDFLAGS should be after the files
 # because of some lazyness in newer toolchains!
 $(EXECUTABLE): $(OBJECTS) 
+# In case of emscripten build, we make a html5/webgl output
 ifeq ($(CC),em++)
-	# In case of emscripten build, we make a html5/webgl output
 	$(CC) $(OBJECTS) -o $@.html $(LDFLAGS)
 else
 	$(CC) $(OBJECTS) -o $@ $(LDFLAGS)
