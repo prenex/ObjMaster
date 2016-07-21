@@ -74,6 +74,7 @@ namespace ObjMaster {
 		}
 	}
     private:
+	// TODO: ensure somehow that the provided template param can be cast to the proper type?
 	/**
 	 * Have to keep a library because the GPU-unload need to be managed by this! The unload
 	 * from memory does not need the library, but unloading from the GPU is different and

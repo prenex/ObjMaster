@@ -51,7 +51,7 @@
 #include "objmaster/objmasterlog.h"
 #include "objmaster/FileAssetLibrary.h"
 #include "objmaster/StbImgTexturePreparationLibrary.h"
-#include "objmaster/NopTexturePreparationLibrary.h"
+#include "objmaster/ext/GlGpuTexturePreparationLibrary.h"
 
 /** The view rotation [x, y, z] */
 static GLfloat view_rot[3] = { 20.0, 30.0, 0.0 };
@@ -66,7 +66,7 @@ static GLfloat ProjectionMatrix[16];
 static const GLfloat LightSourcePosition[4] = { 5.0, 5.0, 10.0, 1.0};
 
 /** Holds the model of the obj */
-static ObjMaster::MaterializedObjModel<ObjMaster::NopTexturePreparationLibrary> model;
+static ObjMaster::MaterializedObjModel<ObjMasterExt::GlGpuTexturePreparationLibrary> model;
 
 static void printGlError(std::string where) {
    GLenum err = glGetError();
@@ -381,7 +381,7 @@ static void init(void) {
    if(!model.inited) {
 	ObjMaster::Obj obj = ObjMaster::Obj(ObjMaster::FileAssetLibrary(), "./models/", "default.obj");
 	//objModel = ObjMaster::ObjMeshObject(obj);
-	model = ObjMaster::MaterializedObjModel<ObjMaster::NopTexturePreparationLibrary>(obj);
+	model = ObjMaster::MaterializedObjModel<ObjMasterExt::GlGpuTexturePreparationLibrary>(obj);
  
  	// Load data onto the GPU and setup buffers for rendering
 	if(model.inited && model.meshes.size() > 0) {
