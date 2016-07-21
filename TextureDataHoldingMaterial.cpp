@@ -25,9 +25,13 @@ namespace ObjMaster {
 	    }
 	    // Load data in when that texture applies according to the fields of the read material
 	    if(enabledFields[Material::F_MAP_KA]) {
+		    // TODO: remove this test bogusness
+		    printf("kalap"); // FIXME: Only this is printed even though the model has both Ka and Kd!!!
 		tex_ka = textureLib.loadIntoMemory(texturePath, map_ka.c_str());        // ka
 	    }
 	    if(enabledFields[Material::F_MAP_KD]) {
+		    // TODO: remove this test bogusness - it seems that we do not find the diffuse texture because of some errors!!!!!
+		    printf("kabat");
 		tex_kd = textureLib.loadIntoMemory(texturePath, map_kd.c_str());        // kd
 	    }
 	    if(enabledFields[Material::F_MAP_KS]) {

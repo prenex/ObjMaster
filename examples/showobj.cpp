@@ -59,7 +59,8 @@ static GLfloat view_rot[3] = { 20.0, 30.0, 0.0 };
 static GLuint ModelViewProjectionMatrix_location,
               NormalMatrix_location,
               LightSourcePosition_location,
-              MaterialColor_location;
+              MaterialColor_location,
+	      TextureSampler_location;
 /** The projection matrix */
 static GLfloat ProjectionMatrix[16];
 /** The direction of the directional light for the scene */
@@ -77,6 +78,12 @@ static void printGlError(std::string where) {
 
 /** Draw the mesh of the obj file - first version, no material handling */
 static void draw_model(const ObjMaster::MaterializedObjMeshObject &model, GLfloat *transform, const GLfloat color[4]){
+
+   // TODO: ensure this is the place for this code
+   // Activate texture unit0 and bind the diffuse texture of this mesh
+   glActiveTexture(GL_TEXTURE0);
+   glBindTexture(GL_TEXTURE_2D, model.material.tex_handle_ka);
+
    GLfloat model_view[16];
    GLfloat normal_matrix[16];
    GLfloat model_view_projection[16];
@@ -104,6 +111,9 @@ static void draw_model(const ObjMaster::MaterializedObjMeshObject &model, GLfloa
    glUniformMatrix4fv(NormalMatrix_location, 1, GL_FALSE, normal_matrix);
 
    glUniform4fv(MaterialColor_location, 1, color);
+
+   // Pass the texture sampler uniform
+   glUniform1i(TextureSampler_location, 0);
 
    glDrawElements(GL_TRIANGLES, model.indices.size(), GL_UNSIGNED_INT, 0);
 }
@@ -229,6 +239,7 @@ static void idle(void) {
 static const char vertex_shader[] =
 "attribute vec3 position;\n"
 "attribute vec3 normal;\n"
+"attribute vec2 texcoord;\n"
 "\n"
 "uniform mat4 ModelViewProjectionMatrix;\n"
 "uniform mat4 NormalMatrix;\n"
@@ -236,6 +247,7 @@ static const char vertex_shader[] =
 "uniform vec4 MaterialColor;\n"
 "\n"
 "varying vec4 Color;\n"
+"varying vec2 fragTex;\n"
 "\n"
 "void main(void)\n"
 "{\n"
@@ -252,6 +264,8 @@ static const char vertex_shader[] =
 "\n"
 "    // Transform the position to clip coordinates\n"
 "    gl_Position = ModelViewProjectionMatrix * vec4(position, 1.0);\n"
+"    // Fill the varying textcoord for the fragment shader\n"
+"    fragTex = texcoord;\n"
 "}";
 
 static const char fragment_shader[] =
@@ -259,14 +273,19 @@ static const char fragment_shader[] =
 "precision mediump float;\n"
 "#endif\n"
 "varying vec4 Color;\n"
+"varying vec2 fragTex;\n"
+"uniform sampler2D texSampler2D;\n"
 "\n"
 "void main(void)\n"
 "{\n"
-"    gl_FragColor = Color;\n"
+"    vec4 texel = texture2D(texSampler2D, fragTex);\n"
+//"    gl_FragColor = vec4(Color.rgb * texel.rgb, texel.a);\n"
+//"    gl_FragColor = Color;\n"
+"    gl_FragColor = Color + texel;\n"
 "}";
 
 /** Setup various vertex and index buffers for the given model to get ready for rendering - call only once! */
-static void setup_buffers(GLuint positionLoc, GLuint normalLoc, const ObjMaster::ObjMeshObject &model) {
+static void setup_buffers(GLuint positionLoc, GLuint normalLoc, GLuint texCoordLoc, const ObjMaster::ObjMeshObject &model) {
 	if(model.inited && (model.vertexData.size() > 0) && (model.indices.size() > 0)) {
    		printGlError("before setup_buffers");
 		// This little program is really a one-shot renderer so we do not save
@@ -294,10 +313,16 @@ static void setup_buffers(GLuint positionLoc, GLuint normalLoc, const ObjMaster:
 		auto normalOffset = (&(model.vertexData[0].i) - &(model.vertexData[0].x));
 		// Use the calculated offset for getting the pointer to the normals in the vertex data
 		glVertexAttribPointer(normalLoc, 3, GL_FLOAT, GL_FALSE, sizeof(VertexStructure), (const GLvoid *)(normalOffset * 4));
+		// Calculate the offset where the normal vector data starts in the vertex data
+		// This is much better than writing "3" as this handles changes in the structure...
+		auto texCoordOffset = (&(model.vertexData[0].u) - &(model.vertexData[0].x));
+		// Use the calculated offset for getting the pointer to the texcoords in the vertex data
+		glVertexAttribPointer(texCoordLoc, 2, GL_FLOAT, GL_FALSE, sizeof(VertexStructure), (const GLvoid *)(texCoordOffset * 4));
 
 		// Enable the vertex attributes as arrays
 		glEnableVertexAttribArray(positionLoc);
 		glEnableVertexAttribArray(normalLoc);
+		glEnableVertexAttribArray(texCoordLoc);
 
 		// Bind the index buffer object we have created
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, s_indexObject);
@@ -359,6 +384,7 @@ static void init(void) {
    // We just use manual values for the shader variables...
    glBindAttribLocation(program, 0, "position");
    glBindAttribLocation(program, 1, "normal");
+   glBindAttribLocation(program, 2, "texcoord");
 
    glLinkProgram(program);
    glGetProgramInfoLog(program, sizeof msg, NULL, msg);
@@ -372,6 +398,7 @@ static void init(void) {
    NormalMatrix_location = glGetUniformLocation(program, "NormalMatrix");
    LightSourcePosition_location = glGetUniformLocation(program, "LightSourcePosition");
    MaterialColor_location = glGetUniformLocation(program, "MaterialColor");
+   TextureSampler_location = glGetUniformLocation(program, "texSampler2D");
    /* Set the LightSourcePosition uniform which is constant throught the program */
    glUniform4fv(LightSourcePosition_location, 1, LightSourcePosition);
 
@@ -386,7 +413,7 @@ static void init(void) {
  	// Load data onto the GPU and setup buffers for rendering
 	if(model.inited && model.meshes.size() > 0) {
 		// Setup buffers for rendering the first mesh
- 		setup_buffers(0, 1, model.meshes[0]);
+ 		setup_buffers(0, 1, 2, model.meshes[0]);
 		// Load textures for the model meshes
 		// TODO: Remove unload! This is to test the gl texture lib if unload is possible before load!
 		model.unloadAllTextures();

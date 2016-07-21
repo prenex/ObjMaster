@@ -1,5 +1,6 @@
 #include "GlGpuTexturePreparationLibrary.h"
 
+// TODO: We should somehow make it possible to use texture units as the different textures (bump map, specular map etc.) need to be there to the shaders the same time!
 namespace ObjMasterExt {
 		/** Load the given bitmap onto the GPU texture memory and return 'handle' */
 		unsigned int GlGpuTexturePreparationLibrary::loadIntoGPU(const std::vector<uint8_t> &bitmap) const {
