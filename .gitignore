@@ -1,3 +1,5 @@
+# vim temporal files
+*.swp
 # Compiled Object files
 *.slo
 *.lo

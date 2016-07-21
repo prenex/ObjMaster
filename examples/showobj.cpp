@@ -267,8 +267,8 @@ static const char fragment_shader[] =
 /** Load materials texture datas for the meshes of a materialized obj model */
 static void loadTextures(GLuint samplerLoc, const ObjMaster::MaterializedObjModel model, const char* texturePath) {
 	for(auto mesh : model.meshes) {
-		mesh.material.loadTexturesIntoMemory<ObjMaster::NopTexturePreparationLibrary>(texturePath);
-		mesh.material.loadTexturesIntoGPU<ObjMaster::NopTexturePreparationLibrary>();
+		mesh.material.loadTexturesIntoMemory(texturePath, ObjMaster::NopTexturePreparationLibrary());
+		mesh.material.loadTexturesIntoGPU(ObjMaster::NopTexturePreparationLibrary());
 	}
 }
 
