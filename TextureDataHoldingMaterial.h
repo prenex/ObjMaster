@@ -89,7 +89,7 @@ namespace ObjMaster {
         template<class TexturePreparationLibrary>
         void loadTexturesIntoMemory(const char *texturePath) {
             if(memoryHoldingState == TextureLoadState::LOADED){
-                unloadTexturesFromMemory<TexturePreparationLibrary>();
+                unloadTexturesFromMemory();
             }
             // Load data in when that texture applies according to the fields of the read material
             if(enabledFields[Material::F_MAP_KA]) {
@@ -132,7 +132,6 @@ namespace ObjMaster {
         }
 
         /** Unload all textures from the main memory */
-        template<class TexturePreparationLibrary>
         void unloadTexturesFromMemory() {
             // Clear texture data in memory
             tex_ka.clear();
@@ -169,7 +168,7 @@ namespace ObjMaster {
         template<class TexturePreparationLibrary>
         void loadIntoMemory(const char *path, const char *textureFileName,
                             std::vector<uint8_t> bitmap) {
-            TexturePreparationLibrary::loadToMainMemory(path, textureFileName, bitmap);
+            TexturePreparationLibrary::loadIntoMemory(path, textureFileName, bitmap);
         }
 
         template<class TexturePreparationLibrary>

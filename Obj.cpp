@@ -22,6 +22,8 @@ namespace ObjMaster {
 
     // Helper function for common constructor code-paths
     void Obj::constructionHelper(const AssetLibrary &assetLibrary, const char *path, const char *fileName, int expectedVertexDataNum, int expectedFaceNum) {
+	// Save the path of the file that will be opened
+	objPath = path;
         OMLOGI("Opening input stream for %s%s", path, fileName);
         std::unique_ptr<std::istream> input = assetLibrary.getAssetStream(path, fileName);
 

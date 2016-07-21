@@ -15,6 +15,7 @@ namespace ObjMaster {
     public:
 	bool inited = false;
 	std::vector<MaterializedObjMeshObject> meshes;
+	const char* path;
 
 	/** Create a materialized obj model using the given obj representation */
 	MaterializedObjModel(const Obj &obj);

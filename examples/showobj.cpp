@@ -264,6 +264,14 @@ static const char fragment_shader[] =
 "    gl_FragColor = Color;\n"
 "}";
 
+/** Load materials texture datas for the meshes of a materialized obj model */
+static void loadTextures(GLuint samplerLoc, const ObjMaster::MaterializedObjModel model, const char* texturePath) {
+	for(auto mesh : model.meshes) {
+		mesh.material.loadTexturesIntoMemory<ObjMaster::NopTexturePreparationLibrary>(texturePath);
+		mesh.material.loadTexturesIntoGPU<ObjMaster::NopTexturePreparationLibrary>();
+	}
+}
+
 /** Setup various vertex and index buffers for the given model to get ready for rendering - call only once! */
 static void setup_buffers(GLuint positionLoc, GLuint normalLoc, const ObjMaster::ObjMeshObject &model) {
 	if(model.inited && (model.vertexData.size() > 0) && (model.indices.size() > 0)) {

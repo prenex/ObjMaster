@@ -35,10 +35,14 @@ namespace ObjMaster {
         /** Used to initialize the vectorfor faces - should be reasonable for usual models */
         static const int EXPECTED_FACES_NUM = 128;
 
+	// Various geometry elements 
         std::vector<VertexElement> vs;
         std::vector<VertexTextureElement> vts;
         std::vector<VertexNormalElement> vns;
         std::vector<FaceElement> fs;
+
+	/** The given path - saved on construction */
+	const char* objPath;
 
         /** The material library for this obj. It can be an empty material library. */
         MtlLib mtlLib;
