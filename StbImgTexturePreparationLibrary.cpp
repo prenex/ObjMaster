@@ -2,6 +2,7 @@
 // TODO: Ensure that this is in the good place for defining the implementation "only once" according to the specs.
 #define STB_IMAGE_IMPLEMENTATION
 #include "deps/stb_image.h"
+#include "objmasterlog.h"
 
 namespace ObjMaster {
 	/** Load an image into the memory with stb_image.h */
@@ -23,10 +24,18 @@ namespace ObjMaster {
 		// free the original data array (we have our own copy from now)
 		stbi_image_free(image);
 
-		// return our own copy in the vector. The whole lib of ours use
+		// Log texture load event
+		OMLOGI("Texture (%s%s:%dx%d -- %d bytes) is loaded into the main memory with stb_image!", 
+				path, 
+				textureFileName,
+				width,
+				heigth,
+				(int)bitmap.size());
+
+		// Return our own copy in the vector. The whole lib of ours use
 		// vectors instead of bare pointers and arrays as much as we can
-		// so this copy is needed to adhere our earlier code.
-		// Return value optimisations should also make subsequent copies just go away.
+		// so this copy is needed to adhere our earlier code. The return
+		// value optimisations should make return copy go fast too.
 		return bitmap;
 	}
 }

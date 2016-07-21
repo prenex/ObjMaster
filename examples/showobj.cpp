@@ -50,6 +50,8 @@
 #include "objmaster/MaterializedObjModel.h"
 #include "objmaster/objmasterlog.h"
 #include "objmaster/FileAssetLibrary.h"
+#include "objmaster/StbImgTexturePreparationLibrary.h"
+#include "objmaster/NopTexturePreparationLibrary.h"
 
 /** The view rotation [x, y, z] */
 static GLfloat view_rot[3] = { 20.0, 30.0, 0.0 };
@@ -64,8 +66,7 @@ static GLfloat ProjectionMatrix[16];
 static const GLfloat LightSourcePosition[4] = { 5.0, 5.0, 10.0, 1.0};
 
 /** Holds the model of the obj */
-//static ObjMaster::ObjMeshObject objModel;
-static ObjMaster::MaterializedObjModel model;
+static ObjMaster::MaterializedObjModel<ObjMaster::NopTexturePreparationLibrary> model;
 
 static void printGlError(std::string where) {
    GLenum err = glGetError();
@@ -264,14 +265,6 @@ static const char fragment_shader[] =
 "    gl_FragColor = Color;\n"
 "}";
 
-/** Load materials texture datas for the meshes of a materialized obj model */
-static void loadTextures(GLuint samplerLoc, const ObjMaster::MaterializedObjModel model, const char* texturePath) {
-	for(auto mesh : model.meshes) {
-		mesh.material.loadTexturesIntoMemory(texturePath, ObjMaster::NopTexturePreparationLibrary());
-		mesh.material.loadTexturesIntoGPU(ObjMaster::NopTexturePreparationLibrary());
-	}
-}
-
 /** Setup various vertex and index buffers for the given model to get ready for rendering - call only once! */
 static void setup_buffers(GLuint positionLoc, GLuint normalLoc, const ObjMaster::ObjMeshObject &model) {
 	if(model.inited && (model.vertexData.size() > 0) && (model.indices.size() > 0)) {
@@ -388,11 +381,16 @@ static void init(void) {
    if(!model.inited) {
 	ObjMaster::Obj obj = ObjMaster::Obj(ObjMaster::FileAssetLibrary(), "./models/", "default.obj");
 	//objModel = ObjMaster::ObjMeshObject(obj);
-	model = ObjMaster::MaterializedObjModel(obj);
+	model = ObjMaster::MaterializedObjModel<ObjMaster::NopTexturePreparationLibrary>(obj);
  
  	// Load data onto the GPU and setup buffers for rendering
 	if(model.inited && model.meshes.size() > 0) {
+		// Setup buffers for rendering the first mesh
  		setup_buffers(0, 1, model.meshes[0]);
+		// Load textures for the model meshes
+		// TODO: Remove unload! This is to test the gl texture lib if unload is possible before load!
+		model.unloadAllTextures();
+		model.loadAllTextures(ObjMaster::StbImgTexturePreparationLibrary());
 	}
     }
 }
