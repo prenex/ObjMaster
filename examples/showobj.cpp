@@ -5,19 +5,22 @@
  * 
  * This example uses a subset of GLESv2 and EGL
  * in a way that it can be compiled both with
- * gcc and emscripten (to provide webgl html)
+ * gcc, clang and emscripten (to provide webgl html)
  * 
  * Prerequisite:
  *   freeglut3, freeglut3-dev (both)
  *   libegl1-mesa-dev, libgles2-mesa-dev (EGL/GLES2)
  *   emsdk (JS/WEBGL - full toolchain: nodejs, LLVM, etc.)
  * Compilations:
- *   g++ showobj.cpp -o showobj.out -lglut -lGLESv2 -lm -std=c++14
- *   em++ showobj.cpp -o showobj.html -std=c++14
+ *   - make
+ *   - In case you want to change the copmpiler/target, change the CC parameter
+ *     between em++, clang++ and g++ accordingly. You can provide this to make
+ *     as a command line parameter or change the top of the makefile to set the
+ *     default one. The makefile has comments about tested compiler versions.
  * TODO: Usage:
  *   ./showobj <model>     - shows the given model
- *   ./showobj             - shows default.obj (as the html build)
- *   palemoon showobj.html - open webgl build to show embedded default.obj
+ *   ./showobj             - shows models/default.obj (as the html build)
+ *   palemoon showobj.html - open webgl build to show embedded models/default.obj
  */
 
 #define GL_GLEXT_PROTOTYPES
@@ -375,7 +378,7 @@ static void init(void) {
    // In this example this should never be inited at this point, but wanted to show how to do that check
    // For example in case of android applications with complex app life-cycles it is better to have this...
    if(!model.inited) {
-	ObjMaster::Obj obj = ObjMaster::Obj(ObjMaster::FileAssetLibrary(), "./models/", "redlady.obj");
+	ObjMaster::Obj obj = ObjMaster::Obj(ObjMaster::FileAssetLibrary(), "./models/", "default.obj");
 	//objModel = ObjMaster::ObjMeshObject(obj);
 	model = ObjMaster::MaterializedObjModel(obj);
  
