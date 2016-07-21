@@ -25,16 +25,16 @@ namespace ObjMaster {
 	    }
 	    // Load data in when that texture applies according to the fields of the read material
 	    if(enabledFields[Material::F_MAP_KA]) {
-		textureLib.loadIntoMemory(texturePath, map_ka.c_str(), tex_ka);        // ka
+		tex_ka = textureLib.loadIntoMemory(texturePath, map_ka.c_str());        // ka
 	    }
 	    if(enabledFields[Material::F_MAP_KD]) {
-		textureLib.loadIntoMemory(texturePath, map_kd.c_str(), tex_kd);        // kd
+		tex_kd = textureLib.loadIntoMemory(texturePath, map_kd.c_str());        // kd
 	    }
 	    if(enabledFields[Material::F_MAP_KS]) {
-		textureLib.loadIntoMemory(texturePath, map_ks.c_str(), tex_ks);        // ks
+		tex_ks = textureLib.loadIntoMemory(texturePath, map_ks.c_str());        // ks
 	    }
 	    if(enabledFields[Material::F_MAP_BUMP]) {
-		textureLib.loadIntoMemory(texturePath, map_bump.c_str(), tex_bump);    // bump
+		tex_bump = textureLib.loadIntoMemory(texturePath, map_bump.c_str());    // bump
 	    }
 	    memoryHoldingState = TextureLoadState::LOADED;
 	}

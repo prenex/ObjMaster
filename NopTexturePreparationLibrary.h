@@ -2,8 +2,8 @@
 // Created by rthier on 2016.06.21..
 //
 
-#ifndef NFTSIMPLEPROJ_NOPTEXTUREPREPARATIONLIBRARY_H
-#define NFTSIMPLEPROJ_NOPTEXTUREPREPARATIONLIBRARY_H
+#ifndef NOPTEXTUREPREPARATIONLIBRARY_H
+#define NOPTEXTUREPREPARATIONLIBRARY_H
 
 #include <stdint.h>
 #include <string>
@@ -15,10 +15,10 @@ namespace ObjMaster {
     /** This texture preparation library does not prepare and load textures at all! */
     class NopTexturePreparationLibrary : public TexturePreparationLibrary, public GpuTexturePreparationLibrary {
 	public:
-		void loadIntoMemory(const char *path,
-					   const char *textureFileName,
-					   std::vector<uint8_t> &bitmap) const {
-		    // We don't do a thing here
+		std::vector<uint8_t> loadIntoMemory(const char *path,
+					   const char *textureFileName) const {
+		    // We don't do a thing here, just return empty vector
+		    return std::vector<uint8_t>();
 		}
 
 		unsigned int loadIntoGPU(const std::vector<uint8_t> &bitmap) const {
@@ -32,4 +32,4 @@ namespace ObjMaster {
     };
 }
 
-#endif //NFTSIMPLEPROJ_NOPTEXTUREPREPARATIONLIBRARY_H
+#endif //NOPTEXTUREPREPARATIONLIBRARY_H

@@ -15,9 +15,8 @@ namespace ObjMaster {
 		  * and should close any I/O related streams - in other words
 		  * this method should work in a stateless way!
 		  */
-		virtual void loadIntoMemory(const char *path,
-					   const char *textureFileName,
-					   std::vector<uint8_t> &bitmap) const = 0;
+		virtual std::vector<uint8_t> loadIntoMemory(const char *path,
+					   const char *textureFileName) const = 0;
     };
 }
 #endif
