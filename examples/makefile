@@ -3,9 +3,9 @@
 # for gcc5.1+:
 #CC=g++
 # for clang3.4+:
-CC=clang++
+#CC=clang++
 # for emscripten / webgl
-#CC=em++
+CC=em++
 
 ifeq ($(CC),g++)
 	# g++ (ver 5.1+ tested)
@@ -46,4 +46,4 @@ endif
 	$(CC) $(CFLAGS) $< -o $@
 
 clean:
-	rm *.o objmaster/*.o showobj
+	rm *.o objmaster/*.o showobj objmaster/ext/*.o
