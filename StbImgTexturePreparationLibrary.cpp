@@ -21,6 +21,16 @@ namespace ObjMaster {
 		// that has the copy of the 
 		std::vector<uint8_t> bitmap(image, image + len);
 
+		// Mirror onto the horizontal midline (from top to bottom)
+		// this is needed as the shaders need thee 
+		for(int y = 0; y < heigth / 2; ++y) {
+			for(int x = 0; x < width * bytePerPixel; ++x) {
+				uint8_t tmp = bitmap[y*width*bytePerPixel + x];
+				bitmap[y*width*bytePerPixel + x] = bitmap[(heigth-y-1)*width*bytePerPixel + x];
+				bitmap[(heigth-y-1)*width*bytePerPixel + x] = tmp;
+			}
+		}
+
 		// free the original data array (we have our own copy from now)
 		stbi_image_free(image);
 
