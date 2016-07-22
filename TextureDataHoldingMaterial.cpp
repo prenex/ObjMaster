@@ -41,6 +41,12 @@ namespace ObjMaster {
 		tex_bump = textureLib.loadIntoMemory(texturePath, map_bump.c_str());    // bump
 	    }
 	    memoryHoldingState = TextureLoadState::LOADED;
+
+	    OMLOGD("Texture state after loadTexturesIntoMemory:");
+	    OMLOGD(" - tex_ka.size()=%d", (int)tex_ka.size());
+	    OMLOGD(" - tex_kd.size()=%d", (int)tex_kd.size());
+	    OMLOGD(" - tex_ks.size()=%d", (int)tex_ks.size());
+	    OMLOGD(" - tex_bump.size()=%d", (int)tex_bump.size());
 	}
 
 	/**
@@ -64,6 +70,12 @@ namespace ObjMaster {
 	    if(!tex_bump.empty()) { tex_handle_bump = textureLib.loadIntoGPU(tex_bump); }
 	    else {tex_handle_bump = 0; }
 	    gpuHoldingState = TextureLoadState::LOADED;
+
+	    OMLOGD("Texture state after loadTexturesIntoGPU:");
+	    OMLOGD(" - tex_handle_ka=%d", (int)tex_handle_ka);
+	    OMLOGD(" - tex_handle_kd=%d", (int)tex_handle_kd);
+	    OMLOGD(" - tex_handle_ks=%d", (int)tex_handle_ks);
+	    OMLOGD(" - tex_handle_bump=%d", (int)tex_handle_bump);
 	}
 
 	/** Unload all textures from the main memory */

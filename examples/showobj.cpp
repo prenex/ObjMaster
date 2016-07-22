@@ -79,11 +79,6 @@ static void printGlError(std::string where) {
 /** Draw the mesh of the obj file - first version, no material handling */
 static void draw_model(const ObjMaster::MaterializedObjMeshObject &model, GLfloat *transform, const GLfloat color[4]){
 
-   // TODO: ensure this is the place for this code
-   // Activate texture unit0 and bind the diffuse texture of this mesh
-   glActiveTexture(GL_TEXTURE0);
-   glBindTexture(GL_TEXTURE_2D, model.material.tex_handle_ka);
-
    GLfloat model_view[16];
    GLfloat normal_matrix[16];
    GLfloat model_view_projection[16];
@@ -114,6 +109,9 @@ static void draw_model(const ObjMaster::MaterializedObjMeshObject &model, GLfloa
 
    // Pass the texture sampler uniform
    glUniform1i(TextureSampler_location, 0);
+
+   // TODO: ensure this is the place for this code
+   glBindTexture(GL_TEXTURE_2D, model.material.tex_handle_ka);
 
    glDrawElements(GL_TRIANGLES, model.indices.size(), GL_UNSIGNED_INT, 0);
 }
@@ -281,7 +279,9 @@ static const char fragment_shader[] =
 "    vec4 texel = texture2D(texSampler2D, fragTex);\n"
 //"    gl_FragColor = vec4(Color.rgb * texel.rgb, texel.a);\n"
 //"    gl_FragColor = Color;\n"
-"    gl_FragColor = Color + texel;\n"
+"    gl_FragColor = texel;\n"
+// For testing texture indices
+//"    gl_FragColor = (Color + texel) + vec4(fragTex, 0.5, 1.0);\n"
 "}";
 
 /** Setup various vertex and index buffers for the given model to get ready for rendering - call only once! */
@@ -401,6 +401,9 @@ static void init(void) {
    TextureSampler_location = glGetUniformLocation(program, "texSampler2D");
    /* Set the LightSourcePosition uniform which is constant throught the program */
    glUniform4fv(LightSourcePosition_location, 1, LightSourcePosition);
+
+   // Activate texture unit0 for basic texturing
+   glActiveTexture(GL_TEXTURE0);
 
    // Load models
    // In this example this should never be inited at this point, but wanted to show how to do that check
