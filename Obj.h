@@ -50,6 +50,9 @@ namespace ObjMaster {
         /** (objectgroup-name:material-name) -> (objectgroup-name, material, faces) */
         std::unordered_map<std::string, ObjectMaterialFaceGroup> objectMaterialGroups;
 
+	/** Create an empty - non-loaded - obj representation */
+	Obj() {}
+
         /**
          * Creates an Obj for the given asset. The given asset library is only used for construction
          * and is not stored so the ownership of the referenced object stays at the host code!

@@ -111,7 +111,7 @@ static void draw_model(const ObjMaster::MaterializedObjMeshObject &model, GLfloa
    glUniform1i(TextureSampler_location, 0);
 
    // TODO: ensure this is the place for this code
-   glBindTexture(GL_TEXTURE_2D, model.material.tex_ka.handle);
+   glBindTexture(GL_TEXTURE_2D, model.material.tex_kd.handle);
 
    glDrawElements(GL_TRIANGLES, model.indices.size(), GL_UNSIGNED_INT, 0);
 }
@@ -126,7 +126,8 @@ static void draw() {
    GLfloat transform[16];
    identity(transform);
 
-   glClearColor(0.0, 0.0, 0.0, 0.0);
+   // Cornflowerblue for having a retro feeling from my XNA years :-)
+   glClearColor(0.3921, 0.5843, 0.9294, 1.0);
    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
    /* Translate and rotate the view */
@@ -138,8 +139,11 @@ static void draw() {
    // Render the model mesh
    //draw_model(objModel, transform, red);
    if(model.inited && model.meshes.size() > 0) {
-	draw_model(model.meshes[0], transform, red);
-	printGlError("after draw_model");
+	for(auto mesh : model.meshes) {
+		// TODO: remove the "color" parameter
+		draw_model(mesh, transform, red);
+		printGlError("after draw_model");
+	}
    }
 
    // Render the scene
@@ -352,7 +356,7 @@ for(int i = 0; i < model.indices.size() / 3; ++i) {
 	}
 }
 
-static void init(void) {
+static void init(char* modelFileNameAndPath) {
    GLuint v, f, program;
    const char *p;
    char msg[512];
@@ -409,8 +413,38 @@ static void init(void) {
    // In this example this should never be inited at this point, but wanted to show how to do that check
    // For example in case of android applications with complex app life-cycles it is better to have this...
    if(!model.inited) {
-	ObjMaster::Obj obj = ObjMaster::Obj(ObjMaster::FileAssetLibrary(), "./models/", "default.obj");
-	//objModel = ObjMaster::ObjMeshObject(obj);
+	ObjMaster::Obj obj; 
+	if(modelFileNameAndPath == nullptr) {
+		obj = ObjMaster::Obj(ObjMaster::FileAssetLibrary(), "./models/", "default.obj");
+	} else {
+		char* modelPath;
+		char* modelFile;
+		int modFilePathLen = strlen(modelFileNameAndPath);
+		if(modFilePathLen > 0) {
+			// Get a pointer pointing to the last character
+			char* fileNamePtr = modelFileNameAndPath + modFilePathLen - 1;
+			// Find the last '/' character or go to the first character
+			while(modelFileNameAndPath < fileNamePtr && *fileNamePtr != '/') {
+				--fileNamePtr;
+			}
+			// We must check if we have found a '/' or there was none!
+			if(*fileNamePtr == '/') {
+				// Save the data with a string (as we will delete the first letter from it)
+				std::string fileNameStr(fileNamePtr+1);
+				// If there was, we are on it, so just replace that with a '/' and a 0 byte!
+				// this way we will have the path in the original string and the name
+				// in this one! This whole thing is necessary only to make loading of
+				// associated assets from the place where the file is!
+				*fileNamePtr = '/';
+				++fileNamePtr;
+				*fileNamePtr = 0;
+				// We have modified the modelFileNameAndPath to became the path only!!!
+				obj = ObjMaster::Obj(ObjMaster::FileAssetLibrary(), modelFileNameAndPath, fileNameStr.c_str());
+			} else {
+				obj = ObjMaster::Obj(ObjMaster::FileAssetLibrary(), "./", fileNamePtr);
+			}
+		}
+	}
 	model = ObjMaster::MaterializedObjModel<ObjMasterExt::GlGpuTexturePreparationLibrary>(obj);
  
  	// Load data onto the GPU and setup buffers for rendering
@@ -422,13 +456,14 @@ static void init(void) {
 		model.unloadAllTextures();
 		model.loadAllTextures(ObjMaster::StbImgTexturePreparationLibrary());
 	}
-    }
+   }
 }
 
 int main(int argc, char *argv[]) {
 #ifdef TEST_MEMORYPROFILER_ALLOCATIONS_MAP
    printf("You should see an interactive CPU profiler graph below, and below that an allocation map of the Emscripten main HEAP, with a long blue block of allocated memory.\n");
 #endif
+   printf("argc:%d\n", argc);
    /* Initialize the window */
    glutInit(&argc, argv);
    glutInitWindowSize(300, 300);
@@ -444,7 +479,12 @@ int main(int argc, char *argv[]) {
    glutSpecialFunc(handleSpecialGlutEvents);
 
    /* Do our initialization */
-   init();
+   if(argc == 2) {
+	// User provided the model to load
+	init(argv[1]);
+   } else {
+	init(nullptr);
+   }
 
    glutMainLoop();
 
