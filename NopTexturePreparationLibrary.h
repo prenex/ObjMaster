@@ -27,13 +27,12 @@ namespace ObjMaster {
 		    };
 		}
 
-		unsigned int loadIntoGPU(const std::vector<uint8_t> &bitmap) const {
-		    // 0 is a special value indicating the data is not on the GPU
-		    return 0;
+		void loadIntoGPU(Texture &t) const {
+			// just do nothing
 		}
 
-		void unloadFromGPU(unsigned int handle) const {
-		    // Not necessary as we never load it onto the GPU anyways
+		void unloadFromGPU(Texture &t) const {
+			// Not necessary as we never load it onto the GPU anyways
 		}
     };
 }

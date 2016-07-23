@@ -9,15 +9,16 @@
 #include <GL/glut.h>
 #endif
 #include "../GpuTexturePreparationLibrary.h"
+#include "../Texture.h"
 
 namespace ObjMasterExt {
 
 	class GlGpuTexturePreparationLibrary : public ObjMaster::GpuTexturePreparationLibrary {
 	public:
 		/** Load the given bitmap onto the GPU texture memory and return 'handle' */
-		virtual unsigned int loadIntoGPU(const std::vector<uint8_t> &bitmap) const;
+		virtual void loadIntoGPU(ObjMaster::Texture &t) const;
 		/** Unload the texture data bound to the given handle (glDeleteTexture()) */
-		virtual void unloadFromGPU(unsigned int handle) const;
+		virtual void unloadFromGPU(ObjMaster::Texture &t) const;
 	};
 }
 

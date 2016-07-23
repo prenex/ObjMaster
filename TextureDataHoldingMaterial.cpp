@@ -86,13 +86,13 @@ namespace ObjMaster {
 		unloadTexturesFromGPU(textureLib);
 	    }
 	    // Load those textures into the GPU which have some data in the memory
-	    if(!tex_ka.bitmap.empty()) { tex_ka.handle = textureLib.loadIntoGPU(tex_ka.bitmap); }
+	    if(!tex_ka.bitmap.empty()) { textureLib.loadIntoGPU(tex_ka); }
 	    else {tex_ka.handle = 0; }
-	    if(!tex_kd.bitmap.empty()) { tex_kd.handle = textureLib.loadIntoGPU(tex_kd.bitmap); }
+	    if(!tex_kd.bitmap.empty()) { textureLib.loadIntoGPU(tex_kd); }
 	    else {tex_kd.handle = 0; }
-	    if(!tex_ks.bitmap.empty()) { tex_ks.handle = textureLib.loadIntoGPU(tex_ks.bitmap); }
+	    if(!tex_ks.bitmap.empty()) { textureLib.loadIntoGPU(tex_ks); }
 	    else {tex_ks.handle = 0; }
-	    if(!tex_bump.bitmap.empty()) { tex_bump.handle = textureLib.loadIntoGPU(tex_bump.bitmap); }
+	    if(!tex_bump.bitmap.empty()) { textureLib.loadIntoGPU(tex_bump); }
 	    else {tex_bump.handle = 0; }
 	    gpuHoldingState = TextureLoadState::LOADED;
 
@@ -116,10 +116,10 @@ namespace ObjMaster {
 	/** Unload all textures from the GPU-memory. Unload is only called on non-zero handles */
 	void TextureDataHoldingMaterial::unloadTexturesFromGPU(const GpuTexturePreparationLibrary &textureLib) {
 	    // Only call the unload on those handles that are non-zero
-	    if(tex_ka.handle != 0) { textureLib.unloadFromGPU(tex_ka.handle); tex_ka.handle = 0; }
-	    if(tex_kd.handle != 0) { textureLib.unloadFromGPU(tex_kd.handle); tex_kd.handle = 0; }
-	    if(tex_ks.handle != 0) { textureLib.unloadFromGPU(tex_ks.handle); tex_ks.handle = 0; }
-	    if(tex_bump.handle != 0) { textureLib.unloadFromGPU(tex_bump.handle); tex_bump.handle = 0; }
+	    if(tex_ka.handle != 0) { textureLib.unloadFromGPU(tex_ka); tex_ka.handle = 0; }
+	    if(tex_kd.handle != 0) { textureLib.unloadFromGPU(tex_kd); tex_kd.handle = 0; }
+	    if(tex_ks.handle != 0) { textureLib.unloadFromGPU(tex_ks); tex_ks.handle = 0; }
+	    if(tex_bump.handle != 0) { textureLib.unloadFromGPU(tex_bump); tex_bump.handle = 0; }
 	    gpuHoldingState = TextureLoadState::NOT_LOADED;
 	}
 
