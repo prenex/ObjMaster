@@ -27,26 +27,26 @@ namespace ObjMaster {
 	    if(enabledFields[Material::F_MAP_KA]) {
 		    // TODO: remove this test bogusness
 		    printf("kalap"); // FIXME: Only this is printed even though the model has both Ka and Kd!!!
-		tex_ka = textureLib.loadIntoMemory(texturePath, map_ka.c_str());        // ka
+		tex_ka.bitmap = textureLib.loadIntoMemory(texturePath, map_ka.c_str());        // ka
 	    }
 	    if(enabledFields[Material::F_MAP_KD]) {
 		    // TODO: remove this test bogusness - it seems that we do not find the diffuse texture because of some errors!!!!!
 		    printf("kabat");
-		tex_kd = textureLib.loadIntoMemory(texturePath, map_kd.c_str());        // kd
+		tex_kd.bitmap = textureLib.loadIntoMemory(texturePath, map_kd.c_str());        // kd
 	    }
 	    if(enabledFields[Material::F_MAP_KS]) {
-		tex_ks = textureLib.loadIntoMemory(texturePath, map_ks.c_str());        // ks
+		tex_ks.bitmap = textureLib.loadIntoMemory(texturePath, map_ks.c_str());        // ks
 	    }
 	    if(enabledFields[Material::F_MAP_BUMP]) {
-		tex_bump = textureLib.loadIntoMemory(texturePath, map_bump.c_str());    // bump
+		tex_bump.bitmap = textureLib.loadIntoMemory(texturePath, map_bump.c_str());    // bump
 	    }
 	    memoryHoldingState = TextureLoadState::LOADED;
 
 	    OMLOGD("Texture state after loadTexturesIntoMemory:");
-	    OMLOGD(" - tex_ka.size()=%d", (int)tex_ka.size());
-	    OMLOGD(" - tex_kd.size()=%d", (int)tex_kd.size());
-	    OMLOGD(" - tex_ks.size()=%d", (int)tex_ks.size());
-	    OMLOGD(" - tex_bump.size()=%d", (int)tex_bump.size());
+	    OMLOGD(" - tex_ka.bitmap.size()=%d", (int)tex_ka.bitmap.size());
+	    OMLOGD(" - tex_kd.bitmap.size()=%d", (int)tex_kd.bitmap.size());
+	    OMLOGD(" - tex_ks.bitmap.size()=%d", (int)tex_ks.bitmap.size());
+	    OMLOGD(" - tex_bump.bitmap.size()=%d", (int)tex_bump.bitmap.size());
 	}
 
 	/**
@@ -61,40 +61,40 @@ namespace ObjMaster {
 		unloadTexturesFromGPU(textureLib);
 	    }
 	    // Load those textures into the GPU which have some data in the memory
-	    if(!tex_ka.empty()) { tex_handle_ka = textureLib.loadIntoGPU(tex_ka); }
-	    else {tex_handle_ka = 0; }
-	    if(!tex_kd.empty()) { tex_handle_kd = textureLib.loadIntoGPU(tex_kd); }
-	    else {tex_handle_kd = 0; }
-	    if(!tex_ks.empty()) { tex_handle_ks = textureLib.loadIntoGPU(tex_ks); }
-	    else {tex_handle_ks = 0; }
-	    if(!tex_bump.empty()) { tex_handle_bump = textureLib.loadIntoGPU(tex_bump); }
-	    else {tex_handle_bump = 0; }
+	    if(!tex_ka.bitmap.empty()) { tex_ka.handle = textureLib.loadIntoGPU(tex_ka.bitmap); }
+	    else {tex_ka.handle = 0; }
+	    if(!tex_kd.bitmap.empty()) { tex_kd.handle = textureLib.loadIntoGPU(tex_kd.bitmap); }
+	    else {tex_kd.handle = 0; }
+	    if(!tex_ks.bitmap.empty()) { tex_ks.handle = textureLib.loadIntoGPU(tex_ks.bitmap); }
+	    else {tex_ks.handle = 0; }
+	    if(!tex_bump.bitmap.empty()) { tex_bump.handle = textureLib.loadIntoGPU(tex_bump.bitmap); }
+	    else {tex_bump.handle = 0; }
 	    gpuHoldingState = TextureLoadState::LOADED;
 
 	    OMLOGD("Texture state after loadTexturesIntoGPU:");
-	    OMLOGD(" - tex_handle_ka=%d", (int)tex_handle_ka);
-	    OMLOGD(" - tex_handle_kd=%d", (int)tex_handle_kd);
-	    OMLOGD(" - tex_handle_ks=%d", (int)tex_handle_ks);
-	    OMLOGD(" - tex_handle_bump=%d", (int)tex_handle_bump);
+	    OMLOGD(" - tex_ka.handle=%d", (int)tex_ka.handle);
+	    OMLOGD(" - tex_kd.handle=%d", (int)tex_kd.handle);
+	    OMLOGD(" - tex_ks.handle=%d", (int)tex_ks.handle);
+	    OMLOGD(" - tex_bump.handle=%d", (int)tex_bump.handle);
 	}
 
 	/** Unload all textures from the main memory */
 	void TextureDataHoldingMaterial::unloadTexturesFromMemory() {
 	    // Clear texture data in memory
-	    tex_ka.clear();
-	    tex_kd.clear();
-	    tex_ks.clear();
-	    tex_bump.clear();
+	    tex_ka.bitmap.clear();
+	    tex_kd.bitmap.clear();
+	    tex_ks.bitmap.clear();
+	    tex_bump.bitmap.clear();
 	    memoryHoldingState = TextureLoadState::NOT_LOADED;
 	}
 
 	/** Unload all textures from the GPU-memory. Unload is only called on non-zero handles */
 	void TextureDataHoldingMaterial::unloadTexturesFromGPU(const GpuTexturePreparationLibrary &textureLib) {
 	    // Only call the unload on those handles that are non-zero
-	    if(tex_handle_ka != 0) { textureLib.unloadFromGPU(tex_handle_ka); tex_handle_ka = 0; }
-	    if(tex_handle_kd != 0) { textureLib.unloadFromGPU(tex_handle_kd); tex_handle_kd = 0; }
-	    if(tex_handle_ks != 0) { textureLib.unloadFromGPU(tex_handle_ks); tex_handle_ks = 0; }
-	    if(tex_handle_bump != 0) { textureLib.unloadFromGPU(tex_handle_bump); tex_handle_bump = 0; }
+	    if(tex_ka.handle != 0) { textureLib.unloadFromGPU(tex_ka.handle); tex_ka.handle = 0; }
+	    if(tex_kd.handle != 0) { textureLib.unloadFromGPU(tex_kd.handle); tex_kd.handle = 0; }
+	    if(tex_ks.handle != 0) { textureLib.unloadFromGPU(tex_ks.handle); tex_ks.handle = 0; }
+	    if(tex_bump.handle != 0) { textureLib.unloadFromGPU(tex_bump.handle); tex_bump.handle = 0; }
 	    gpuHoldingState = TextureLoadState::NOT_LOADED;
 	}
 

@@ -111,7 +111,7 @@ static void draw_model(const ObjMaster::MaterializedObjMeshObject &model, GLfloa
    glUniform1i(TextureSampler_location, 0);
 
    // TODO: ensure this is the place for this code
-   glBindTexture(GL_TEXTURE_2D, model.material.tex_handle_ka);
+   glBindTexture(GL_TEXTURE_2D, model.material.tex_ka.handle);
 
    glDrawElements(GL_TRIANGLES, model.indices.size(), GL_UNSIGNED_INT, 0);
 }

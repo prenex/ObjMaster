@@ -11,6 +11,7 @@
 #include "Material.h"
 #include "TexturePreparationLibrary.h"
 #include "GpuTexturePreparationLibrary.h"
+#include "Texture.h"
 
 namespace ObjMaster {
 /**
@@ -58,30 +59,10 @@ namespace ObjMaster {
          */
         TextureLoadState gpuHoldingState;
 
-        // Bitmap patterns of the loaded textures when loading into main memory
-        // Rem.: vectors of empty size means there is no texture of that kind
-
-        /** Possible ambient texture bitmap data - size=0 means no texture data */
-        std::vector<uint8_t> tex_ka;
-        /** Possible diffuse texture bitmap data - size=0 means no texture data */
-        std::vector<uint8_t> tex_kd;
-        /** Possible specular texture bitmap data - size=0 means no texture data */
-        std::vector<uint8_t> tex_ks;
-        /** Possible bump texture bitmap data - size=0 means no texture data */
-        std::vector<uint8_t> tex_bump;
-
-        // These are for storing handles when loading the texture onto the GPU
-        // Rem.: the value of 0 means that the texture is not in use / uploaded to the GPU
-
-        /** Possible ambient texture graphics card handle - value=0 means no GPU-loaded texture data */
-        unsigned int tex_handle_ka;
-        /** Possible diffuse texture graphics card handle - value=0 means no GPU-loaded texture data */
-        unsigned int tex_handle_kd;
-        /** Possible specular texture graphics card handle - value=0 means no GPU-loaded texture data */
-        unsigned int tex_handle_ks;
-        /** Possible bump texture graphics card handle - value=0 means no GPU-loaded texture data */
-        unsigned int tex_handle_bump;
-
+	Texture tex_ka;
+	Texture tex_kd;
+	Texture tex_ks;
+	Texture tex_bump;
 
         /** Create a material with possible texture data using the given texture path */
         TextureDataHoldingMaterial(std::string materialName,
