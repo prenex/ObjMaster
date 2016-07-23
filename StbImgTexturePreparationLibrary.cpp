@@ -6,7 +6,7 @@
 
 namespace ObjMaster {
 	/** Load an image into the memory with stb_image.h */
-	std::vector<uint8_t> StbImgTexturePreparationLibrary::loadIntoMemory(const char *path,
+	Texture StbImgTexturePreparationLibrary::loadIntoMemory(const char *path,
 					   const char *textureFileName) const {
 		int width, heigth;
 		int bytePerPixel;
@@ -46,6 +46,12 @@ namespace ObjMaster {
 		// vectors instead of bare pointers and arrays as much as we can
 		// so this copy is needed to adhere our earlier code. The return
 		// value optimisations should make return copy go fast too.
-		return bitmap;
+		return Texture {
+			bitmap,
+			0, // handle = 0 as this is not loaded to the GPU
+			width,
+			heigth,
+			bytePerPixel
+		};
 	}
 }

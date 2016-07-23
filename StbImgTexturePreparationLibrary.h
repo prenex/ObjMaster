@@ -5,12 +5,13 @@
 #include <string>
 #include <vector>
 #include "TexturePreparationLibrary.h"
+#include "Texture.h"
 
 namespace ObjMaster {
     /** Uses stb_image.h */
     class StbImgTexturePreparationLibrary : public TexturePreparationLibrary {
 	public:
-		std::vector<uint8_t> loadIntoMemory(const char *path,
+		Texture loadIntoMemory(const char *path,
 					   const char *textureFileName) const;
     };
 }

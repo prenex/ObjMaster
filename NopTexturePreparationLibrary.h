@@ -15,10 +15,16 @@ namespace ObjMaster {
     /** This texture preparation library does not prepare and load textures at all! */
     class NopTexturePreparationLibrary : public TexturePreparationLibrary, public GpuTexturePreparationLibrary {
 	public:
-		std::vector<uint8_t> loadIntoMemory(const char *path,
+		Texture loadIntoMemory(const char *path,
 					   const char *textureFileName) const {
 		    // We don't do a thing here, just return empty vector
-		    return std::vector<uint8_t>();
+		    return Texture {
+			std::vector<uint8_t>(),
+			0,
+			0,
+			0,
+			0
+		    };
 		}
 
 		unsigned int loadIntoGPU(const std::vector<uint8_t> &bitmap) const {

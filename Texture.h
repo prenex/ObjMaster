@@ -24,6 +24,11 @@ namespace ObjMaster {
 		int heigth;
 		/** How many BYTES a pixel is represented on */
 		int bytepp;
+
+		/** Unload bitmap data from main memory - metadata and handle stays as is! */
+		void unloadBitmapFromMemory() {
+			bitmap.clear();
+		}
 	};
 }
 

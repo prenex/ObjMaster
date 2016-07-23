@@ -18,6 +18,7 @@ namespace ObjMaster {
 	 *   entries! This add some extra freedom for developers to implement various schemes...
 	 * - if memoryHoldingState == TextureDataHoldingMaterial::TextureLoadState::LOADED" then
 	 *   this operation first unload the earlier data with unloadTexturesFromMemory()!
+	 * - This operation rewrites meta-data of textures, but keeps any handles still non-zero!
 	 */
 	void TextureDataHoldingMaterial::loadTexturesIntoMemory(const char *texturePath, const TexturePreparationLibrary &textureLib) {
 	    if(memoryHoldingState == TextureLoadState::LOADED){
@@ -27,18 +28,42 @@ namespace ObjMaster {
 	    if(enabledFields[Material::F_MAP_KA]) {
 		    // TODO: remove this test bogusness
 		    printf("kalap"); // FIXME: Only this is printed even though the model has both Ka and Kd!!!
-		tex_ka.bitmap = textureLib.loadIntoMemory(texturePath, map_ka.c_str());        // ka
+		// Save possible handle
+		unsigned int handleTmp = tex_ka.handle;
+		// Load the texture with the texture lib. As this return a new object,
+		// the handle will be zero after this operation
+		tex_ka = textureLib.loadIntoMemory(texturePath, map_ka.c_str());        // ka
+		// Preserve earlier handle
+		tex_ka.handle = handleTmp;
 	    }
 	    if(enabledFields[Material::F_MAP_KD]) {
 		    // TODO: remove this test bogusness - it seems that we do not find the diffuse texture because of some errors!!!!!
 		    printf("kabat");
-		tex_kd.bitmap = textureLib.loadIntoMemory(texturePath, map_kd.c_str());        // kd
+		// Save possible handle
+		unsigned int handleTmp = tex_kd.handle;
+		// Load the texture with the texture lib. As this return a new object,
+		// the handle will be zero after this operation
+		tex_kd = textureLib.loadIntoMemory(texturePath, map_kd.c_str());        // kd
+		// Preserve earlier handle
+		tex_kd.handle = handleTmp;
 	    }
 	    if(enabledFields[Material::F_MAP_KS]) {
-		tex_ks.bitmap = textureLib.loadIntoMemory(texturePath, map_ks.c_str());        // ks
+		// Save possible handle
+		unsigned int handleTmp = tex_ks.handle;
+		// Load the texture with the texture lib. As this return a new object,
+		// the handle will be zero after this operation
+		tex_ks = textureLib.loadIntoMemory(texturePath, map_ks.c_str());        // ks
+		// Preserve earlier handle
+		tex_ks.handle = handleTmp;
 	    }
 	    if(enabledFields[Material::F_MAP_BUMP]) {
-		tex_bump.bitmap = textureLib.loadIntoMemory(texturePath, map_bump.c_str());    // bump
+		// Save possible handle
+		unsigned int handleTmp = tex_bump.handle;
+		// Load the texture with the texture lib. As this return a new object,
+		// the handle will be zero after this operation
+		tex_bump = textureLib.loadIntoMemory(texturePath, map_bump.c_str());    // bump
+		// Preserve earlier handle
+		tex_bump.handle = handleTmp;
 	    }
 	    memoryHoldingState = TextureLoadState::LOADED;
 
@@ -81,10 +106,10 @@ namespace ObjMaster {
 	/** Unload all textures from the main memory */
 	void TextureDataHoldingMaterial::unloadTexturesFromMemory() {
 	    // Clear texture data in memory
-	    tex_ka.bitmap.clear();
-	    tex_kd.bitmap.clear();
-	    tex_ks.bitmap.clear();
-	    tex_bump.bitmap.clear();
+	    tex_ka.unloadBitmapFromMemory();
+	    tex_kd.unloadBitmapFromMemory();
+	    tex_ks.unloadBitmapFromMemory();
+	    tex_bump.unloadBitmapFromMemory();
 	    memoryHoldingState = TextureLoadState::NOT_LOADED;
 	}
 
