@@ -101,20 +101,19 @@ OMLOGD("Texture descriptor candidate line: %s", mtlLine.c_str());
                     enabledFields[F_MAP_KA] = true;
                     continue;
                 }
-                if (std::string("map_Kd").compare(0, mtlLine.length(), mtlLine) == 0) {
+                if (mtlLine.compare(0, std::string("map_Kd").length(), std::string("map_Kd")) == 0) {
                     // map_Kd
                     map_kd = fetchStringParam(mtlLine);
                     enabledFields[F_MAP_KD] = true;
                     continue;
                 }
-                if (std::string("map_Ks").compare(0, mtlLine.length(), mtlLine) == 0) {
+                if (mtlLine.compare(0, std::string("map_Ks").length(), std::string("map_Ks")) == 0) {
                     // map_Ks
                     map_ks = fetchStringParam(mtlLine);
                     enabledFields[F_MAP_KS] = true;
                     continue;
                 }
-                if (std::string("map_bump").compare(0, mtlLine.length(), mtlLine) == 0 ||
-                     std::string("bump").compare(0, mtlLine.length(), mtlLine) == 0) {
+                if (mtlLine.compare(0, std::string("map_bump").length(), std::string("map_bump")) == 0) {
                     // map_bump
                     map_bump = fetchStringParam(mtlLine);
                     enabledFields[F_MAP_BUMP] = true;
