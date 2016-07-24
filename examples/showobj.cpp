@@ -17,7 +17,7 @@
  *     between em++, clang++ and g++ accordingly. You can provide this to make
  *     as a command line parameter or change the top of the makefile to set the
  *     default one. The makefile has comments about tested compiler versions.
- * TODO: Usage:
+ * Usage:
  *   ./showobj <model>     - shows the given model
  *   ./showobj             - shows models/default.obj (as the html build)
  *   palemoon showobj.html - open webgl build to show embedded models/default.obj
@@ -75,6 +75,75 @@ static void printGlError(std::string where) {
    	OMLOGE((where + " - glError: 0x%x").c_str(), err);
    }
 }
+
+/** Setup various vertex and index buffers for the given model to get ready for rendering - call only once! */
+static void setup_buffers(GLuint positionLoc, GLuint normalLoc, GLuint texCoordLoc, const ObjMaster::ObjMeshObject &model) {
+	if(model.inited && (model.vertexData.size() > 0) && (model.indices.size() > 0)) {
+   		printGlError("before setup_buffers");
+		// This little program is really a one-shot renderer so we do not save
+		// the object handles. In a bigger application you should handle them properly!
+		// Rem.: This is why you call the method at most only once...
+		GLuint s_vertexPosObject, s_indexObject;
+
+		// Generate vertex buffer object
+		glGenBuffers(1, &s_vertexPosObject);
+		glBindBuffer(GL_ARRAY_BUFFER, s_vertexPosObject );
+		glBufferData(GL_ARRAY_BUFFER, model.vertexData.size() * sizeof(VertexStructure), &(model.vertexData[0].x), GL_STATIC_DRAW);
+
+		// Generate index buffer object
+		glGenBuffers(1, &s_indexObject);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, s_indexObject);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, model.indices.size() * sizeof(model.indices[0]), &(model.indices[0]), GL_STATIC_DRAW);
+
+		// Bind the vertex buffer object and create two vertex attributes from the bound buffer
+		glBindBuffer(GL_ARRAY_BUFFER, s_vertexPosObject);
+		// By design, we know that the positions are the first elements in the VertexStructure
+		// so we can use zero as the pointer/index in the vertex data!
+		glVertexAttribPointer(positionLoc, 3, GL_FLOAT, GL_FALSE, sizeof(VertexStructure), 0);
+		// Calculate the offset where the normal vector data starts in the vertex data
+		// This is much better than writing "3" as this handles changes in the structure...
+		auto normalOffset = (&(model.vertexData[0].i) - &(model.vertexData[0].x));
+		// Use the calculated offset for getting the pointer to the normals in the vertex data
+		glVertexAttribPointer(normalLoc, 3, GL_FLOAT, GL_FALSE, sizeof(VertexStructure), (const GLvoid *)(normalOffset * 4));
+		// Calculate the offset where the normal vector data starts in the vertex data
+		// This is much better than writing "3" as this handles changes in the structure...
+		auto texCoordOffset = (&(model.vertexData[0].u) - &(model.vertexData[0].x));
+		// Use the calculated offset for getting the pointer to the texcoords in the vertex data
+		glVertexAttribPointer(texCoordLoc, 2, GL_FLOAT, GL_FALSE, sizeof(VertexStructure), (const GLvoid *)(texCoordOffset * 4));
+
+		// Enable the vertex attributes as arrays
+		glEnableVertexAttribArray(positionLoc);
+		glEnableVertexAttribArray(normalLoc);
+		glEnableVertexAttribArray(texCoordLoc);
+
+		// Bind the index buffer object we have created
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, s_indexObject);
+   		printGlError("after setup_buffers");
+
+#ifdef DEBUG_EXTRA
+OMLOGE("Vertex data sent to the GPU:");
+for(int i = 0; i < model.vertexData.size(); ++i) {
+	OMLOGE("v(%f, %f, %f) vn(%f, %f, %f) vt(%f, %f)", 
+			model.vertexData[i].x,
+			model.vertexData[i].y,
+			model.vertexData[i].z,
+			model.vertexData[i].i,
+			model.vertexData[i].j,
+			model.vertexData[i].k,
+			model.vertexData[i].u,
+			model.vertexData[i].v
+	);
+}
+OMLOGE("Index data sent to the GPU:");
+for(int i = 0; i < model.indices.size() / 3; ++i) {
+	OMLOGE("f %d %d %d", model.indices[3*i], model.indices[3*i+1], model.indices[3*i+2]);
+}
+#endif
+	} else {
+		fprintf(stderr, "No available model, vertex data or indices to setup!");
+	}
+}
+
 
 /** Draw the mesh of the obj file - first version, no material handling */
 static void draw_model(const ObjMaster::MaterializedObjMeshObject &model, GLfloat *transform, const GLfloat color[4]){
@@ -136,13 +205,18 @@ static void draw() {
    rotate(transform, 2 * M_PI * view_rot[1] / 360.0, 0, 1, 0);
    rotate(transform, 2 * M_PI * view_rot[2] / 360.0, 0, 0, 1);
 
-   // Render the model mesh
-   //draw_model(objModel, transform, red);
+   // Render the model
    if(model.inited && model.meshes.size() > 0) {
-	for(auto mesh : model.meshes) {
-		// TODO: remove the "color" parameter
+ 	for(auto mesh : model.meshes) {
+ 		// TODO: remove the "color" parameter
+		// TODO: This is really suboptimal! The VBOs should
+		// not be always overwritten I think but this little
+		// example is not performance critical so it is ookay...
+		// I mean... the data copy in setup buffers is too much!
+		// Setup buffers for rendering the first mesh
+	 	setup_buffers(0, 1, 2, mesh); 
 		draw_model(mesh, transform, red);
-		printGlError("after draw_model");
+ 		printGlError("after draw_model");
 	}
    }
 
@@ -288,74 +362,6 @@ static const char fragment_shader[] =
 //"    gl_FragColor = (Color + texel) + vec4(fragTex, 0.5, 1.0);\n"
 "}";
 
-/** Setup various vertex and index buffers for the given model to get ready for rendering - call only once! */
-static void setup_buffers(GLuint positionLoc, GLuint normalLoc, GLuint texCoordLoc, const ObjMaster::ObjMeshObject &model) {
-	if(model.inited && (model.vertexData.size() > 0) && (model.indices.size() > 0)) {
-   		printGlError("before setup_buffers");
-		// This little program is really a one-shot renderer so we do not save
-		// the object handles. In a bigger application you should handle them properly!
-		// Rem.: This is why you call the method at most only once...
-		GLuint s_vertexPosObject, s_indexObject;
-
-		// Generate vertex buffer object
-		glGenBuffers(1, &s_vertexPosObject);
-		glBindBuffer(GL_ARRAY_BUFFER, s_vertexPosObject );
-		glBufferData(GL_ARRAY_BUFFER, model.vertexData.size() * sizeof(VertexStructure), &(model.vertexData[0].x), GL_STATIC_DRAW);
-
-		// Generate index buffer object
-		glGenBuffers(1, &s_indexObject);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, s_indexObject);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, model.indices.size() * sizeof(model.indices[0]), &(model.indices[0]), GL_STATIC_DRAW);
-
-		// Bind the vertex buffer object and create two vertex attributes from the bound buffer
-		glBindBuffer(GL_ARRAY_BUFFER, s_vertexPosObject);
-		// By design, we know that the positions are the first elements in the VertexStructure
-		// so we can use zero as the pointer/index in the vertex data!
-		glVertexAttribPointer(positionLoc, 3, GL_FLOAT, GL_FALSE, sizeof(VertexStructure), 0);
-		// Calculate the offset where the normal vector data starts in the vertex data
-		// This is much better than writing "3" as this handles changes in the structure...
-		auto normalOffset = (&(model.vertexData[0].i) - &(model.vertexData[0].x));
-		// Use the calculated offset for getting the pointer to the normals in the vertex data
-		glVertexAttribPointer(normalLoc, 3, GL_FLOAT, GL_FALSE, sizeof(VertexStructure), (const GLvoid *)(normalOffset * 4));
-		// Calculate the offset where the normal vector data starts in the vertex data
-		// This is much better than writing "3" as this handles changes in the structure...
-		auto texCoordOffset = (&(model.vertexData[0].u) - &(model.vertexData[0].x));
-		// Use the calculated offset for getting the pointer to the texcoords in the vertex data
-		glVertexAttribPointer(texCoordLoc, 2, GL_FLOAT, GL_FALSE, sizeof(VertexStructure), (const GLvoid *)(texCoordOffset * 4));
-
-		// Enable the vertex attributes as arrays
-		glEnableVertexAttribArray(positionLoc);
-		glEnableVertexAttribArray(normalLoc);
-		glEnableVertexAttribArray(texCoordLoc);
-
-		// Bind the index buffer object we have created
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, s_indexObject);
-   		printGlError("after setup_buffers");
-
-#ifdef DEBUG_EXTRA
-OMLOGE("Vertex data sent to the GPU:");
-for(int i = 0; i < model.vertexData.size(); ++i) {
-	OMLOGE("v(%f, %f, %f) vn(%f, %f, %f) vt(%f, %f)", 
-			model.vertexData[i].x,
-			model.vertexData[i].y,
-			model.vertexData[i].z,
-			model.vertexData[i].i,
-			model.vertexData[i].j,
-			model.vertexData[i].k,
-			model.vertexData[i].u,
-			model.vertexData[i].v
-	);
-}
-OMLOGE("Index data sent to the GPU:");
-for(int i = 0; i < model.indices.size() / 3; ++i) {
-	OMLOGE("f %d %d %d", model.indices[3*i], model.indices[3*i+1], model.indices[3*i+2]);
-}
-#endif
-	} else {
-		fprintf(stderr, "No available model, vertex data or indices to setup!");
-	}
-}
-
 static void init(char* modelFileNameAndPath) {
    GLuint v, f, program;
    const char *p;
@@ -449,8 +455,6 @@ static void init(char* modelFileNameAndPath) {
  
  	// Load data onto the GPU and setup buffers for rendering
 	if(model.inited && model.meshes.size() > 0) {
-		// Setup buffers for rendering the first mesh
- 		setup_buffers(0, 1, 2, model.meshes[0]);
 		// Load textures for the model meshes
 		// TODO: Remove unload! This is to test the gl texture lib if unload is possible before load!
 		model.unloadAllTextures();

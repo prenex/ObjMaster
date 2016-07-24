@@ -1,16 +1,16 @@
 # TODO: Currently only compiles the showobj example
 
 # for gcc5.1+:
-#CC=g++
+CC=g++
 # for clang3.4+:
-CC=clang++
+#CC=clang++
 # for emscripten / webgl
 #CC=em++
 
 ifeq ($(CC),g++)
 	# g++ (ver 5.1+ tested)
-	CFLAGS=-c -std=c++14 #-Wall # sadly we are having a lot of unused functions for tests so this is undesirable...
-	LDFLAGS=-lglut -lGLESv2 -lm
+	CFLAGS=-c -std=c++14 -g #-Wall # sadly we are having a lot of unused functions for tests so this is undesirable...
+	LDFLAGS=-lglut -lGLESv2 -lm -g
 else 
 ifeq ($(CC),em++)
 	# em++ (ver 1.3+ tested)
