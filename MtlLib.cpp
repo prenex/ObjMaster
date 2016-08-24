@@ -8,6 +8,7 @@
 #include <algorithm>  /* std::mismatch */
 #include <cstring>    /* strtok_r, strdup */
 #include <cstdlib>    /* free */
+#include "wincompat.h" // msvc hax
 
 namespace ObjMaster {
     const std::string MtlLib::KEYWORD = std::string("mtllib");

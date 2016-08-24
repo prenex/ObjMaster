@@ -58,8 +58,8 @@ namespace std
             result_type hvn2 = std::hash<float>()(s.vn->y);
             result_type hvn3 = std::hash<float>()(s.vn->z);
 
-            result_type hvt1 = std::hash<unsigned int>()(s.vt->u);
-            result_type hvt2 = std::hash<unsigned int>()(s.vt->v);
+            result_type hvt1 = std::hash<float>()(s.vt->u);
+            result_type hvt2 = std::hash<float>()(s.vt->v);
 
             return (hv1 ^ (hv2 << 1)) ^ (hv3 << 1) ^
                    ((hvn1 ^ (hvn2 << 1)) ^ (hvn3 << 1)) ^
@@ -148,7 +148,7 @@ OMLOGD(" - Found already handled facePoint!");
                         // Collect target data in lists that represent the buffers
                         // Basically add the data variation for the vertical slice
 
-                        vertexData.push_back((VertexStructure) {
+                        vertexData.push_back(VertexStructure {
                                 fv->x,
                                 fv->y,
                                 fv->z,

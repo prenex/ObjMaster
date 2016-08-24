@@ -5,6 +5,7 @@
 #include "FacePoint.h"
 #include <cstring>    /* strtok_r */
 #include <cstdlib>     /* atoi */
+#include "wincompat.h" // msvc hax
 
 namespace ObjMaster {
     bool FacePoint::isParsable(const char *fields) {

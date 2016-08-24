@@ -2,9 +2,12 @@
 // Created by rthier on 2016.04.11..
 //
 
+
+
 #include "FaceElement.h"
 #include <cstring>    /* strtok_r */
 #include "Obj.h"
+#include "wincompat.h" // msvc hax
 
 namespace ObjMaster {
     bool FaceElement::isParsable(const char *fields) {

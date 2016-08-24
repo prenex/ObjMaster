@@ -9,6 +9,7 @@
 #include "funhelper.h"
 #include <cstring>    /* strtok_r, strdup */
 #include "Obj.h"
+#include "wincompat.h" // msvc hax
 
 namespace ObjMaster {
     class UseMtl {
