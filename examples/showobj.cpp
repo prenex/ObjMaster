@@ -13,7 +13,7 @@
  *   emsdk (JS/WEBGL - full toolchain: nodejs, LLVM, etc.)
  * Compilations:
  *   - make
- *   - In case you want to change the copmpiler/target, change the CC parameter
+ *   - In case you want to change the compiler/target, change the CC parameter
  *     between em++, clang++ and g++ accordingly. You can provide this to make
  *     as a command line parameter or change the top of the makefile to set the
  *     default one. The makefile has comments about tested compiler versions.
@@ -478,7 +478,6 @@ int main(int argc, char *argv[]) {
    /* Set up glut callback functions */
    glutIdleFunc (idle);
    glutReshapeFunc(handleViewportReshape);
-   //glutDisplayFunc(draw_tri);
    glutDisplayFunc(draw);
    glutSpecialFunc(handleSpecialGlutEvents);
 
