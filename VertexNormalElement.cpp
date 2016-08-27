@@ -7,6 +7,7 @@
 #include <cstring>    /* strtok_r */
 #include <cstdlib>     /* atof */
 #include "Obj.h"
+#include "wincompat.h" // msvc hax
 
 namespace ObjMaster {
     bool VertexNormalElement::isParsable(const char *fields) {
@@ -35,9 +36,9 @@ namespace ObjMaster {
             char *yStr = strtok_r(nullptr, OBJ_DELIMITER, &savePtr);
             char *zStr = strtok_r(nullptr, OBJ_DELIMITER, &savePtr);
 
-            x = atof(xStr);
-            y = atof(yStr);
-            z = atof(zStr);
+            x = (float)atof(xStr);
+            y = (float)atof(yStr);
+            z = (float)atof(zStr);
         }
     }
 }

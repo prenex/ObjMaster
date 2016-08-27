@@ -8,6 +8,7 @@
 #include "Obj.h"        /* OBJ_DELIMITER */
 #include <cstring>      /* strtok_r, strdup */
 #include "objmasterlog.h"
+#include "wincompat.h" // msvc hax
 
 namespace ObjMaster {
 
@@ -37,9 +38,9 @@ namespace ObjMaster {
         free(copy); // strtok modifies the string so we copied it above...
 
         // Convert to float values
-        float r = atof(rStr);
-        float g = atof(gStr);
-        float b = atof(bStr);
+        float r = (float)atof(rStr);
+        float g = (float)atof(gStr);
+        float b = (float)atof(bStr);
 
         // Return created vector
         return std::vector<float> {r, g, b};

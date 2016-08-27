@@ -26,7 +26,9 @@ Design considerations:
 - Prefer copy semantics with small objects, try not using pointers and references at all if not necessary.
 - Try to avoid allocating a lot of small objects on the heap - use the stack in this case even when it needs 10-20byte copies
 - Try to be as multiplatform as it can be: we used this first for android, but all I/O code is generic through asset library
-- Try to stay usable from different 3D APIs: Texture loading handling is provided by user, no tight coupling!- 
+- Try to stay usable from different 3D APIs: Texture loading handling is provided by user, no tight coupling!
+- Try not to become a "one and true magic library" - that is I am not planning to make this fool-proof to handle everything!
+- Try to keep things as lightweight as possible and to the point. Designed for controlled situations, generate vertex normals, do clean up the files prior to use with vim or whatever you want, but it is better to keep the code small than to handle these!
 
 Try to adhere to these considerations when forking the code or providing fixes!
 

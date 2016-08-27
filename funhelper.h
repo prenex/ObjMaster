@@ -7,6 +7,7 @@
 #define NFTSIMPLEPROJ_HELPERFUN_H
 
 #include <string>
+#include <algorithm> // std::mismatch
 
 /**
  * Returns if the given keyword is a real existing prefix of the given target string.

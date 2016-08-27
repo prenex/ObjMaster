@@ -7,6 +7,7 @@
 #include <cstring>    /* strtok_r */
 #include <cstdlib>     /* atof */
 #include "Obj.h"
+#include "wincompat.h" // msvc hax
 
 namespace ObjMaster {
     bool VertexTextureElement::isParsable(const char *fields) {
@@ -34,8 +35,8 @@ namespace ObjMaster {
             char *uStr = strtok_r(nullptr, OBJ_DELIMITER, &savePtr);
             char *vStr = strtok_r(nullptr, OBJ_DELIMITER, &savePtr);
 
-            u = atof(uStr);
-            v = atof(vStr);
+            u = (float)atof(uStr);
+            v = (float)atof(vStr);
         }
     }
 }
