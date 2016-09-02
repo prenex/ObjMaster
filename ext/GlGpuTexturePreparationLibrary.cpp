@@ -40,7 +40,14 @@ if(bitmap.size() > 0) {
 		void GlGpuTexturePreparationLibrary::unloadFromGPU(ObjMaster::Texture &t) const {
 			if(t.handle != 0) {
 				// Delete the texture for the given handle
-				glDeleteTextures(1, &t.handle);
+				// We can safely do the cast here as the
+				// texture handle must have been loaded with us!
+				// and in OpenGL it is just a number not a pointer.
+				// In other graphics APIs (like DirectX) they use
+				// pointers instead of handles so the library uses
+				// a type that is surely big enough to hold that too!
+				glDeleteTextures(1, (const GLuint*) &t.handle);
+				// A number of zero means that there is no texture!
 				t.handle = 0;
 			}
 		}

@@ -1,6 +1,8 @@
 #ifndef OM_TEXTURE_H
 #define OM_TEXTURE_H
 
+#include <cstdint>
+
 namespace ObjMaster {
 	/** Represents a texture */
 	struct Texture {
@@ -17,7 +19,7 @@ namespace ObjMaster {
 		 * It has the special value of 0 when the texture is not loaded
 		 * onto the GPU unit.
 		 */
-		unsigned int handle;
+		uintptr_t handle;
 		/** Width in pixels */
 		int width;
 		/** Height in pixels */
