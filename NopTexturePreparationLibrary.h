@@ -17,14 +17,8 @@ namespace ObjMaster {
 	public:
 		Texture loadIntoMemory(const char *path,
 					   const char *textureFileName) const {
-		    // We don't do a thing here, just return empty vector
-		    return Texture {
-			std::vector<uint8_t>(),
-			0,
-			0,
-			0,
-			0
-		    };
+		    // We don't do a thing here, just return empty texture
+			return Texture{};
 		}
 
 		void loadIntoGPU(Texture &t) const {
