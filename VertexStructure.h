@@ -28,7 +28,7 @@ struct VertexStructure {
     float x, y, z;
     // normal
     float i, j, k;
-    // texture1 uv
+    // texture0 uv
     float u, v;
 };
 

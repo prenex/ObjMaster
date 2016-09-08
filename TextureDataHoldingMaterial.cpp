@@ -79,7 +79,7 @@ namespace ObjMaster {
 	 */
 	void TextureDataHoldingMaterial::loadTexturesIntoGPU(const GpuTexturePreparationLibrary &textureLib) {
 	    if(gpuHoldingState == TextureLoadState::LOADED) {
-		unloadTexturesFromGPU(textureLib);
+			unloadTexturesFromGPU(textureLib);
 	    }
 	    // Load those textures into the GPU which have some data in the memory
 	    if(!tex_ka.bitmap.empty()) { textureLib.loadIntoGPU(tex_ka); }
