@@ -23,12 +23,45 @@ namespace ObjMasterExt {
 			// The bitmap is empty when it is not loaded
 			// in that case we just don't do anything
 			if(t.bitmap.size() > 0) {
-				// TODO: Not the most sane check for RGBA as it does not consider byte ordering!
+
+				// If it is RGBA we can use the result directly
+				// and that is the common case so take it as default!
+				uint8_t* bitmapPtr = &t.bitmap[0];
+
+				// This size is calculated to convert from RGB to RGBA manually
+				// and to contain zero length if no conversion is needed!
+				size_t rgbConversionVectorSize = (t.bytepp == 3 ? ((t.bitmap.size() * 4) / 3) : 0);
+				// Used only if necessary, but created to the size if conversion will take place.
+				// Should be in this bigger scope however for direct array access by DX later!!!
+				// (we change bitmapPtr to point at it if conversion took place so it can't go 
+				// out of scope and get desctucted as that invalidates the pointer we provide to dx)
+				std::vector<uint8_t> convertedBitmapData(rgbConversionVectorSize);
+				// We expect RGB? byte ordering because of stb_img.h
+				// Check if we have 4 color components already or not
 				if (t.bytepp != 4) {
-					// TODO: Currently supporting only RGBA - need at least RGB->RGBA conversion!!!
-					// just do a nop otherwise!
-					OMLOGE("Dx11GpuTexturePreparationLibrary  - Byte per pixel(%d) is not supported: need RGBA!", t.bytepp);
-					return;
+					// RGB is not really understood by DirectX directly
+					// so we need to do our own conversion in this case
+					// to make it RGBA (32 bit is needed - 24 doesn't go)
+					// RGB->RGBA conversion!!!
+					if (t.bytepp == 3) {
+						// The loop is like this to aid better code generation I hope
+						// Can be further optimized if necessary
+						for (unsigned int i = 0, j = 0; i < t.bitmap.size(); i = i+3, j = j+4) {
+							// RGB
+							convertedBitmapData[j] = t.bitmap[i];
+							convertedBitmapData[j + 1] = t.bitmap[i + 1];
+							convertedBitmapData[j + 2] = t.bitmap[i + 2];
+							// A
+							convertedBitmapData[j + 3] = 255;
+						}
+						// Update the pointer to point to the converted vector data!
+						bitmapPtr = &convertedBitmapData[0];
+					} else {
+						// Currently supporting only RGB or RGBA...
+						// In any other case just do a NO-OP and notify with an error!
+						OMLOGE("Dx11GpuTexturePreparationLibrary  - Byte per pixel(%d) is not supported: need RGBA(best) or RGB(will be converted)!", t.bytepp);
+						return;
+					}
 				}
 
 				// Create texture descriptor
@@ -36,6 +69,7 @@ namespace ObjMasterExt {
 				memset(&desc, 0, sizeof(desc));
 				desc.Width = t.width;
 				desc.Height = t.heigth;
+				// 0 for auto
 				desc.MipLevels = 1;
 				desc.ArraySize = 1;
 				desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
@@ -51,7 +85,7 @@ namespace ObjMasterExt {
 				// while loading the image
 				// so we can use it like this!
 				D3D11_SUBRESOURCE_DATA texResData;
-				texResData.pSysMem = &t.bitmap[0];
+				texResData.pSysMem = bitmapPtr;
 				// This defines the distance pitch between rows
 				// So it is width* bytePerPixel as we need in bytes!
 				texResData.SysMemPitch = t.width * t.bytepp;
@@ -73,6 +107,7 @@ namespace ObjMasterExt {
 				memset(&SRVDesc, 0, sizeof(SRVDesc));
 				SRVDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 				SRVDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+				// -1 for auto
 				SRVDesc.Texture2D.MipLevels = 1;
 				ID3D11ShaderResourceView* textureView;
 				hr = pd3dDevice->CreateShaderResourceView(pTexture, &SRVDesc, &textureView);
