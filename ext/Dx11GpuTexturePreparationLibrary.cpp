@@ -33,18 +33,16 @@ namespace ObjMasterExt {
 
 				// Create texture descriptor
 				D3D11_TEXTURE2D_DESC desc;
+				memset(&desc, 0, sizeof(desc));
 				desc.Width = t.width;
 				desc.Height = t.heigth;
-				// Mipmap setup: 1 = multisampled; 0 = generate full set
 				desc.MipLevels = 1;
 				desc.ArraySize = 1;
 				desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 				desc.SampleDesc.Count = 1;
-				//desc.Usage = D3D11_USAGE_DYNAMIC;
-				desc.Usage = D3D11_USAGE_IMMUTABLE; // fast
+				desc.Usage = D3D11_USAGE_DEFAULT;
 				desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
-				//desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-				desc.CPUAccessFlags = 0; // fast: write-once texture
+				desc.CPUAccessFlags = 0; //D3D11_CPU_ACCESS_WRITE;
 				desc.MiscFlags = 0;
 
 				// Create the texture resource
@@ -54,16 +52,44 @@ namespace ObjMasterExt {
 				// so we can use it like this!
 				D3D11_SUBRESOURCE_DATA texResData;
 				texResData.pSysMem = &t.bitmap[0];
-				texResData.SysMemPitch = 0;
+				// This defines the distance pitch between rows
+				// So it is width* bytePerPixel as we need in bytes!
+				texResData.SysMemPitch = t.width * t.bytepp;
 				texResData.SysMemSlicePitch = 0;
 
-
 				// Create texture
-				ID3D11Texture2D *pTexture = nullptr;
-				pd3dDevice->CreateTexture2D(&desc, &texResData, &pTexture);
+				HRESULT hr;
+				//ID3D11Texture2D *pTexture = nullptr;
+				ID3D11Texture2D *pTexture = NULL;
+				//hr = pd3dDevice->CreateTexture2D(&desc, &texResData, &pTexture);
+				hr = pd3dDevice->CreateTexture2D(&desc, &texResData, &pTexture);
+				if (FAILED(hr)) {
+					OMLOGE("Dx11GpuTexturePreparationLibrary - Failed to create Texture2D! (err:%d)", hr);
+					return;
+				}
+
+				// Try to create the shader resource view out of this texture...
+				D3D11_SHADER_RESOURCE_VIEW_DESC SRVDesc;
+				memset(&SRVDesc, 0, sizeof(SRVDesc));
+				SRVDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+				SRVDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+				SRVDesc.Texture2D.MipLevels = 1;
+				ID3D11ShaderResourceView* textureView;
+				hr = pd3dDevice->CreateShaderResourceView(pTexture, &SRVDesc, &textureView);
+				if (FAILED(hr)) {
+					OMLOGE("Dx11GpuTexturePreparationLibrary - Cannot create shader resource view for texture! (err:%d)", hr);
+					return;
+				}
 
 				// Set the handle to hold the pointer.
-				t.handle = reinterpret_cast<uintptr_t>(pTexture);
+				t.handle = reinterpret_cast<uintptr_t>(textureView);
+
+				// Release texture. If I understand it well enough, we only need the view from now on...
+				// this idea is stolen from the code at: https://msdn.microsoft.com/en-us/library/windows/desktop/ff476904%28v=vs.85%29.aspx
+				// (Title of link: How to initialize texture from a file)
+				if (pTexture != nullptr) {
+					pTexture->Release();
+				}
 
 				OMLOGD("Dx11GpuTexturePreparationLibrary - Loaded %d bytes to the GPU!", (int)t.bitmap.size());
 				OMLOGD("Dx11GpuTexturePreparationLibrary - Texture(%d) loaded!", t.handle);
@@ -88,7 +114,7 @@ namespace ObjMasterExt {
 				// The handle is a pointer to the texture resource
 				// in this DirectX version! Because of this, we can
 				// release the texture like this!
-				ID3D11Texture2D *handleAsPtr = (reinterpret_cast<ID3D11Texture2D*>(t.handle));
+				ID3D11ShaderResourceView *handleAsPtr = (reinterpret_cast<ID3D11ShaderResourceView*>(t.handle));
 				// Rem.: The latter is for systems where nullptr != 0
 				//  - in the first run the handle is initialized to plain zero!
 				if (handleAsPtr != nullptr &&handleAsPtr != 0) {
