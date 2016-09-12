@@ -35,12 +35,14 @@ namespace ObjMaster {
         char *rStr = strtok_r(nullptr, OBJ_DELIMITER, &savePtr);
         char *gStr = strtok_r(nullptr, OBJ_DELIMITER, &savePtr);
         char *bStr = strtok_r(nullptr, OBJ_DELIMITER, &savePtr);
-        free(copy); // strtok modifies the string so we copied it above...
 
         // Convert to float values
         float r = (float)atof(rStr);
         float g = (float)atof(gStr);
         float b = (float)atof(bStr);
+
+		// This should be after atofs as the tokenizer refers to memory in the copy!
+        free(copy); // strtok modifies the string so we copied it above...
 
         // Return created vector
         return std::vector<float> {r, g, b};
