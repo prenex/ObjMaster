@@ -33,10 +33,10 @@ namespace ObjMaster {
 		path = obj.objPath;
 		// We create one mesh per each object material group
 		for(auto gPair : obj.objectMaterialGroups) {
-			meshes.push_back(MaterializedObjMeshObject(obj,
+			meshes.push_back(std::move(MaterializedObjMeshObject(obj,
 				&(obj.fs[gPair.second.faceIndex]),
 			       	gPair.second.meshFaceCount,
-			       	gPair.second.textureDataHoldingMaterial));
+			       	gPair.second.textureDataHoldingMaterial)));
 		}
 
 		// Indicate that the model is loaded

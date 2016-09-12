@@ -1,6 +1,6 @@
 //
 // Created by rthier on 2016.04.12..
-//
+// TODO: In multi-mesh cases the indexing is suboptimal as there can be duplications between meshes (only when they reuse vertices between two mesh - not horrible)
 
 // Un-comment in case of hard debugging
 /*#define DEBUG*/
@@ -77,36 +77,131 @@ namespace ObjMaster {
         const FaceElement* objFaces = &(obj.fs)[0];
         // The count of mesh faces should be equal to all of the faces in this case
         int objFaceCount = (obj.fs).size();
-        creationHelper(obj, objFaces, objFaceCount);
+        creationHelper(obj, objFaces, objFaceCount, nullptr, nullptr, 0);
     }
 
     ObjMeshObject::ObjMeshObject(const Obj& obj, const FaceElement *meshFaces, int meshFaceCount) {
-        creationHelper(obj, meshFaces, meshFaceCount);
+        creationHelper(obj, meshFaces, meshFaceCount, nullptr, nullptr, 0);
     }
 
-    void ObjMeshObject::creationHelper(const Obj& obj, const FaceElement *meshFaces, int meshFaceCount) {
+	/**
+	 * The copy ctor - necessary because of the possible pointer sharing stuff!
+	 * In case of non-shared vectors we copy, in case of shared vectors we copy only the pointer!
+	 */
+	ObjMeshObject::ObjMeshObject(const ObjMeshObject &other) {
+		copyHelper(other);
+	}
+
+	ObjMeshObject& ObjMeshObject::operator=(const ObjMeshObject& other) {
+		copyHelper(other);
+		return *this;
+	}
+
+	void ObjMeshObject::copyHelper(const ObjMeshObject &other) {
+		// The pointers to vectors are copied according to the ownership flags!
+		std::vector<uint32_t> *iPtr = nullptr;
+		std::vector<VertexStructure> *vPtr = nullptr;
+		if (other.ownsIndices) {
+			// If the other owns the pointed vector
+			// we should copy its contents and create
+			// a vector that we own by ourselves.
+			// There are more semantic possibilities, but
+			// this handles a lot of common cases and
+			// ensures that the desctuctor does not tries
+			// to delete memory that is not owned by us!
+			iPtr = new std::vector<uint32_t>(*other.indices);
+		} else {
+			// If the other do not own the pointed vector
+			// we can just use a pointer to it and we also
+			// don't own the vector
+			iPtr = other.indices;
+		}
+		if (other.ownsVertexData) {
+			// If the other owns the pointed vector
+			// we should copy its contents and create
+			// a vector that we own by ourselves.
+			// There are more semantic possibilities, but
+			// this handles a lot of common cases and
+			// ensures that the desctuctor does not tries
+			// to delete memory that is not owned by us!
+			vPtr = new std::vector<VertexStructure>(*other.vertexData);
+		} else {
+			// If the other do not own the pointed vector
+			// we can just use a pointer to it and we also
+			// don't own the vector
+			vPtr = other.vertexData;
+		}
+
+		// Other things are just copied memberwise
+		this->baseVertexLocation = other.baseVertexLocation;
+		this->indexCount = other.indexCount;
+		this->indices = iPtr;
+		this->lastIndex = other.lastIndex;
+		this->ownsIndices = other.ownsIndices;
+		this->ownsVertexData = other.ownsVertexData;
+		this->startIndexLocation = other.startIndexLocation;
+		this->vertexCount = other.vertexCount;
+		this->vertexData = vPtr;
+	}
+
+	ObjMeshObject::ObjMeshObject(const Obj& obj, const FaceElement *meshFaces, int meshFaceCount, std::vector<VertexStructure> *vertexVector, std::vector<uint32_t> *indexVector, uint32_t lastIndexBase) {
+		creationHelper(obj, meshFaces, meshFaceCount, vertexVector, indexVector, lastIndexBase);
+	}
+
+    void ObjMeshObject::creationHelper(const Obj& obj, const FaceElement *meshFaces, int meshFaceCount,
+		std::vector<VertexStructure> *vertexVector, std::vector<uint32_t> *indexVector, uint32_t lastIndexBase) {
+
+		// Handle the difference between the case when they provide the vectors to us
+		// and cases when we create and own the vectors by ourselves!
+
+		// Vertex vector
+		if (vertexVector == nullptr) {
+			this->vertexData = new std::vector<VertexStructure>();
+			this->ownsVertexData = true;
+			this->baseVertexLocation = 0;
+		} else {
+			this->vertexData = vertexVector;
+			this->ownsVertexData= false;
+			this->baseVertexLocation = vertexVector->size();
+		}
+
+		// Index vector
+		if (indexVector == nullptr) {
+			this->indices = new std::vector<uint32_t>();
+			this->ownsIndices = true;
+			this->startIndexLocation = 0;
+		}
+		else {
+			this->indices = indexVector;
+			this->ownsIndices = false;
+			this->startIndexLocation = indexVector->size();
+		}
+
         // The map is used to make the index buffer refer to duplications properly
         // without re-creating the data slice for the duplications
         std::unordered_map<IndexTargetSlice, uint32_t> alreadyHandledFacePointTargets;
-
-        // Vectors are used here as we are duplicating and/or filtering out data
-        // so we do not know for sure if we have this or that many elements
-        indices = std::vector<uint32_t>();
-
-        // Inline data for better GPU cache hit! This way we need several shader attributes with one array!
-        vertexData = std::vector<VertexStructure>();
 
         // The reservations here are really just heuristics:
         // - It would be pointless to think the indices always point at different things
         // - In that case it would be 3*mfc (considering triangles)
         // - So what I did is that I just heuristically applied one third of those maximums
         if(meshFaceCount != 0) {
-            indices.reserve(meshFaceCount);
-            vertexData.reserve(meshFaceCount);
+			// Here the earlier sizes should be added
+			// as the parameter to reserve is an absolute
+			// reservation size and in case of shared
+			// vectors they are already having some reserves!
+			//
+			// In complex cases this also helps to reduce the
+			// over-reservations as we only over-reserve by the
+			// amount of quessing error from the last mesh!!!
+			// This is why we use xxx.size() as base here!!!
+            indices->reserve(indices->size() + meshFaceCount);
+            vertexData->reserve(vertexData->size() + meshFaceCount);
         }
 
         // Loop through faces
-        uint32_t lastIndex = 0;
+		indexCount = vertexCount = 0;	// In mesh counts: zero
+        lastIndex = lastIndexBase;		// Multimesh: avoids crash with earlier indices!
         for(int i = 0; i < meshFaceCount; ++i) {
             FaceElement face = meshFaces[i];
             if(face.facePointCount == 3) {
@@ -143,12 +238,12 @@ OMLOGD(" - Found already handled facePoint!");
                         // Only add a new index into the index-buffer referencing the already
                         // added data in case we had this variation earlier... The index points to
                         // the earlier variation this way.
-                        indices.push_back(alreadyHandledFacePointTargets[its]);
+                        indices->push_back(alreadyHandledFacePointTargets[its]);
+						++indexCount;
                     } else {
                         // Collect target data in lists that represent the buffers
                         // Basically add the data variation for the vertical slice
-
-                        vertexData.push_back(VertexStructure {
+                        vertexData->push_back(VertexStructure {
                                 fv->x,
                                 fv->y,
                                 fv->z,
@@ -157,13 +252,17 @@ OMLOGD(" - Found already handled facePoint!");
                                 fvn->z,
                                 fvt->u,
                                 fvt->v});
+						++vertexCount;
+
                         // Add an index for this new vertical slice
-                        indices.push_back(lastIndex);
+                        indices->push_back(lastIndex);
+						++indexCount;
 
                         // Update the hashmap for the already handled data
                         alreadyHandledFacePointTargets[its] = lastIndex;
 
                         // Increment the index-buffer construction variable
+						// invariant: this always holds max(indices)
                         ++lastIndex;
                     }
                 }
@@ -174,11 +273,13 @@ OMLOGD(" - Found already handled facePoint!");
         }
 
         // Log relevant counts
-        OMLOGD(" - Number of vertices after conversion: %d", (int)vertexData.size());
-        OMLOGD(" - Number of indices after conversion: %d", (int)indices.size());
-        OMLOGD(" - Maximum indexNo: %d", lastIndex);
+        OMLOGD(" - Total number of vertices in buffer after obj->mesh conversion: %u", ((unsigned int) vertexData->size()));
+        OMLOGD(" - Total number of indices in buffer after obj->mesh conversion: %u", ((unsigned int) indices->size()));
+        OMLOGD(" - Number of (per-mesh) vertices after conversion: %u", vertexCount);
+        OMLOGD(" - Number of (per-mesh) indices after conversion: %u", indexCount);
+        OMLOGD(" - Maximum indexNo in this mesh: %d", lastIndex);
 
-        // Say that the mesh has been initialized
+        // Indicate that the mesh has been initialized
         inited = true;
     }
 }

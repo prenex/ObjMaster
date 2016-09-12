@@ -19,7 +19,6 @@ namespace ObjMaster {
     public:
         /** The corresponding material and possibly the texture data in it */
         TextureDataHoldingMaterial material;
-	//TextureDataHoldingMaterial material;
 
         /** Create an obj mesh-object that is having an associated material */
         MaterializedObjMeshObject(const Obj& obj, const FaceElement *meshFaces, int meshFaceCount, TextureDataHoldingMaterial textureDataHoldingMaterial);
