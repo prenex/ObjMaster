@@ -88,7 +88,8 @@ namespace ObjMasterExt {
 				texResData.pSysMem = bitmapPtr;
 				// This defines the distance pitch between rows
 				// So it is width* bytePerPixel as we need in bytes!
-				texResData.SysMemPitch = t.width * t.bytepp;
+				// Rem.: bpp is always '4' as we convert everything to RGBA now!
+				texResData.SysMemPitch = t.width * 4;
 				texResData.SysMemSlicePitch = 0;
 
 				// Create texture
