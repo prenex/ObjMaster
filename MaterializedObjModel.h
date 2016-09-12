@@ -23,9 +23,9 @@ namespace ObjMaster {
     template <class GpuTexturePreparationLibraryImpl>
     class MaterializedObjModel {
     public:
-	bool inited = false;
-	std::vector<MaterializedObjMeshObject> meshes;
-	const char* path;
+		bool inited = false;
+		std::vector<MaterializedObjMeshObject> meshes;
+		const char* path;
 
 	/** Create a materialized obj model using the given obj representation */
 	MaterializedObjModel(const Obj &obj) {
@@ -84,7 +84,7 @@ namespace ObjMaster {
 	 * change the graphics API on the fly while using the same models so it is okay that the
 	 * user code should supply this when constructing the model as template param.
 	 */
-	GpuTexturePreparationLibraryImpl gpuTexLibrary = GpuTexturePreparationLibraryImpl();
+		GpuTexturePreparationLibraryImpl gpuTexLibrary = GpuTexturePreparationLibraryImpl();
     };
 }
 
