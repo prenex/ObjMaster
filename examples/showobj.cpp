@@ -78,8 +78,8 @@ static void printGlError(std::string where) {
 
 /** Setup various vertex and index buffers for the given model to get ready for rendering - call only once! */
 static void setup_buffers(GLuint positionLoc, GLuint normalLoc, GLuint texCoordLoc, const ObjMaster::ObjMeshObject &model) {
-	if(model.inited && (model.vertexData.size() > 0) && (model.indices.size() > 0)) {
-   		printGlError("before setup_buffers");
+   	printGlError("Before setup_buffers");
+	if(model.inited && (model.vertexCount > 0) && (model.indexCount > 0)) {
 		// This little program is really a one-shot renderer so we do not save
 		// the object handles. In a bigger application you should handle them properly!
 		// Rem.: This is why you call the method at most only once...
@@ -88,12 +88,15 @@ static void setup_buffers(GLuint positionLoc, GLuint normalLoc, GLuint texCoordL
 		// Generate vertex buffer object
 		glGenBuffers(1, &s_vertexPosObject);
 		glBindBuffer(GL_ARRAY_BUFFER, s_vertexPosObject );
-		glBufferData(GL_ARRAY_BUFFER, model.vertexData.size() * sizeof(VertexStructure), &(model.vertexData[0].x), GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, model.vertexCount * sizeof(VertexStructure), &((*(model.vertexData))[0].x), GL_STATIC_DRAW);
 
 		// Generate index buffer object
 		glGenBuffers(1, &s_indexObject);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, s_indexObject);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, model.indices.size() * sizeof(model.indices[0]), &(model.indices[0]), GL_STATIC_DRAW);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER,
+		             model.indexCount * sizeof((*(model.indices))[0]),
+			     &((*(model.indices))[0]),
+			     GL_STATIC_DRAW);
 
 		// Bind the vertex buffer object and create two vertex attributes from the bound buffer
 		glBindBuffer(GL_ARRAY_BUFFER, s_vertexPosObject);
@@ -102,12 +105,12 @@ static void setup_buffers(GLuint positionLoc, GLuint normalLoc, GLuint texCoordL
 		glVertexAttribPointer(positionLoc, 3, GL_FLOAT, GL_FALSE, sizeof(VertexStructure), 0);
 		// Calculate the offset where the normal vector data starts in the vertex data
 		// This is much better than writing "3" as this handles changes in the structure...
-		auto normalOffset = (&(model.vertexData[0].i) - &(model.vertexData[0].x));
+		auto normalOffset = (&((*(model.vertexData))[0].i) - &((*(model.vertexData))[0].x));
 		// Use the calculated offset for getting the pointer to the normals in the vertex data
 		glVertexAttribPointer(normalLoc, 3, GL_FLOAT, GL_FALSE, sizeof(VertexStructure), (const GLvoid *)(normalOffset * 4));
 		// Calculate the offset where the normal vector data starts in the vertex data
 		// This is much better than writing "3" as this handles changes in the structure...
-		auto texCoordOffset = (&(model.vertexData[0].u) - &(model.vertexData[0].x));
+		auto texCoordOffset = (&((*(model.vertexData))[0].u) - &((*(model.vertexData))[0].x));
 		// Use the calculated offset for getting the pointer to the texcoords in the vertex data
 		glVertexAttribPointer(texCoordLoc, 2, GL_FLOAT, GL_FALSE, sizeof(VertexStructure), (const GLvoid *)(texCoordOffset * 4));
 
@@ -140,7 +143,8 @@ for(int i = 0; i < model.indices.size() / 3; ++i) {
 }
 #endif
 	} else {
-		fprintf(stderr, "No available model, vertex data or indices to setup!");
+		fprintf(stderr, "No available model, vertex data or indices to setup!\n");
+		fprintf(stderr, "vertexCount: %d; indexCount: %d; inited: %d\n", model.vertexCount, model.indexCount, model.inited);
 	}
 }
 
@@ -182,7 +186,7 @@ static void draw_model(const ObjMaster::MaterializedObjMeshObject &model, GLfloa
    // TODO: ensure this is the place for this code
    glBindTexture(GL_TEXTURE_2D, model.material.tex_kd.handle);
 
-   glDrawElements(GL_TRIANGLES, model.indices.size(), GL_UNSIGNED_INT, 0);
+   glDrawElements(GL_TRIANGLES, model.indexCount, GL_UNSIGNED_INT, 0);
 }
 
 /**
@@ -476,6 +480,7 @@ int main(int argc, char *argv[]) {
    glutCreateWindow("showobj");
 
    /* Set up glut callback functions */
+   //glutSetKeyRepeat(GLUT_KEY_REPEAT_OFF);
    glutIdleFunc (idle);
    glutReshapeFunc(handleViewportReshape);
    glutDisplayFunc(draw);

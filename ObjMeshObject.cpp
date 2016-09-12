@@ -142,6 +142,7 @@ namespace ObjMaster {
 		this->startIndexLocation = other.startIndexLocation;
 		this->vertexCount = other.vertexCount;
 		this->vertexData = vPtr;
+		this->inited = other.inited;
 	}
 
 	ObjMeshObject::ObjMeshObject(const Obj& obj, const FaceElement *meshFaces, int meshFaceCount, std::vector<VertexStructure> *vertexVector, std::vector<uint32_t> *indexVector, uint32_t lastIndexBase) {
