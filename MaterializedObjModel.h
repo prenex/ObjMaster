@@ -9,7 +9,6 @@
 #include <memory>
 #include "MaterializedObjMeshObject.h"
 #include "GpuTexturePreparationLibrary.h"
-#include "NopTexturePreparationLibrary.h"
 #include "Obj.h"
 
 namespace ObjMaster {
@@ -42,6 +41,7 @@ namespace ObjMaster {
 		// Indicate that the model is loaded
 		inited = true;
 	}
+
 	/** Create a materialized obj model that is not inited (empty) */
 	MaterializedObjModel() {}
 	/** Destructor of the model - tries to unload all material groups textures */
