@@ -72,24 +72,35 @@ extern "C" {
 	 */
 	DLL_API SimpleMaterial getModelMeshMaterial(int handle, int meshIndex);
 
+	/** Tells the number of vertex data for the given mesh of the handle. Returns -1 in case of errors and zero when there is no data at all! */
 	DLL_API int getModelMeshVertexDataCount(int handle, int meshIndex);
 
-	DLL_API bool getModelMeshVertexDataCopy(int handle, int meshIndex, VertexStructure* output);
+	/**
+	 * Extracts the vertex data for the mesh of the given handle into output.
+	 * 
+	 * The output is a pointer to the pointer that will get filled by the location of the data!
+	 * Do not try to free this memory! It is handled by inner workings of objmaster! If the model
+	 * or its mesh keeps unchanged, the memory areas will be valid - otherwise you should copy them!
+	 * 
+	 * Returns -1 in case of errors or incomplete operation, otherwise return the number of output vertices
+	 *
+	 * See: getModelMeshVertexDataCount if you only need this latter value
+	 */
+	DLL_API int getModelMeshVertexData(int handle, int meshIndex, VertexStructure** output) {
 
-	/** Tells the number of vertex data for the given mesh of the handle. Returns -1 in case of errors and zero when there is no data at all! */
+	/** Tells the number of index data for the given mesh of the handle. Returns -1 in case of errors and zero when there is no data at all! */
 	DLL_API int getModelMeshIndicesCount(int handle, int meshIndex);
 
 	/**
 	 * Extracts the index-data for the mesh of the given handle into output.
 	 * 
-	 * The output should be big-enough to hold the index-data, so the user code
-	 * should first ask for the number of the indices and allocate buffer!
+	 * The output should be a pointer to the pointer for the indices array we will return.
 	 * 
-	 * Returns false in case of errors or incomplete operation
+	 * Returns -1 in case of errors or incomplete operation, otherwise we return the number of found indices!
 	 *
 	 * See: getModelMeshIndicesCount
 	 */
-	DLL_API bool getModelMeshIndicesCopy(int handle, int meshIndex, unsigned int* output);
+	DLL_API int getModelMeshIndices(int handle, int meshIndex, unsigned int** output);
 }
 
 #endif

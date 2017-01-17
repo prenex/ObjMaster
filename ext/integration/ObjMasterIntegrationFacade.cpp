@@ -194,38 +194,45 @@ extern "C" {
 	/**
 	 * Extracts the vertex data for the mesh of the given handle into output.
 	 * 
-	 * The output should be big-enough to hold the vertex data, so the user code
-	 * should first ask for the number of the elements in this structure!
+	 * The output is a pointer to the pointer that will get filled by the location of the data!
+	 * Do not try to free this memory! It is handled by inner workings of objmaster! If the model
+	 * or its mesh keeps unchanged, the memory areas will be valid - otherwise you should copy them!
 	 * 
-	 * Returns false in case of errors or incomplete operation
+	 * Returns -1 in case of errors or incomplete operation, otherwise return the number of output vertices
 	 *
-	 * See: getModelMeshVertexDataCount
+	 * See: getModelMeshVertexDataCount if you only need this latter value
 	 */
-	bool getModelMeshVertexDataCopy(int handle, int meshIndex, VertexStructure* output) {
+	int getModelMeshVertexData(int handle, int meshIndex, VertexStructure** output) {
 		try {
 			if (models.size() > handle && models[handle].meshes.size() > meshIndex) {
 				// Rem.: A models mesh can share their vector with the other meshes for optimization
-				//       because of this, we need to return the copy of the vertex data only from the base location!
+				//       because of this, we need to return the vertex data only from the base location!
 				int vertexCount = models[handle].meshes[meshIndex].vertexCount;
 				int vertexBase = models[handle].meshes[meshIndex].baseVertexLocation;
-				// Copy the relevant part of the vector for the user
-				for (int i = vertexBase; i < vertexBase + vertexCount; ++i) {
-					VertexStructure vs = (*(models[handle].meshes[meshIndex].vertexData))[i];
-					output[i - vertexBase] = vs;
-				}
+				//// Copy the relevant part of the vector for the user
+				//for (int i = vertexBase; i < vertexBase + vertexCount; ++i) {
+				//	VertexStructure vs = (*(models[handle].meshes[meshIndex].vertexData))[i];
+				//	output[i - vertexBase] = vs;
+				//}
+				// Marshalling takes place at the consumer - this way we have direct access
+				// for non-managed languages at least! See C++11 reference about why we can
+				// use the 
+				VertexStructure* dataPtr = &((*(models[handle].meshes[meshIndex].vertexData))[vertexBase]);
+				// The consumer side 
+				*output = dataPtr;
 
-				return true;	// Indicate success
+				return vertexCount;	// Indicate success with the number of vertices
 			}
 			else {
-				return false;	// error because of invalid handle or index
+				return -1;	// Indicate error because of invalid handle or index
 			}
 		}
 		catch (...) {
-			return false;	// Exceptions will not pass through the boundaries of the library!
+			return -1;	// Exceptions will not pass through the boundaries of the library!
 		}
 	}
 
-	/** Tells the number of vertex data for the given mesh of the handle. Returns -1 in case of errors and zero when there is no data at all! */
+	/** Tells the number of index data for the given mesh of the handle. Returns -1 in case of errors and zero when there is no data at all! */
 	int getModelMeshIndicesCount(int handle, int meshIndex) {
 		try {
 			if (models.size() > handle && models[handle].meshes.size() > meshIndex) {
@@ -244,35 +251,38 @@ extern "C" {
 	/**
 	 * Extracts the index-data for the mesh of the given handle into output.
 	 * 
-	 * The output should be big-enough to hold the index-data, so the user code
-	 * should first ask for the number of the indices and allocate buffer!
+	 * The output should be a pointer to the pointer for the indices array we will return.
 	 * 
-	 * Returns false in case of errors or incomplete operation
+	 * Returns -1 in case of errors or incomplete operation, otherwise we return the number of found indices!
 	 *
 	 * See: getModelMeshIndicesCount
 	 */
-	bool getModelMeshIndicesCopy(int handle, int meshIndex, unsigned int* output) {
+	int getModelMeshIndices(int handle, int meshIndex, unsigned int** output) {
 		try {
 			if (models.size() > handle && models[handle].meshes.size() > meshIndex) {
 				// Rem.: A models mesh can share their vector with the other meshes for optimization
 				//       because of this, we need to return the copy of the vertex data only from the base location!
 				int iCount = models[handle].meshes[meshIndex].indexCount;
 				int iBase = models[handle].meshes[meshIndex].startIndexLocation;
-				// Copy the relevant part of the vector for the user
-				for (int i = iBase; i < iBase + iCount; ++i) {
-					uint32_t index = (*(models[handle].meshes[meshIndex].indices))[i];
-					// TODO: ensure that width will work in all architectures we need it to work
-					output[i - iBase] = (unsigned int) index;
-				}
+				// TODO: ensure that bit-width will work in all architectures we need it to work
 
-				return true;	// Indicate success
+				//// Copy the relevant part of the vector for the user
+				//for (int i = iBase; i < iBase + iCount; ++i) {
+				//	uint32_t index = (*(models[handle].meshes[meshIndex].indices))[i];
+				//	output[i - iBase] = (unsigned int) index;
+				//}
+
+				// Give a reference 
+				*output = &(*(models[handle].meshes[meshIndex].indices))[iBase];
+
+				return iCount;	// Indicate success
 			}
 			else {
-				return false;	// error because of invalid handle or index
+				return -1;	// error because of invalid handle or index
 			}
 		}
 		catch (...) {
-			return false;	// Exceptions will not pass through the boundaries of the library!
+			return -1;	// Exceptions will not pass through the boundaries of the library!
 		}
 	}
 
