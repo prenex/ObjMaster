@@ -1,10 +1,11 @@
 /**
- * Integration facade DLL/SO for the ObjMaster library.
+ * Integration facade layer/dll/so for the ObjMaster library.
  *
  * Useful for managed language integration or C-language binding.
  * Originally written for providing C#/.NET mono integration to the Unity game engine.
  *
- * Tested with: VS 2015 + unity hololens preview 5.4.0f3 versions but might work as a simple C-binding...
+ * Tested with: VS 2015 + unity hololens preview 5.4.0f3 versions but can work as a simple C-binding.
+ * For building, just create an empty DLL project and add objmaster sources with this.
  */
 #pragma once
 #ifndef OBJ_MASTER_INTEGR_FACADE_H
@@ -86,7 +87,7 @@ extern "C" {
 	 *
 	 * See: getModelMeshVertexDataCount if you only need this latter value
 	 */
-	DLL_API int getModelMeshVertexData(int handle, int meshIndex, VertexStructure** output) {
+	DLL_API int getModelMeshVertexData(int handle, int meshIndex, VertexStructure** output);
 
 	/** Tells the number of index data for the given mesh of the handle. Returns -1 in case of errors and zero when there is no data at all! */
 	DLL_API int getModelMeshIndicesCount(int handle, int meshIndex);
