@@ -102,6 +102,23 @@ extern "C" {
 	 * See: getModelMeshIndicesCount
 	 */
 	DLL_API int getModelMeshIndices(int handle, int meshIndex, unsigned int** output);
+
+	/**
+	 * Returns the pointer to the null terminated fileName or nullptr in case of errors. If there is no texture file for the one asked for, we return an empty string!
+	 */
+	DLL_API const char* getModelMeshAmbientTextureFileName(int handle, int meshIndex);
+	/**
+	 * Returns the pointer to the null terminated fileName or nullptr in case of errors. If there is no texture file for the one asked for, we return an empty string!
+	 */
+	DLL_API const char* getModelMeshDiffuseTextureFileName(int handle, int meshIndex);
+	/**
+	 * Returns the pointer to the null terminated fileName or nullptr in case of errors. If there is no texture file for the one asked for, we return an empty string!
+	 */
+	DLL_API const char* getModelMeshSpecularTextureFileName(int handle, int meshIndex);
+	/**
+	 * Returns the pointer to the null terminated fileName or nullptr in case of errors. If there is no texture file for the one asked for, we return an empty string!
+	 */
+	DLL_API const char* getModelMeshNormalTextureFileName(int handle, int meshIndex);
 }
 
 #endif

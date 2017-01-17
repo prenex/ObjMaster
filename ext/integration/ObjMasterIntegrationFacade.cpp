@@ -43,7 +43,7 @@ extern "C" {
 		try {
 			// Becuase we don't remove the placeholders on unload
 			// this check ensures we have something to act upon
-			if (models.size() > handle) {
+			if ((int)models.size() > handle) {
 				// If the model is inited, replace it with an empty model (this should free most resources while keeping other handles intact)
 				if (models[handle].inited) {
 					models[handle] = ObjMaster::MaterializedObjModel<ObjMaster::NopTexturePreparationLibrary>();
@@ -85,9 +85,9 @@ extern "C" {
 	  *          The latter can happen also in the cases of not loaded/unloaded meshes!
 	  */
 	int getModelMeshNo(int handle) {
-		if (models.size() > handle) {
+		if ((int)models.size() > handle) {
 			// Return the number of meshes
-			return models[handle].meshes.size();
+			return (int)models[handle].meshes.size();
 		}
 		else {
 			// Invalid handle!
@@ -101,7 +101,7 @@ extern "C" {
 	 */
 	SimpleMaterial getModelMeshMaterial(int handle, int meshIndex) {
 		try {
-			if (models.size() > handle && models[handle].meshes.size() > meshIndex) {
+			if ((int)models.size() > handle && (int)models[handle].meshes.size() > meshIndex) {
 				// Prepare the simple material to return
 				SimpleMaterial sm;
 				// enabled fields (useful for further queries too) TODO: what if we have more fields than the uint??
@@ -178,7 +178,7 @@ extern "C" {
 	/** Tells the number of vertex data for the given mesh of the handle. Returns -1 in case of errors and zero when there is no data at all! */
 	int getModelMeshVertexDataCount(int handle, int meshIndex) {
 		try {
-			if (models.size() > handle && models[handle].meshes.size() > meshIndex) {
+			if ((int)models.size() > handle && (int)models[handle].meshes.size() > meshIndex) {
 				// If we are here, we have valid handle and mesh index
 				return models[handle].meshes[meshIndex].vertexCount;
 			}
@@ -204,7 +204,7 @@ extern "C" {
 	 */
 	int getModelMeshVertexData(int handle, int meshIndex, VertexStructure** output) {
 		try {
-			if (models.size() > handle && models[handle].meshes.size() > meshIndex) {
+			if ((int)models.size() > handle && (int)models[handle].meshes.size() > meshIndex) {
 				// Rem.: A models mesh can share their vector with the other meshes for optimization
 				//       because of this, we need to return the vertex data only from the base location!
 				int vertexCount = models[handle].meshes[meshIndex].vertexCount;
@@ -235,7 +235,7 @@ extern "C" {
 	/** Tells the number of index data for the given mesh of the handle. Returns -1 in case of errors and zero when there is no data at all! */
 	int getModelMeshIndicesCount(int handle, int meshIndex) {
 		try {
-			if (models.size() > handle && models[handle].meshes.size() > meshIndex) {
+			if ((int)models.size() > handle && (int)models[handle].meshes.size() > meshIndex) {
 				// If we are here, we have valid handle and mesh index
 				return models[handle].meshes[meshIndex].indexCount;
 			}
@@ -259,7 +259,7 @@ extern "C" {
 	 */
 	int getModelMeshIndices(int handle, int meshIndex, unsigned int** output) {
 		try {
-			if (models.size() > handle && models[handle].meshes.size() > meshIndex) {
+			if ((int)models.size() > handle && (int)models[handle].meshes.size() > meshIndex) {
 				// Rem.: A models mesh can share their vector with the other meshes for optimization
 				//       because of this, we need to return the copy of the vertex data only from the base location!
 				int iCount = models[handle].meshes[meshIndex].indexCount;
@@ -346,7 +346,7 @@ extern "C" {
 				models.push_back(std::move(ObjMaster::MaterializedObjModel<ObjMaster::NopTexturePreparationLibrary>(obj)));
 
 				// Calculate the "handle" as the model index
-				int modelIndex = models.size() - 1;
+				int modelIndex = (int)models.size() - 1;
 
 				// Return handle
 				return modelIndex;
@@ -356,6 +356,78 @@ extern "C" {
 		{
 			// -1 indicates errors
 			return -1;
+		}
+	}
+
+	/**
+	 * Returns the pointer to the null terminated fileName or nullptr in case of errors. If there is no texture file for the one asked for, we return an empty string!
+	 */
+	const char* getModelMeshAmbientTextureFileName(int handle, int meshIndex) {
+		try {
+			if ((int)models.size() > handle && (int)models[handle].meshes.size() > meshIndex) {
+				// We have valid handle and mesh
+				return models[handle].meshes[meshIndex].material.map_ka.c_str();
+			}
+			else {
+				return nullptr;	// error because of invalid handle or index
+			}
+		}
+		catch (...) {
+			return nullptr;	// Exceptions will not pass through the boundaries of the library!
+		}
+	}
+
+	/**
+	 * Returns the pointer to the null terminated fileName or nullptr in case of errors. If there is no texture file for the one asked for, we return an empty string!
+	 */
+	const char* getModelMeshDiffuseTextureFileName(int handle, int meshIndex) {
+		try {
+			if ((int)models.size() > handle && (int)models[handle].meshes.size() > meshIndex) {
+				// We have valid handle and mesh
+				return models[handle].meshes[meshIndex].material.map_kd.c_str();
+			}
+			else {
+				return nullptr;	// error because of invalid handle or index
+			}
+		}
+		catch (...) {
+			return nullptr;	// Exceptions will not pass through the boundaries of the library!
+		}
+	}
+
+	/**
+	 * Returns the pointer to the null terminated fileName or nullptr in case of errors. If there is no texture file for the one asked for, we return an empty string!
+	 */
+	const char* getModelMeshSpecularTextureFileName(int handle, int meshIndex) {
+		try {
+			if ((int)models.size() > handle && (int)models[handle].meshes.size() > meshIndex) {
+				// We have valid handle and mesh
+				return models[handle].meshes[meshIndex].material.map_ks.c_str();
+			}
+			else {
+				return nullptr;	// error because of invalid handle or index
+			}
+		}
+		catch (...) {
+			return nullptr;	// Exceptions will not pass through the boundaries of the library!
+		}
+	}
+
+	/**
+	 * Returns the pointer to the null terminated fileName or nullptr in case of errors. If there is no texture file for the one asked for, we return an empty string!
+	 */
+	const char* getModelMeshNormalTextureFileName(int handle, int meshIndex) {
+		try {
+			if ((int)models.size() > handle && (int)models[handle].meshes.size() > meshIndex) {
+				// We have valid handle and mesh
+				return models[handle].meshes[meshIndex].material.map_bump.c_str();
+			}
+			else {
+				return nullptr;	// error because of invalid handle or index
+			}
+		}
+		catch (...) {
+			return nullptr;	// Exceptions will not pass through the boundaries of the library!
 		}
 	}
 #pragma endregion
