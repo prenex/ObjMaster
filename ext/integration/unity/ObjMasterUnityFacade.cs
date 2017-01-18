@@ -31,19 +31,19 @@ public class ObjMasterUnityFacade : MonoBehaviour {
         /// <summary>
         /// Use the c++ side Material.F_* special values of ObjMaster when indexing! Also shows if we can ask for texture names or not!
         /// </summary>
-		uint enabledFields;
+		public uint enabledFields;
         /// <summary>
         /// Only relevant if enabledFields shows it is!
         /// </summary>
-		float kar, kag, kab, kaa;
+		public float kar, kag, kab, kaa;
         /// <summary>
         /// Only relevant if enabledFields shows it is!
         /// </summary>
-		float kdr, kdg, kdb, kda;
+		public float kdr, kdg, kdb, kda;
         /// <summary>
         /// Only relevant if enabledFields shows it is!
         /// </summary>
-		float ksr, ksg, ksb, ksa;
+		public float ksr, ksg, ksb, ksa;
 
         /// <summary>
         /// Simple textual representation
@@ -57,11 +57,38 @@ public class ObjMasterUnityFacade : MonoBehaviour {
         }
 
         /// <summary>
+        /// Determines if the material contains a description for the given field or not
+        /// </summary>
+        /// <returns>True in case we have it, false otherwise</returns>
+        public bool hasAmbientColor()
+        {
+            return ((enabledFields & ENABLED_FIELD_BITS.F_KA) != 0);
+        }
+
+        /// <summary>
+        /// Determines if the material contains a description for the given field or not
+        /// </summary>
+        /// <returns>True in case we have it, false otherwise</returns>
+        public bool hasDiffuseColor()
+        {
+            return ((enabledFields & ENABLED_FIELD_BITS.F_KD) != 0);
+        }
+
+        /// <summary>
+        /// Determines if the material contains a description for the given field or not
+        /// </summary>
+        /// <returns>True in case we have it, false otherwise</returns>
+        public bool hasSpecularColor()
+        {
+            return ((enabledFields & ENABLED_FIELD_BITS.F_KS) != 0);
+        }
+
+        /// <summary>
         /// Determines if the material has the named texture or not. If it has, one can access it by the specific facade methods!
         /// </summary>
         public bool hasAmbientTexture()
         {
-            return ((enabledFields & ENABLED_FIELD_BITS.F_MAP_KA) == 1);
+            return ((enabledFields & ENABLED_FIELD_BITS.F_MAP_KA) != 0);
         }
 
         /// <summary>
@@ -69,7 +96,7 @@ public class ObjMasterUnityFacade : MonoBehaviour {
         /// </summary>
         public bool hasDiffuseTexture()
         {
-            return ((enabledFields & ENABLED_FIELD_BITS.F_MAP_KD) == 1);
+            return ((enabledFields & ENABLED_FIELD_BITS.F_MAP_KD) != 0);
         }
 
         /// <summary>
@@ -77,7 +104,7 @@ public class ObjMasterUnityFacade : MonoBehaviour {
         /// </summary>
         public bool hasSpecularTexture()
         {
-            return ((enabledFields & ENABLED_FIELD_BITS.F_MAP_KS) == 1);
+            return ((enabledFields & ENABLED_FIELD_BITS.F_MAP_KS) != 0);
         }
 
         /// <summary>
@@ -85,7 +112,7 @@ public class ObjMasterUnityFacade : MonoBehaviour {
         /// </summary>
         public bool hasNormalTexture()
         {
-            return ((enabledFields & ENABLED_FIELD_BITS.F_MAP_BUMP) == 1);
+            return ((enabledFields & ENABLED_FIELD_BITS.F_MAP_BUMP) != 0);
         }
 
         /// <summary>
@@ -105,7 +132,7 @@ public class ObjMasterUnityFacade : MonoBehaviour {
 
     /// <summary>
     /// Per-vertex data aquired from the objmaster mesh system. Uses striped representation where different values are compacted together in one buffer.
-    /// This should be the same as it is in VertexStructure.h in the c/c++ code!
+    /// This should be the same as it is in VertexStructure.h in the c/c++ code because we are blitting it against each other!
     /// </summary>
     [StructLayout(LayoutKind.Sequential)]
     public struct VertexStructure
