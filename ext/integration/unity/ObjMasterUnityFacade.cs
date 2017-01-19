@@ -116,17 +116,17 @@ public class ObjMasterUnityFacade : MonoBehaviour {
         }
 
         /// <summary>
-        /// Can be used to determine which obj-mtl fields are enabled. Should be the same as in c++ code for "Material.h"
+        /// Can be used to determine which obj-mtl fields are enabled by AND-ing it with these values. Should be correspond as the order of bits are defined in c++ code for "Material.h" but here we we present them as power of two values for easier usage...
         /// </summary>
         public static class ENABLED_FIELD_BITS
         {
-            public const uint F_KA = 0;
-            public const uint F_KD = 1;
-            public const uint F_KS = 2;
-            public const uint F_MAP_KA = 3;
-            public const uint F_MAP_KD = 4;
-            public const uint F_MAP_KS = 5;
-            public const uint F_MAP_BUMP = 6;
+            public const uint F_KA = 1;         // Bit-index: 0
+            public const uint F_KD = 2;         // Bit-index: 1
+            public const uint F_KS = 4;         // Bit-index: 2
+            public const uint F_MAP_KA = 8;     // Bit-index: 3
+            public const uint F_MAP_KD = 16;    // Bit-index: 4
+            public const uint F_MAP_KS = 32;    // Bit-index: 5
+            public const uint F_MAP_BUMP = 64;  // Bit-index: 6
         }
     }
 
