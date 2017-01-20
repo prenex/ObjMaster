@@ -54,8 +54,11 @@ namespace ObjMaster {
 
                 // Extract the currently latest FacePoint
                 char *facePointStr = strtok_r(nullptr, OBJ_DELIMITER, &savePtr);
-                // Parse the given facePoint and save it
-                facePoints[facePointCount] = FacePoint(facePointStr, true);
+                // Parse the given facePoint and save it - with added extra check
+				// in case of nasty errors that should never be there!
+				if (facePointStr != nullptr) {
+					facePoints[facePointCount] = FacePoint(facePointStr, true);
+				}
             }
         }
     }
