@@ -77,14 +77,20 @@ namespace ObjMaster {
         char* vIndexStr = strtok_r(fields, FACEPOINT_DELIMITER, &savePtr);
 		if (vIndexStr != nullptr) {
 			vIndex = atoi(vIndexStr) - 1;
+		} else {
+			vIndex = -1;	// Indicates missing data
 		}
         char* vtIndexStr = strtok_r(nullptr, FACEPOINT_DELIMITER, &savePtr);
 		if (vtIndexStr != nullptr) {
 			vtIndex = atoi(vtIndexStr) - 1;
+		} else {
+			vtIndex = -1;	// Indicates missing data
 		}
         char* vnIndexStr = strtok_r(nullptr, FACEPOINT_DELIMITER, &savePtr);
 		if (vnIndexStr != nullptr) {
 			vnIndex = atoi(vnIndexStr) - 1;
+		} else {
+			vnIndex = -1;	// Indicates missing data
 		}
     }
 }

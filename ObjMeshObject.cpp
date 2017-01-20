@@ -30,14 +30,36 @@ struct IndexTargetSlice {
 
     // Necessary for hashing
     friend bool operator==(const IndexTargetSlice& lhs, const IndexTargetSlice& rhs) {
-        return lhs.v->x == rhs.v->x &&
-               lhs.v->y == rhs.v->y &&
-               lhs.v->z == rhs.v->z &&
-               lhs.vn->x == rhs.vn->x &&
-               lhs.vn->y == rhs.vn->y &&
-               lhs.vn->z == rhs.vn->z &&
-               lhs.vt->u == rhs.vt->u &&
-               lhs.vt->v == rhs.vt->v;
+        bool vBool;
+	if(lhs.v != nullptr && rhs.v != nullptr) {
+		vBool = lhs.v->x == rhs.v->x &&
+		       lhs.v->y == rhs.v->y &&
+		       lhs.v->z == rhs.v->z;
+	} else {
+		// Handle case when there is no vertex coordinate (weird case)
+		vBool = (lhs.v == rhs.v);
+	}
+
+        bool vnBool;
+	if(lhs.vn != nullptr && rhs.vn != nullptr) {
+		vnBool = lhs.vn->x == rhs.vn->x &&
+		       lhs.vn->y == rhs.vn->y &&
+		       lhs.vn->z == rhs.vn->z;
+	} else {
+		// Handle case when there is no vertex normal (many cases)
+		vBool = (lhs.vn == rhs.vn);
+	}
+
+        bool vtBool;
+	if(lhs.vt != nullptr && rhs.vt != nullptr) {
+		vtBool = lhs.vt->u == rhs.vt->u &&
+		       lhs.vt->v == rhs.vt->v;
+	} else {
+		// Handle case when there is no vertex coordinate (many cases)
+		vBool = (lhs.vt == rhs.vt);
+	}
+
+	return vBool && vnBool && vtBool;
     }
 };
 
@@ -50,16 +72,30 @@ namespace std
         typedef std::size_t result_type;
         result_type operator()(argument_type const& s) const
         {
-            result_type hv1 = std::hash<float>()(s.v->x);
-            result_type hv2 = std::hash<float>()(s.v->y);
-            result_type hv3 = std::hash<float>()(s.v->z);
+            result_type hv1;
+            result_type hv2;
+            result_type hv3;
+	    if(s.v != nullptr) {
+		    hv1 = std::hash<float>()(s.v->x);
+		    hv2 = std::hash<float>()(s.v->y);
+		    hv3 = std::hash<float>()(s.v->z);
+	    }
 
-            result_type hvn1 = std::hash<float>()(s.vn->x);
-            result_type hvn2 = std::hash<float>()(s.vn->y);
-            result_type hvn3 = std::hash<float>()(s.vn->z);
+            result_type hvn1;
+            result_type hvn2;
+            result_type hvn3;
+	    if(s.vn != nullptr) {
+		    hvn1 = std::hash<float>()(s.vn->x);
+		    hvn2 = std::hash<float>()(s.vn->y);
+		    hvn3 = std::hash<float>()(s.vn->z);
+	    }
 
-            result_type hvt1 = std::hash<float>()(s.vt->u);
-            result_type hvt2 = std::hash<float>()(s.vt->v);
+            result_type hvt1;
+            result_type hvt2;
+	    if(s.vt != nullptr) {
+		    hvt1 = std::hash<float>()(s.vt->u);
+		    hvt2 = std::hash<float>()(s.vt->v);
+	    }
 
             return (hv1 ^ (hv2 << 1)) ^ (hv3 << 1) ^
                    ((hvn1 ^ (hvn2 << 1)) ^ (hvn3 << 1)) ^
@@ -211,9 +247,10 @@ namespace ObjMaster {
                     FacePoint fp = face.facePoints[j];
                     // Create pointers to the target data of the face-point
                     // (This should be faster than copy)
-                    const VertexElement *fv = &obj.vs[fp.vIndex];
-                    const VertexTextureElement *fvt = &obj.vts[fp.vtIndex];
-                    const VertexNormalElement *fvn = &obj.vns[fp.vnIndex];
+		    // -1 indicates a missing element so we handle it as if there is one!
+                    const VertexElement *fv = (fp.vIndex != -1 ? &obj.vs[fp.vIndex] : nullptr);
+                    const VertexTextureElement *fvt = (fp.vtIndex != -1 ? &obj.vts[fp.vtIndex] : nullptr);
+                    const VertexNormalElement *fvn = (fp.vtIndex != -1 ? &obj.vns[fp.vnIndex] : nullptr);
 #ifdef DEBUG
 OMLOGD("Processing face:");
 OMLOGD(" - vIndex: %d", fp.vIndex);
@@ -228,6 +265,7 @@ OMLOGD(" - vns[vnIndex]: (%f, %f, %f)", obj.vns[fp.vnIndex].x, obj.vns[fp.vnInde
                     // Create a target slice from the target data
                     // This slicer is only used for hashing out duplications. Ownership of data
                     // is not transferred as this is a read-only operation!
+		    // Rem.: the slice also handle nullptrs for optional elements!
                     IndexTargetSlice its = IndexTargetSlice(fv, fvt, fvn);
 
                     // See if the data for this face-point can be found among the earlier ones
@@ -244,20 +282,22 @@ OMLOGD(" - Found already handled facePoint!");
                     } else {
                         // Collect target data in lists that represent the buffers
                         // Basically add the data variation for the vertical slice
+			// Rem.: When position, normal or uv data is missing, we provide
+			// some default value here instead of just crashing...
                         vertexData->push_back(VertexStructure {
-                                fv->x,
-                                fv->y,
-                                fv->z,
-                                fvn->x,
-                                fvn->y,
-                                fvn->z,
-                                fvt->u,
-                                fvt->v});
-						++vertexCount;
+                                fv != nullptr ? fv->x : 0,
+                                fv != nullptr ? fv->y : 0,
+                                fv != nullptr ? fv->z : 0,
+                                fvn != nullptr ? fvn->x : 0,
+                                fvn != nullptr ? fvn->y : 0,
+                                fvn != nullptr ? fvn->z : 0,
+                                fvt != nullptr ? fvt->u : 0,
+                                fvt != nullptr ? fvt->v : 0});
+			++vertexCount;
 
                         // Add an index for this new vertical slice
                         indices->push_back(lastIndex);
-						++indexCount;
+			++indexCount;
 
                         // Update the hashmap for the already handled data
                         alreadyHandledFacePointTargets[its] = lastIndex;
