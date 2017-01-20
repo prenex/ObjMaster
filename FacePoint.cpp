@@ -73,12 +73,18 @@ namespace ObjMaster {
     // Common parts of the constructors
     void FacePoint::constructorHelper(char* fields) {
         char *savePtr;
-        // Fill-in the indices
+        // Fill-in the indices - the nullptr checks are necessary otherwise we get an abort for segfaulting!
         char* vIndexStr = strtok_r(fields, FACEPOINT_DELIMITER, &savePtr);
-        vIndex = atoi(vIndexStr) - 1;
+		if (vIndexStr != nullptr) {
+			vIndex = atoi(vIndexStr) - 1;
+		}
         char* vtIndexStr = strtok_r(nullptr, FACEPOINT_DELIMITER, &savePtr);
-        vtIndex = atoi(vtIndexStr) - 1;
+		if (vtIndexStr != nullptr) {
+			vtIndex = atoi(vtIndexStr) - 1;
+		}
         char* vnIndexStr = strtok_r(nullptr, FACEPOINT_DELIMITER, &savePtr);
-        vnIndex = atoi(vnIndexStr) - 1;
+		if (vnIndexStr != nullptr) {
+			vnIndex = atoi(vnIndexStr) - 1;
+		}
     }
 }
