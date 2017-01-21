@@ -5,6 +5,13 @@ Works quite well for obj files exported from Blender with triangulize-faces and 
 
 Please keep attention to the licence as that is why I can push backport updates to this codebase when I change something that I need for my work and not only for my home purposes!
 
+Try out the emscripten webgl example:
+-------------------------------------
+
+A (not so new) build of the emscripten example build can be found and tested here:
+
+http://ballmerpeak.web.elte.hu/graphics/showobj.html
+
 Basic architecture:
 -------------------
 
