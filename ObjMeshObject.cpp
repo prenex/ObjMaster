@@ -247,10 +247,12 @@ namespace ObjMaster {
                     FacePoint fp = face.facePoints[j];
                     // Create pointers to the target data of the face-point
                     // (This should be faster than copy)
-		    // -1 indicates a missing element so we handle it as if there is one!
-                    const VertexElement *fv = (fp.vIndex != -1 ? &obj.vs[fp.vIndex] : nullptr);
-                    const VertexTextureElement *fvt = (fp.vtIndex != -1 ? &obj.vts[fp.vtIndex] : nullptr);
-                    const VertexNormalElement *fvn = (fp.vtIndex != -1 ? &obj.vns[fp.vnIndex] : nullptr);
+					// -1 indicates a missing element so we handle it as if there is one!
+					// Rem.: The real representation type is unsigned so basically the special value is not -1, but the unsigned int max value!
+					//       because of this is why we are casting the value to unsigned int. Just to be sure we that it happens as we imagine!
+                    const VertexElement *fv = (fp.vIndex != (unsigned int)(-1) ? &obj.vs[fp.vIndex] : nullptr);
+                    const VertexTextureElement *fvt = (fp.vtIndex != (unsigned int)(-1) ? &obj.vts[fp.vtIndex] : nullptr);
+                    const VertexNormalElement *fvn = (fp.vnIndex != (unsigned int)(-1) ? &obj.vns[fp.vnIndex] : nullptr);
 #ifdef DEBUG
 OMLOGD("Processing face:");
 OMLOGD(" - vIndex: %d", fp.vIndex);
