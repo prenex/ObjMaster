@@ -21,6 +21,23 @@ using System.Text;
 /// </summary>
 public class ObjMasterUnityFacade : MonoBehaviour {
 
+    #region Other subtypes
+    /// <summary>
+    /// Defines which directions the vertex-pos and vertex-normal data should be mirrored
+    /// </summary>
+    public enum MIRROR_MODE
+    {
+        NONE=0,
+        MIRROR_X=1,
+        MIRROR_Y=2,
+        MIRROR_Z=4,
+        MIRROR_XY=3,
+        MIRROR_XZ=5,
+        MIRROR_YZ=6,
+        MIRROR_XYZ=7
+    }
+    #endregion
+
     #region ObjMaster structures
     /// <summary>
     /// Simplified material that also contains texturing information for making texture queries
@@ -354,7 +371,7 @@ public class ObjMasterUnityFacade : MonoBehaviour {
                         Debug.Log("Normal/bump texture is: " + bumptex);
 
                         // Vertex and index buffer data
-                        uint[] indices = getModelMeshIndicesCopy(modelHandle, 0);
+                        uint[] indices = getModelMeshIndicesCopy(modelHandle, 0, MIRROR_MODE.MIRROR_X);
                         Debug.Log("Indices of the first mesh: " + prettyPrintIndices(indices));
 
                         VertexStructure[] vertices = getModelMeshVertexDataCopy(modelHandle, 0);
@@ -516,9 +533,10 @@ public class ObjMasterUnityFacade : MonoBehaviour {
     /// <summary>
     /// Can be used to extract vertex positions from the returned vertex buffer. Better to use createModelMeshData directly to avoid multiple unnecessary calls if you can do that!
     /// </summary>
-    /// <param name="vertexBuffer"></param>
+    /// <param name="vertexBuffer">The vertex data buffer which represents the values encoded in the obj file</param>
+    /// <param name="mirrorMode">Mirroring mode</param>
     /// <returns>Copy of the positions as extracted from the buffer</returns>
-    public static Vector3[] extractVertexPosDataFrom(VertexStructure[] vertexBuffer)
+    public static Vector3[] extractVertexPosDataFrom(VertexStructure[] vertexBuffer, MIRROR_MODE mirrorMode)
     {
         if (vertexBuffer == null)
         {
@@ -530,9 +548,9 @@ public class ObjMasterUnityFacade : MonoBehaviour {
             for(int i = 0; i < vertexBuffer.Length; ++i)
             {
                 VertexStructure vs = vertexBuffer[i];
-                vPosData[i].x = vs.x;
-                vPosData[i].y = vs.y;
-                vPosData[i].z = vs.z;
+                vPosData[i].x = ((uint)mirrorMode & (uint)MIRROR_MODE.MIRROR_X) != 0 ? vs.x : -vs.x;
+                vPosData[i].y = ((uint)mirrorMode & (uint)MIRROR_MODE.MIRROR_Y) != 0 ? vs.y : -vs.y;
+                vPosData[i].z = ((uint)mirrorMode & (uint)MIRROR_MODE.MIRROR_Z) != 0 ? vs.z : -vs.z;
             }
             return vPosData;
         }
@@ -541,9 +559,10 @@ public class ObjMasterUnityFacade : MonoBehaviour {
     /// <summary>
     /// Can be used to extract vertex normals from the returned vertex buffer. Better to use createModelMeshData directly to avoid multiple unnecessary calls if you can do that!
     /// </summary>
-    /// <param name="vertexBuffer"></param>
+    /// <param name="vertexBuffer">The vertex data buffer which represents the values encoded in the obj file</param>
+    /// <param name="mirrorMode">Mirroring mode</param>
     /// <returns>Copy of the normal-vectors as extracted from the buffer</returns>
-    public static Vector3[] extractVertexNormalDataFrom(VertexStructure[] vertexBuffer)
+    public static Vector3[] extractVertexNormalDataFrom(VertexStructure[] vertexBuffer, MIRROR_MODE mirrorMode)
     {
         if (vertexBuffer == null)
         {
@@ -555,9 +574,9 @@ public class ObjMasterUnityFacade : MonoBehaviour {
             for(int i = 0; i < vertexBuffer.Length; ++i)
             {
                 VertexStructure vs = vertexBuffer[i];
-                vnData[i].x = vs.i;
-                vnData[i].y = vs.j;
-                vnData[i].z = vs.k;
+                vnData[i].x = ((uint)mirrorMode & (uint)MIRROR_MODE.MIRROR_X) != 0 ? vs.i : -vs.i;
+                vnData[i].y = ((uint)mirrorMode & (uint)MIRROR_MODE.MIRROR_Y) != 0 ? vs.j : -vs.j;
+                vnData[i].z = ((uint)mirrorMode & (uint)MIRROR_MODE.MIRROR_Z) != 0 ? vs.k : -vs.k;
             }
             return vnData;
         }
@@ -623,7 +642,14 @@ public class ObjMasterUnityFacade : MonoBehaviour {
         return vertexArray;
     }
 
-    public static UInt32[] getModelMeshIndicesCopy(int handle, int meshIndex)
+    /// <summary>
+    /// Get the (possibly transformed) copy of the indices
+    /// </summary>
+    /// <param name="handle">The handle of the model</param>
+    /// <param name="meshIndex">The index of the mesh</param>
+    /// <param name="mirrorMode">The mirroring mode as the transformation - because mirroring vertex-data changes winding order of triangles, you should provide the same value here as with methods that extract vertex data!</param>
+    /// <returns>The (possibly transformed) copy of the indices</returns>
+    public static UInt32[] getModelMeshIndicesCopy(int handle, int meshIndex, MIRROR_MODE mirrorMode)
     {
         // Fetch pointer to the native data
         IntPtr ptrNativeData;
@@ -638,13 +664,40 @@ public class ObjMasterUnityFacade : MonoBehaviour {
 
         UInt32[] indexArray = new UInt32[nativeDataLength];
         IntPtr p = ptrNativeData;
+        // TODO: this works only if the indices are containing triangle data!
+        int currentTrianglePointNo = 0; // 0, 1, 2, 0, 1, 2, ...
         int size = (Marshal.SizeOf(typeof(UInt32)));
         for(int i = 0; i < nativeDataLength; ++i)
         {
+            // Calculate index expander value
+            // this is for changing the winding order of the triangles when mirroring is in effect
+            int indexpander = 0;
+            if(mirrorMode != MIRROR_MODE.NONE)
+            {
+                // Possibly exchange the B and C point indices for the A-B-C triangle - we leave A always as it is:
+                if(currentTrianglePointNo > 0)
+                {
+                    //// A change should happen if we mirror odd times (so mirror over only X, only Y, only Z or all XYZ, etc)
+                    //if(mirrorMode == MIRROR_MODE.MIRROR_X || mirrorMode == MIRROR_MODE.MIRROR_Y || mirrorMode == MIRROR_MODE.MIRROR_Z
+                    //    || mirrorMode == MIRROR_MODE.MIRROR_XYZ)
+                    //{
+                        // It becomes 0 here when we are at point B
+                        // and becomes 1 here when we are at point C
+                        indexpander = currentTrianglePointNo - 1;
+                        // It becomes 1 when we are at point B
+                        // and becomes -1 when we are at point C
+                        indexpander = -((indexpander * 2) - 1);
+                    //}
+                }
+            }
+
             // Get the pointed uint32_t value into our copy-array
             // Cast works here without data loss, see discussion at:
             // https://social.msdn.microsoft.com/Forums/vstudio/en-US/012d583d-dd88-45ac-ac81-abb72b54d6c5/marshalreadint32-returning-uint32?forum=csharpgeneral
-            indexArray[i] =(UInt32) Marshal.ReadInt32(p, i * size); // Rem.: Offset is in bytes!
+            indexArray[i + indexpander] =(UInt32) Marshal.ReadInt32(p, i * size); // Rem.: Offset is in bytes!
+
+            // update the indicator that holds information about which triangle we use
+            currentTrianglePointNo = (currentTrianglePointNo + 1) % 3;
 
             // Rem.: No need to increment pointer by the size of the uint32 because offset usage above!
         }
@@ -674,8 +727,9 @@ public class ObjMasterUnityFacade : MonoBehaviour {
         /// </summary>
         /// <param name="handle">The handle of the given model</param>
         /// <param name="meshIndex">The index of the mesh in that model</param>
+        /// <param name="mirrorMode">The mirroring mode</param>
         /// <returns></returns>
-        public static MeshData createFromModelMeshData(int handle, int meshIndex)
+        public static MeshData createFromModelMeshData(int handle, int meshIndex, MIRROR_MODE mirrorMode = MIRROR_MODE.MIRROR_XY)
         {
             // Create empty data first
             MeshData md = new MeshData();
@@ -690,7 +744,7 @@ public class ObjMasterUnityFacade : MonoBehaviour {
             md.normalTexture = getModelMeshNormalTextureFileName(handle, meshIndex);
 
             // Fill indices
-            uint[] indices = getModelMeshIndicesCopy(handle, meshIndex);
+            uint[] indices = getModelMeshIndicesCopy(handle, meshIndex, mirrorMode);
             // Unity seem to support only signed so I need this conversion code...
             int[] unitindices = new int[indices.Length];
             for(int i = 0; i < indices.Length; ++i)
@@ -701,8 +755,8 @@ public class ObjMasterUnityFacade : MonoBehaviour {
 
             // Get vertex buffer data as seperate arrays
             VertexStructure[] vertexBuffer = getModelMeshVertexDataCopy(handle, meshIndex);
-            md.vertices = extractVertexPosDataFrom(vertexBuffer);
-            md.normals = extractVertexNormalDataFrom(vertexBuffer);
+            md.vertices = extractVertexPosDataFrom(vertexBuffer, mirrorMode);
+            md.normals = extractVertexNormalDataFrom(vertexBuffer, mirrorMode);
             md.uv = extractVertexUvDataFrom(vertexBuffer);
 
             return md;
