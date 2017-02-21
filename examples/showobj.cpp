@@ -43,7 +43,7 @@
 #endif
 
 #define DEBUG 1
-/* #define DEBUG_EXTRA */
+/*#define DEBUG_EXTRA 1*/
 
 #include "objmaster/Obj.h"
 #include "objmaster/ObjMeshObject.h"
@@ -125,21 +125,25 @@ static void setup_buffers(GLuint positionLoc, GLuint normalLoc, GLuint texCoordL
 
 #ifdef DEBUG_EXTRA
 OMLOGE("Vertex data sent to the GPU:");
-for(int i = 0; i < model.vertexData.size(); ++i) {
+if(model.vertexData != nullptr) {
+for(int i = 0; i < model.vertexData->size(); ++i) {
 	OMLOGE("v(%f, %f, %f) vn(%f, %f, %f) vt(%f, %f)", 
-			model.vertexData[i].x,
-			model.vertexData[i].y,
-			model.vertexData[i].z,
-			model.vertexData[i].i,
-			model.vertexData[i].j,
-			model.vertexData[i].k,
-			model.vertexData[i].u,
-			model.vertexData[i].v
+			(*model.vertexData)[i].x,
+			(*model.vertexData)[i].y,
+			(*model.vertexData)[i].z,
+			(*model.vertexData)[i].i,
+			(*model.vertexData)[i].j,
+			(*model.vertexData)[i].k,
+			(*model.vertexData)[i].u,
+			(*model.vertexData)[i].v
 	);
 }
+}
 OMLOGE("Index data sent to the GPU:");
-for(int i = 0; i < model.indices.size() / 3; ++i) {
-	OMLOGE("f %d %d %d", model.indices[3*i], model.indices[3*i+1], model.indices[3*i+2]);
+if(model.indices != nullptr) {
+for(int i = 0; i < model.indices->size() / 3; ++i) {
+	OMLOGE("f %d %d %d", (*model.indices)[3*i], (*model.indices)[3*i+1], (*model.indices)[3*i+2]);
+}
 }
 #endif
 	} else {

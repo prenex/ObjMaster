@@ -14,6 +14,6 @@ namespace ObjMaster {
     /** Given the fields that describe an ObjectGroupElement, return the name part */
     std::string ObjectGroupElement::getObjectGroupName(const char *fields){
         // Just return a string that is initialized with the remaining part of the fields/line
-        return std::string{fields[2]};
+        return std::string{fields+2};
     }
 }

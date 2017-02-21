@@ -32,6 +32,7 @@ namespace ObjMaster {
 		path = obj.objPath;
 		// We create one mesh per each object material group
 		for(auto gPair : obj.objectMaterialGroups) {
+        	OMLOGE("!!!!! Object material group have found as %s", gPair.first.c_str());
 			meshes.push_back(std::move(MaterializedObjMeshObject(obj,
 				&(obj.fs[gPair.second.faceIndex]),
 			       	gPair.second.meshFaceCount,
