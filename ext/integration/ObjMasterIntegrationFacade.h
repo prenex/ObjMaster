@@ -77,6 +77,18 @@ extern "C" {
 	DLL_API int getModelMeshVertexDataCount(int handle, int meshIndex);
 
 	/**
+	 * Returns the base-offset of vertices in this mesh when using shared vertex buffers.
+	 * When the vertex buffers are given per-mesh, this always return 0 for safe usage.
+	 * This method is really useful for creating per-mesh buffers from the objmaster provided
+	 * data as it is in the case of the unity integration and such. Indices of one mesh will
+	 * have an offset of this value in the shared case so creating a copy of the real indices
+	 * works by getting this value and substracting it from each shared index value!
+	 *
+	 * Rem.: This method indicates errors by returning negative values (-1)
+	 */
+	DLL_API int getModelMeshBaseVertexOffset(int handle, int meshIndex);
+
+	/**
 	 * Extracts the vertex data for the mesh of the given handle into output.
 	 * 
 	 * The output is a pointer to the pointer that will get filled by the location of the data!
