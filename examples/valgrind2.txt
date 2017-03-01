@@ -1,8 +1,8 @@
-==17457== Memcheck, a memory error detector
-==17457== Copyright (C) 2002-2015, and GNU GPL'd, by Julian Seward et al.
-==17457== Using Valgrind-3.11.0 and LibVEX; rerun with -h for copyright info
-==17457== Command: ./showobj
-==17457== 
+==17757== Memcheck, a memory error detector
+==17757== Copyright (C) 2002-2015, and GNU GPL'd, by Julian Seward et al.
+==17757== Using Valgrind-3.11.0 and LibVEX; rerun with -h for copyright info
+==17757== Command: ./showobj
+==17757== 
 Cannot parse line: # Blender v2.69 (sub 0) OBJ File: 'test.blend'
 Cannot parse line: # www.blender.org
 Cannot parse line: s off
@@ -59,7 +59,7 @@ FIXME - fv,fvt,fvn pointers: 74616548,0,74621752FIXME - fv,fvt,fvn pointers: 746
  - Maximum indexNo in this mesh: 4
 Number of found meshes in 0 is: 3
 Number of found vertices in first mesh of 0 is: 24
-LEAKTEST 1) Memory at start: 28596
+LEAKTEST 1) Memory at start: 28852
 Opening input stream for objmaster/tests/models/test.obj
 Initializing data vectors (expectedVertexDataNum:256, expectedFaceNum:128)
 Reading obj data file line-by-line
@@ -110,7 +110,7 @@ FIXME - fv,fvt,fvn pointers: 74764908,0,74770112FIXME - fv,fvt,fvn pointers: 747
  - Maximum indexNo in this mesh: 4
 Number of found meshes in 1 is: 3
 Number of found vertices in first mesh of 1 is: 24
-LEAKTEST 1) Memory at iteration 0: 28596
+LEAKTEST 1) Memory at iteration 0: 29112
 Opening input stream for objmaster/tests/models/test.obj
 Initializing data vectors (expectedVertexDataNum:256, expectedFaceNum:128)
 Reading obj data file line-by-line
@@ -157,7 +157,7 @@ FIXME - fv,fvt,fvn pointers: 74913292,0,74918496FIXME - fv,fvt,fvn pointers: 749
  - Maximum indexNo in this mesh: 4
 Number of found meshes in 2 is: 3
 Number of found vertices in first mesh of 2 is: 24
-LEAKTEST 1) Memory at iteration 1: 28596
+LEAKTEST 1) Memory at iteration 1: 29112
 Opening input stream for objmaster/tests/models/test.obj
 Initializing data vectors (expectedVertexDataNum:256, expectedFaceNum:128)
 Reading obj data file line-by-line
@@ -213,7 +213,7 @@ FIXME - fv,fvt,fvn pointers: 75061732,0,75066936FIXME - fv,fvt,fvn pointers: 750
  - Maximum indexNo in this mesh: 4
 Number of found meshes in 3 is: 3
 Number of found vertices in first mesh of 3 is: 24
-LEAKTEST 1) Memory at iteration 2: 28596
+LEAKTEST 1) Memory at iteration 2: 29376
 Opening input stream for objmaster/tests/models/test.obj
 Initializing data vectors (expectedVertexDataNum:256, expectedFaceNum:128)
 Reading obj data file line-by-line
@@ -267,10 +267,10 @@ FIXME - fv,fvt,fvn pointers: 75210012,0,75215216FIXME - fv,fvt,fvn pointers: 752
  - Maximum indexNo in this mesh: 4
 Number of found meshes in 4 is: 3
 Number of found vertices in first mesh of 4 is: 24
-LEAKTEST 1) Memory at iteration 3: 28596
-LEAKTEST 1) Memory at end of leakage test: 28596
-LEAKTEST 1) Memory at very end of leakage test: 28596
-LEAKTEST 2) Memory at start: 28596
+LEAKTEST 1) Memory at iteration 3: 29640
+LEAKTEST 1) Memory at end of leakage test: 29640
+LEAKTEST 1) Memory at very end of leakage test: 29640
+LEAKTEST 2) Memory at start: 29640
 Opening input stream for objmaster/tests/models/test.obj
 Initializing data vectors (expectedVertexDataNum:256, expectedFaceNum:128)
 Reading obj data file line-by-line
@@ -772,7 +772,7 @@ Finished loading of Obj data.
  - Read materials: 1
  - Read object/material groups: 3
 Number of vertices in test: 76
-LEAKTEST 2) Memory at iteration 0: 29108
+LEAKTEST 2) Memory at iteration 0: 31948
 Opening input stream for objmaster/tests/models/test.obj
 Initializing data vectors (expectedVertexDataNum:256, expectedFaceNum:128)
 Reading obj data file line-by-line
@@ -1254,7 +1254,7 @@ Finished loading of Obj data.
  - Read materials: 1
  - Read object/material groups: 3
 Number of vertices in test: 76
-LEAKTEST 2) Memory at iteration 1: 29900
+LEAKTEST 2) Memory at iteration 1: 32212
 Opening input stream for objmaster/tests/models/teCannot parse line: # Blender v2.69 (sub 0) OBJ File: 'test.blend'
 Cannot parse line: # www.blender.org
 Cannot parse line: s off
@@ -1758,7 +1758,7 @@ Finished loading of Obj data.
  - Read materials: 1
  - Read object/material groups: 3
 Number of vertices in test: 76
-LEAKTEST 2) Memory at iteration 2: 30692
+LEAKTEST 2) Memory at iteration 2: 32476
 Opening input stream for objmaster/tests/models/test.obj
 Initializing data vectors (expectedVertexDataNum:256, expectedFaceNum:128)
 Reading obj data file line-by-line
@@ -2253,9 +2253,9 @@ Finished loading of Obj data.
  - Read materials: 1
  - Read object/material groups: 3
 Number of vertices in test: 76
-LEAKTEST 2) Memory at iteration 3: 31748
-LEAKTEST 2) Memory at end of leakage test: 31748
-LEAKTEST 3) Memory at start: 31748
+LEAKTEST 2) Memory at iteration 3: 33268
+LEAKTEST 2) Memory at end of leakage test: 33268
+LEAKTEST 3) Memory at start: 33268
 Opening input stream for objmaster/tests/models/test.obj
 Initializing data vectors (expectedVertexDataNum:256, expectedFaceNum:128)
 Reading obj data file line-by-line
@@ -2297,7 +2297,7 @@ Number of vertices in test: 76
 Number of vertices in test: 76
 Number of vertices in test: 76
 Number of vertices in test: 76
-LEAKTEST 3) Memory at iteration 0: 32012
+LEAKTEST 3) Memory at iteration 0: 33532
 Number of vertices in test: 76
 Number of vertices in test: 76
 Number of vertices in test: 76
@@ -2314,7 +2314,7 @@ Number of vertices in test: 76
 Number of vertices in test: 76
 Number of vertices in test: 76
 Number of vertices in test: 76
-LEAKTEST 3) Memory at iteration 1: 32276
+LEAKTEST 3) Memory at iteration 1: 33796
 Number of vertices in test: 76
 Number of vertices in test: 76
 Number of vertices in test: 76
@@ -2379,7 +2379,7 @@ f(facePointCount): 3
  test: 76
 Number of vertices in test: 76
 Number of vertices in test: 76
-LEAKTEST 3) Memory at iteration 2: 32540
+LEAKTEST 3) Memory at iteration 2: 34060
 Number of vertices in test: 76
 Number of vertices in test: 76
 Number of vertices in test: 76
@@ -2396,9 +2396,9 @@ Number of vertices in test: 76
 Number of vertices in test: 76
 Number of vertices in test: 76
 Number of vertices in test: 76
-LEAKTEST 3) Memory at iteration 3: 32804
-LEAKTEST 3) Memory at end of leakage test: 32804
-LEAKTEST 4) Memory at start: 32804
+LEAKTEST 3) Memory at iteration 3: 34060
+LEAKTEST 3) Memory at end of leakage test: 34060
+LEAKTEST 4) Memory at start: 34060
 TEST_VertexElement testing: v 1.0 2.0 3.0
 TEST_VertexElement testing: vt 1.0 2.0 3.0
 TEST_VertexElement testing: vn 1.0 2.0 3.0
@@ -3122,7 +3122,7 @@ TEST_FacePoint testing: v 1.0 2.0 3.0
 TEST_FacePoint testing: asdafdas
 TEST_FacePoint testing: (null)
 TEST_FacePoint testing: 
-LEAKTEST 4) Memory at iteration 0: 32860
+LEAKTEST 4) Memory at iteration 0: 34324
 TEST_VertexElement testing: v 1.0 2.0 3.0
 TEST_VertexElement testing: vt 1.0 2.0 3.0
 TEST_VertexElement testing: vn 1.0 2.0 3.0
@@ -3904,7 +3904,7 @@ TEST_FacePoint testing: v 1.0 2.0 3.0
 TEST_FacePoint testing: asdafdas
 TEST_FacePoint testing: (null)
 TEST_FacePoint testing: 
-LEAKTEST 4) Memory at iteration 1: 32860
+LEAKTEST 4) Memory at iteration 1: 34324
 TEST_VertexElement testing: v 1.0 2.0 3.0
 TEST_VertexElement testing: vt 1.0 2.0 3.0
 TEST_VertexElement testing: vn 1.0 2.0 3.0
@@ -4687,7 +4687,7 @@ TEST_FacePoint testing: v 1.0 2.0 3.0
 TEST_FacePoint testing: asdafdas
 TEST_FacePoint testing: (null)
 TEST_FacePoint testing: 
-LEAKTEST 4) Memory at iteration 2: 32860
+LEAKTEST 4) Memory at iteration 2: 34324
 TEST_VertexElement testing: v 1.0 2.0 3.0
 TEST_VertexElement testing: vt 1.0 2.0 3.0
 TEST_VertexElement testing: vn 1.0 2.0 3.0
@@ -5426,21 +5426,28 @@ TEST_FacePoint testing: v 1.0 2.0 3.0
 TEST_FacePoint testing: asdafdas
 TEST_FacePoint testing: (null)
 TEST_FacePoint testing: 
-LEAKTEST 4) Memory at iteration 3: 32860
-LEAKTEST 4) Memory at end of leakage test: 32860
+LEAKTEST 4) Memory at iteration 3: 34324
+LEAKTEST 4) Memory at end of leakage test: 34324
 Number of errors on testing: 0
-==17457== 
-==17457== HEAP SUMMARY:
-==17457==     in use at exit: 18,944 bytes in 1 blocks
-==17457==   total heap usage: 8,284 allocs, 8,283 frees, 4,101,597 bytes allocated
-==17457== 
-==17457== LEAK SUMMARY:
-==17457==    definitely lost: 0 bytes in 0 blocks
-==17457==    indirectly lost: 0 bytes in 0 blocks
-==17457==      possibly lost: 0 bytes in 0 blocks
-==17457==    still reachable: 18,944 bytes in 1 blocks
-==17457==         suppressed: 0 bytes in 0 blocks
-==17457== Rerun with --leak-check=full to see details of leaked memory
-==17457== 
-==17457== For counts of detected and suppressed errors, rerun with: -v
-==17457== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+==17757== 
+==17757== HEAP SUMMARY:
+==17757==     in use at exit: 18,944 bytes in 1 blocks
+==17757==   total heap usage: 8,284 allocs, 8,283 frees, 4,101,597 bytes allocated
+==17757== 
+==17757== 18,944 bytes in 1 blocks are still reachable in loss record 1 of 1
+==17757==    at 0x402D17C: malloc (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==17757==    by 0x41115BA: ??? (in /usr/lib/i386-linux-gnu/libstdc++.so.6.0.21)
+==17757==    by 0x400F364: call_init.part.0 (dl-init.c:72)
+==17757==    by 0x400F48D: call_init (dl-init.c:30)
+==17757==    by 0x400F48D: _dl_init (dl-init.c:120)
+==17757==    by 0x4000AFE: ??? (in /lib/i386-linux-gnu/ld-2.23.so)
+==17757== 
+==17757== LEAK SUMMARY:
+==17757==    definitely lost: 0 bytes in 0 blocks
+==17757==    indirectly lost: 0 bytes in 0 blocks
+==17757==      possibly lost: 0 bytes in 0 blocks
+==17757==    still reachable: 18,944 bytes in 1 blocks
+==17757==         suppressed: 0 bytes in 0 blocks
+==17757== 
+==17757== For counts of detected and suppressed errors, rerun with: -v
+==17757== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
