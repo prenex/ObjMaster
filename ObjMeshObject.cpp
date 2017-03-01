@@ -264,8 +264,6 @@ if(fv != nullptr) { OMLOGD(" - vs[vIndex]: (%f, %f, %f)", obj.vs[fp.vIndex].x, o
 if(fvt != nullptr) { OMLOGD(" - vts[vtIndex]: (%f, %f)", obj.vts[fp.vtIndex].u, obj.vts[fp.vtIndex].v); }
 if(fvn != nullptr) { OMLOGD(" - vns[vnIndex]: (%f, %f, %f)", obj.vns[fp.vnIndex].x, obj.vns[fp.vnIndex].y, obj.vns[fp.vnIndex].z); }
 #endif
-// FIXME: Remove this!
-printf("FIXME - fv,fvt,fvn pointers: %d,%d,%d", fv, fvt, fvn);
                     // Create a target slice from the target data
                     // This slicer is only used for hashing out duplications. Ownership of data
                     // is not transferred as this is a read-only operation!

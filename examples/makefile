@@ -9,8 +9,8 @@ CC=g++
 
 ifeq ($(CC),g++)
 	# g++ (ver 5.1+ tested)
-	CFLAGS=-c -std=c++14 -g -O0 #-Wall # sadly we are having a lot of unused functions for tests so this is undesirable...
-	LDFLAGS=-lglut -lGLESv2 -lm -g -O0
+	CFLAGS=-c -std=c++14 -g # -O0 #-Wall # sadly we are having a lot of unused functions for tests so this is undesirable...
+	LDFLAGS=-lglut -lGLESv2 -lm -g # -O0
 else 
 ifeq ($(CC),em++)
 	# em++ (ver 1.3+ tested)

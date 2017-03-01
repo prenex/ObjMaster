@@ -46,7 +46,7 @@
 #define DEBUG 1
 /*#define DEBUG_EXTRA 1*/
 // Settings for some tests
-#define TEST 1
+//#define TEST 1
 
 #include "objmaster/Obj.h"
 #include "objmaster/ObjMeshObject.h"
