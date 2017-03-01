@@ -40,24 +40,25 @@ struct IndexTargetSlice {
 		vBool = (lhs.v == rhs.v);
 	}
 
-        bool vnBool;
-	if(lhs.vn != nullptr && rhs.vn != nullptr) {
-		vnBool = lhs.vn->x == rhs.vn->x &&
-		       lhs.vn->y == rhs.vn->y &&
-		       lhs.vn->z == rhs.vn->z;
-	} else {
-		// Handle case when there is no vertex normal (many cases)
-		vBool = (lhs.vn == rhs.vn);
-	}
-
         bool vtBool;
 	if(lhs.vt != nullptr && rhs.vt != nullptr) {
 		vtBool = lhs.vt->u == rhs.vt->u &&
 		       lhs.vt->v == rhs.vt->v;
 	} else {
 		// Handle case when there is no vertex coordinate (many cases)
-		vBool = (lhs.vt == rhs.vt);
+		vtBool = (lhs.vt == rhs.vt);
 	}
+
+        bool vnBool;
+	if(lhs.vn != nullptr && rhs.vn != nullptr) {
+		vnBool = lhs.vn->x == rhs.vn->x &&
+		       lhs.vn->y == rhs.vn->y &&
+		       lhs.vn->z == rhs.vn->z;
+	} else {
+		// Handle case when there is no vertex normal (possible cases)
+		vnBool = (lhs.vn == rhs.vn);
+	}
+
 
 	return vBool && vnBool && vtBool;
     }
@@ -72,26 +73,26 @@ namespace std
         typedef std::size_t result_type;
         result_type operator()(argument_type const& s) const
         {
-            result_type hv1;
-            result_type hv2;
-            result_type hv3;
+            result_type hv1 = 0;
+            result_type hv2 = 0;
+            result_type hv3 = 0;
 	    if(s.v != nullptr) {
 		    hv1 = std::hash<float>()(s.v->x);
 		    hv2 = std::hash<float>()(s.v->y);
 		    hv3 = std::hash<float>()(s.v->z);
 	    }
 
-            result_type hvn1;
-            result_type hvn2;
-            result_type hvn3;
+            result_type hvn1 = 0;
+            result_type hvn2 = 0;
+            result_type hvn3 = 0;
 	    if(s.vn != nullptr) {
 		    hvn1 = std::hash<float>()(s.vn->x);
 		    hvn2 = std::hash<float>()(s.vn->y);
 		    hvn3 = std::hash<float>()(s.vn->z);
 	    }
 
-            result_type hvt1;
-            result_type hvt2;
+            result_type hvt1 = 0;
+            result_type hvt2 = 0;
 	    if(s.vt != nullptr) {
 		    hvt1 = std::hash<float>()(s.vt->u);
 		    hvt2 = std::hash<float>()(s.vt->v);
@@ -259,11 +260,12 @@ OMLOGD(" - vIndex: %d", fp.vIndex);
 OMLOGD(" - vtIndex: %d", fp.vtIndex);
 OMLOGD(" - vnIndex: %d", fp.vnIndex);
 OMLOGD("with:");
-OMLOGD(" - vs[vIndex]: (%f, %f, %f)", obj.vs[fp.vIndex].x, obj.vs[fp.vIndex].y, obj.vs[fp.vIndex].z);
-OMLOGD(" - vts[vtIndex]: (%f, %f)", obj.vts[fp.vtIndex].u, obj.vts[fp.vtIndex].v);
-OMLOGD(" - vns[vnIndex]: (%f, %f, %f)", obj.vns[fp.vnIndex].x, obj.vns[fp.vnIndex].y, obj.vns[fp.vnIndex].z);
+if(fv != nullptr) { OMLOGD(" - vs[vIndex]: (%f, %f, %f)", obj.vs[fp.vIndex].x, obj.vs[fp.vIndex].y, obj.vs[fp.vIndex].z); }
+if(fvt != nullptr) { OMLOGD(" - vts[vtIndex]: (%f, %f)", obj.vts[fp.vtIndex].u, obj.vts[fp.vtIndex].v); }
+if(fvn != nullptr) { OMLOGD(" - vns[vnIndex]: (%f, %f, %f)", obj.vns[fp.vnIndex].x, obj.vns[fp.vnIndex].y, obj.vns[fp.vnIndex].z); }
 #endif
-
+// FIXME: Remove this!
+printf("FIXME - fv,fvt,fvn pointers: %d,%d,%d", fv, fvt, fvn);
                     // Create a target slice from the target data
                     // This slicer is only used for hashing out duplications. Ownership of data
                     // is not transferred as this is a read-only operation!

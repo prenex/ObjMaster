@@ -25,8 +25,8 @@ namespace ObjMasterTest {
 
 	const char* TEST_MODEL_PATH = "objmaster/tests/models/";
 	const char* TEST_MODEL = "test.obj";
-	const int INNER_LOOPS = 64;
-	const int OUTER_LOOPS = 16;
+	const int INNER_LOOPS = 16;
+	const int OUTER_LOOPS = 4;
 
 	/** Gets the used bytes where this is properly implemented. Many linux kernels still don't have this */
 	long getMemoryUsage() {
