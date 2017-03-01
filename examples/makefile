@@ -21,8 +21,8 @@ ifeq ($(CC),em++)
 else
 	# clang++ (ver 3.4+ tested)
 	# clang uses 1y instead of 14 here, we need the LLVM libc so that streams are copyable (or a more recent gcc toolchain than the 4.9 at my work!)
-	CFLAGS=-c -stdlib=libc++ -std=c++1y -g -fsanitize=address -fno-omit-frame-pointer
-	LDFLAGS=-lglut -lGLESv2 -lm -stdlib=libc++ -g -fsanitize=address -fsanitize-memory-track-origins
+	CFLAGS=-c -stdlib=libc++ -std=c++1y -g # -fsanitize=address -fno-omit-frame-pointer
+	LDFLAGS=-lglut -lGLESv2 -lm -stdlib=libc++ -g # -fsanitize=address -fsanitize-memory-track-origins
 endif
 endif
 
@@ -46,4 +46,4 @@ endif
 	$(CC) $(CFLAGS) $< -o $@
 
 clean:
-	rm *.o objmaster/*.o showobj objmaster/ext/*.o
+	rm *.o objmaster/*.o showobj objmaster/ext/*.o objmaster/ext/integration/*.o

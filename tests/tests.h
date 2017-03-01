@@ -23,6 +23,11 @@
 
 namespace ObjMasterTest {
 
+	const char* TEST_MODEL_PATH = "objmaster/tests/models/";
+	const char* TEST_MODEL = "test.obj";
+	const int INNER_LOOPS = 64;
+	const int OUTER_LOOPS = 16;
+
 	/** Gets the used bytes where this is properly implemented. Many linux kernels still don't have this */
 	long getMemoryUsage() {
 #if defined (__linux__) || defined (__unix__) || (defined (__APPLE__) && defined (__MACH__))
@@ -37,7 +42,7 @@ namespace ObjMasterTest {
 
 	/** Tests the integration facade functionality. Returns 0 if everything is successful and 1 on errors */
 	int testIntegrationFacade(){
-		int handle = loadObjModel("objmaster/tests/models/", "test.obj");
+		int handle = loadObjModel(TEST_MODEL_PATH, TEST_MODEL);
 		int meshNo = getModelMeshNo(handle);
 		if(meshNo < 1) {
 			// No meshes have found in the test model. This is an error.
@@ -63,7 +68,7 @@ namespace ObjMasterTest {
 	int leakTest1() {
 		// Get memory usage in the beginning
 		OMLOGI("LEAKTEST 1) Memory at start: %ld", getMemoryUsage());
-		for(int i = 0; i < 32; ++i) {
+		for(int i = 0; i < OUTER_LOOPS; ++i) {
 			testIntegrationFacade();
 			OMLOGI("LEAKTEST 1) Memory at iteration %d: %ld", i, getMemoryUsage());
 		}
@@ -85,9 +90,9 @@ namespace ObjMasterTest {
 		// Get memory usage in the beginning
 		OMLOGI("LEAKTEST 2) Memory at start: %ld", getMemoryUsage());
 		// Try doing a lot of Obj parses
-		for(int i = 0; i < 32; ++i) {
-			for(int j = 0; j < 128; ++j) {
-				ObjMaster::Obj obj = ObjMaster::Obj(ObjMaster::FileAssetLibrary(), "objmaster/tests/models/", "test.obj");
+		for(int i = 0; i < OUTER_LOOPS; ++i) {
+			for(int j = 0; j < INNER_LOOPS; ++j) {
+				ObjMaster::Obj obj = ObjMaster::Obj(ObjMaster::FileAssetLibrary(), TEST_MODEL_PATH, TEST_MODEL);
 
 				int verticesNo = obj.vs.size();
 				OMLOGI("Number of vertices in test: %d", verticesNo);
@@ -106,10 +111,10 @@ namespace ObjMasterTest {
 		// Get memory usage in the beginning
 		OMLOGI("LEAKTEST 3) Memory at start: %ld", getMemoryUsage());
 		// Parse the obj once
-		ObjMaster::Obj obj = ObjMaster::Obj(ObjMaster::FileAssetLibrary(), "objmaster/tests/models/", "test.obj");
+		ObjMaster::Obj obj = ObjMaster::Obj(ObjMaster::FileAssetLibrary(), TEST_MODEL_PATH, TEST_MODEL);
 		// Then try to create a local objects on the stack with copy constructor
-		for(int i = 0; i < 32; ++i) {
-			for(int j = 0; j < 128; ++j) {
+		for(int i = 0; i < OUTER_LOOPS; ++i) {
+			for(int j = 0; j < INNER_LOOPS; ++j) {
 				ObjMaster::Obj copyobj = obj;
 				int verticesNo = copyobj.vs.size();
 				OMLOGI("Number of vertices in test: %d", verticesNo);
@@ -128,8 +133,8 @@ namespace ObjMasterTest {
 		// Get memory usage in the beginning
 		OMLOGI("LEAKTEST 4) Memory at start: %ld", getMemoryUsage());
 		// Then try to create a local objects on the stack with copy constructor
-		for(int i = 0; i < 32; ++i) {
-			for(int j = 0; j < 128; ++j) {
+		for(int i = 0; i < OUTER_LOOPS; ++i) {
+			for(int j = 0; j < INNER_LOOPS; ++j) {
 				// Test parts of obj - basically parsing elements memory test
 				ObjMaster::TEST_Obj();
 			}
