@@ -35,10 +35,15 @@ namespace ObjMaster {
     // Variant that keeps the original string as it is. Has overhead because of copies.
     FacePoint::FacePoint(const char *fields) {
         if (isParsable(fields)) {
-            // The strtok_r changes the string so we need to duplicate it
-            char *copy = strdup(fields);
-            constructorHelper(copy);
-            free(copy);
+		// The strtok_r changes the string so we need to duplicate it
+		char copy[256];	// The line never should be longer than this anyways...
+		copy[255] = 0;	// ensure terminator
+		strncpy(copy, fields, 254);
+		constructorHelper(copy);
+		// Remark: The original code below makes very small malloc and free pairs and fragment memory!
+		// char *copy = strdup(fields);
+		// constructionHelper(copy);
+		// free(copy);
         }
     }
 
@@ -54,10 +59,15 @@ namespace ObjMaster {
     // so that this way you can avoid unnecessary duplicated checks
     FacePoint::FacePoint(const char *fields, bool forceParser) {
         if (forceParser || isParsable(fields)) {
-            // The strtok_r changes the string so we need to duplicate it
-            char *copy = strdup(fields);
-            constructorHelper(copy);
-            free(copy);
+		// The strtok_r changes the string so we need to duplicate it
+		char copy[256];	// The line never should be longer than this anyways...
+		copy[255] = 0;	// ensure terminator
+		strncpy(copy, fields, 254);
+		constructorHelper(copy);
+		// Remark: The original code below makes very small malloc and free pairs and fragment memory!
+		// char *copy = strdup(fields);
+		// constructionHelper(copy);
+		// free(copy);
         }
     }
 

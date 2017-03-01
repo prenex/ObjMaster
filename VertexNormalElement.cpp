@@ -18,9 +18,14 @@ namespace ObjMaster {
 
     VertexNormalElement::VertexNormalElement(const char *fields) {
         // The strtok_r changes the string so we need to duplicate it
-        char *copy = strdup(fields);
+        char copy[256];	// The line never should be longer than this anyways...
+	copy[255] = 0;	// ensure terminator
+        strncpy(copy, fields, 254);
         constructionHelper(copy);
-        free(copy);
+	// Remark: The original code below makes very small malloc and free pairs and fragment memory!
+        // char *copy = strdup(fields);
+        // constructionHelper(copy);
+        // free(copy);
     }
 
 // This variant modifies the provided 'string' but is it faster as it do this without the copy

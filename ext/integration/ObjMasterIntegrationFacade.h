@@ -11,11 +11,16 @@
 #ifndef OBJ_MASTER_INTEGR_FACADE_H
 #define OBJ_MASTER_INTEGR_FACADE_H
 
+// When the facade should not be built as DLL, you need to define this!
+#define NO_OBJMASTER_FACADE_DLL 1	// needed to get rid of the DLL specific stuff
+
 #include "../../VertexStructure.h"
 
-#define DLL_API __declspec(dllexport) 
-// Comment this out, if you are compiling statically into your project (with gcc for example)
-//#define DLL_API static
+#ifndef NO_OBJMASTER_FACADE_DLL
+	#define DLL_API __declspec(dllexport) 
+#else
+	#define DLL_API extern
+#endif // NO_OBJMASTER_FACADE_DLL
 
 extern "C" {
 	/** Just a test-function for checking DLL linkage success */

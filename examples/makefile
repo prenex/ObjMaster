@@ -26,7 +26,7 @@ else
 endif
 endif
 
-SOURCES=showobj.cpp objmaster/Obj.cpp objmaster/VertexElement.cpp objmaster/VertexNormalElement.cpp objmaster/VertexTextureElement.cpp objmaster/FaceElement.cpp objmaster/FacePoint.cpp objmaster/ObjMeshObject.cpp objmaster/Material.cpp objmaster/TextureDataHoldingMaterial.cpp objmaster/ObjectGroupElement.cpp objmaster/MtlLib.cpp objmaster/FileAssetLibrary.cpp objmaster/MaterializedObjMeshObject.cpp objmaster/StbImgTexturePreparationLibrary.cpp objmaster/ext/GlGpuTexturePreparationLibrary.cpp
+SOURCES=showobj.cpp objmaster/Obj.cpp objmaster/VertexElement.cpp objmaster/VertexNormalElement.cpp objmaster/VertexTextureElement.cpp objmaster/FaceElement.cpp objmaster/FacePoint.cpp objmaster/ObjMeshObject.cpp objmaster/Material.cpp objmaster/TextureDataHoldingMaterial.cpp objmaster/ObjectGroupElement.cpp objmaster/MtlLib.cpp objmaster/FileAssetLibrary.cpp objmaster/MaterializedObjMeshObject.cpp objmaster/StbImgTexturePreparationLibrary.cpp objmaster/ext/GlGpuTexturePreparationLibrary.cpp objmaster/ext/integration/ObjMasterIntegrationFacade.cpp
 OBJECTS=$(SOURCES:.cpp=.o)
 EXECUTABLE=showobj
 

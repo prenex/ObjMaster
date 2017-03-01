@@ -42,8 +42,11 @@
 #include <GL/glut.h>
 #endif
 
+// Debug settings
 #define DEBUG 1
 /*#define DEBUG_EXTRA 1*/
+// Settings for some tests
+#define TEST 1
 
 #include "objmaster/Obj.h"
 #include "objmaster/ObjMeshObject.h"
@@ -52,6 +55,11 @@
 #include "objmaster/FileAssetLibrary.h"
 #include "objmaster/StbImgTexturePreparationLibrary.h"
 #include "objmaster/ext/GlGpuTexturePreparationLibrary.h"
+
+// Only include tests when it is really needed
+#ifdef TEST
+#include "objmaster/tests/tests.h"
+#endif
 
 /** The view rotation [x, y, z] */
 static GLfloat view_rot[3] = { 20.0, 30.0, 0.0 };
@@ -472,9 +480,17 @@ static void init(char* modelFileNameAndPath) {
 }
 
 int main(int argc, char *argv[]) {
+#ifdef TEST
+	// Run all tests
+	int errorNo = ObjMasterTest::testAll();
+	printf("Number of errors on testing: %d\n", errorNo);
+	// Just exit program
+	return errorNo;
+#else
+   // Otherwise start application!
 #ifdef TEST_MEMORYPROFILER_ALLOCATIONS_MAP
    printf("You should see an interactive CPU profiler graph below, and below that an allocation map of the Emscripten main HEAP, with a long blue block of allocated memory.\n");
-#endif
+#endif // PROFILER
    printf("argc:%d\n", argc);
    /* Initialize the window */
    glutInit(&argc, argv);
@@ -501,4 +517,5 @@ int main(int argc, char *argv[]) {
    glutMainLoop();
 
    return 0;
+#endif // TEST
 }
