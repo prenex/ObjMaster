@@ -27,14 +27,14 @@ public class ObjMasterUnityFacade : MonoBehaviour {
     /// </summary>
     public enum MIRROR_MODE
     {
-        NONE=0,
-        MIRROR_X=1,
-        MIRROR_Y=2,
-        MIRROR_Z=4,
-        MIRROR_XY=3,
-        MIRROR_XZ=5,
-        MIRROR_YZ=6,
-        MIRROR_XYZ=7
+        NONE = 0,
+        MIRROR_X = 1,
+        MIRROR_Y = 2,
+        MIRROR_Z = 4,
+        MIRROR_XY = 3,
+        MIRROR_XZ = 5,
+        MIRROR_YZ = 6,
+        MIRROR_XYZ = 7
     }
     #endregion
 
@@ -194,7 +194,7 @@ public class ObjMasterUnityFacade : MonoBehaviour {
     /// </summary>
     /// <returns>false indicates that something went wrong and there might be a leak or inconsistency!</returns>
     [DllImport("ObjMasterHololensUnity", EntryPoint = "unloadEverything")]
-	public static extern bool unloadEverything();
+    public static extern bool unloadEverything();
 
     /// <summary>
     /// Returns the number of meshes a model is having.
@@ -221,10 +221,25 @@ public class ObjMasterUnityFacade : MonoBehaviour {
     /// <param name="meshIndex">The index of the mesh - should be smaller than getModelMeshNo</param>
     /// <returns>Number of vertex data for the given mesh</returns>
     [DllImport("ObjMasterHololensUnity", EntryPoint = "getModelMeshVertexDataCount")]
-	public static extern int getModelMeshVertexDataCount(int handle, int meshIndex);
+    public static extern int getModelMeshVertexDataCount(int handle, int meshIndex);
 
     /// <summary>
-    /// 
+	/// Returns the base-offset of vertices in this mesh when using shared vertex buffers.
+	/// When the vertex buffers are given per-mesh, this always return 0 for safe usage.
+	/// This method is really useful for creating per-mesh buffers from the objmaster provided
+	/// data as it is in the case of the unity integration and such. Indices of one mesh will
+	/// have an offset of this value in the shared case so creating a copy of the real indices
+	/// works by getting this value and substracting it from each shared index value!
+	///
+	/// Rem.: This method indicates errors by returning negative values (-1)
+    /// </summary>
+    /// <param name="handle">The handle of the model</param>
+    /// <param name="meshIndex">The index of the mesh of the model</param>
+    /// <returns>Negative on errors - otherwise the offset value described above</returns>
+    [DllImport("ObjMasterHololensUnity", EntryPoint = "getModelMeshBaseVertexOffset")]
+    public static extern int getModelMeshBaseVertexOffset(int handle, int meshIndex);
+
+    /// <summary>
 	/// Extracts the vertex data for the mesh of the given handle into output pointer
 	/// 
 	/// When marshalling with Marshar.PtrToStructure as VertexData, the target should be big-enough to hold
@@ -250,7 +265,7 @@ public class ObjMasterUnityFacade : MonoBehaviour {
     /// <param name="pointer">Will hold pointer to the data as an IntPtr</param>
     /// <returns></returns>
     [DllImport("ObjMasterHololensUnity", EntryPoint = "getModelMeshVertexData")]
-	public static extern int getModelMeshVertexData(int handle, int meshIndex, out IntPtr pointer);
+    public static extern int getModelMeshVertexData(int handle, int meshIndex, out IntPtr pointer);
 
     /// <summary>
     /// Tells the number of index data for the given mesh of the handle.
@@ -259,7 +274,7 @@ public class ObjMasterUnityFacade : MonoBehaviour {
     /// <param name="meshIndex">The index of the mesh - should be smaller than getModelMeshNo</param>
     /// <returns> Returns -1 in case of errors and zero when there is no data at all!</returns>
     [DllImport("ObjMasterHololensUnity", EntryPoint = "getModelMeshIndicesCount")]
-	public static extern int getModelMeshIndicesCount(int handle, int meshIndex);
+    public static extern int getModelMeshIndicesCount(int handle, int meshIndex);
 
     /// <summary>
     /// Fills a pointer to point to the array of indices using the output parameter.
@@ -271,7 +286,7 @@ public class ObjMasterUnityFacade : MonoBehaviour {
     /// <param name="output">The pointer which will contain the location of the result</param>
     /// <returns>The number of indices of -1 in case of errors</returns>
     [DllImport("ObjMasterHololensUnity", EntryPoint = "getModelMeshIndices")]
-	public static extern int getModelMeshIndices(int handle, int meshIndex, out IntPtr output);
+    public static extern int getModelMeshIndices(int handle, int meshIndex, out IntPtr output);
 
     /// <summary>
     /// Returns a pointer to the CSTR of the Ambient texture filename. Returns nullptr in case of errors, and points to empty CSTR if there is no such texture.
@@ -338,7 +353,7 @@ public class ObjMasterUnityFacade : MonoBehaviour {
             int modelHandle = loadObjModel(testPath, testFileName);
 
             // If this is a valid handle, we will test it and close!
-            if(modelHandle >= 0)
+            if (modelHandle >= 0)
             {
                 Debug.Log("Loaded model with handle: " + modelHandle);
 
@@ -371,7 +386,7 @@ public class ObjMasterUnityFacade : MonoBehaviour {
                         Debug.Log("Normal/bump texture is: " + bumptex);
 
                         // Vertex and index buffer data
-                        uint[] indices = getModelMeshIndicesCopy(modelHandle, 0, MIRROR_MODE.MIRROR_X);
+                        uint[] indices = getModelMeshIndicesCopy(modelHandle, 0, MIRROR_MODE.MIRROR_X, true);
                         Debug.Log("Indices of the first mesh: " + prettyPrintIndices(indices));
 
                         VertexStructure[] vertices = getModelMeshVertexDataCopy(modelHandle, 0);
@@ -396,14 +411,14 @@ public class ObjMasterUnityFacade : MonoBehaviour {
     // Pretty-print helper
     private string prettyPrintIndices(uint[] indices)
     {
-        if(indices == null)
+        if (indices == null)
         {
             return "null";
         }
         else
         {
             StringBuilder sb = new StringBuilder("indices[");
-            for(int i = 0; i < indices.Length; ++i)
+            for (int i = 0; i < indices.Length; ++i)
             {
                 sb.Append(indices[i]);
                 if (i < indices.Length - 1)
@@ -419,14 +434,14 @@ public class ObjMasterUnityFacade : MonoBehaviour {
     // Pretty-print helper
     private string prettyPrintVertices(VertexStructure[] vertices)
     {
-        if(vertices == null)
+        if (vertices == null)
         {
             return "null";
         }
         else
         {
             StringBuilder sb = new StringBuilder("vertices[");
-            for(int i = 0; i < vertices.Length; ++i)
+            for (int i = 0; i < vertices.Length; ++i)
             {
                 sb.Append(vertices[i].ToString());
                 if (i < vertices.Length - 1)
@@ -441,6 +456,26 @@ public class ObjMasterUnityFacade : MonoBehaviour {
 #endif
     #endregion
     #region Helper methods
+    /// <summary>
+    /// Returns the count of all vertices in the whole model with its all meshes. Basically this method just iterates over all mesh indexes and summarizes.
+    /// </summary>
+    /// <param name="handle">The handle of the model</param>
+    /// <returns>The total number of vertices in the model. Tries to return negative values on errors.</returns>
+    public static int getModelVertexDataCount(int handle)
+    {
+        if (handle >= 0) {
+            int totalVertexNo = 0;
+            for (int meshIndex = 0; meshIndex < getModelMeshNo(handle); ++meshIndex)
+            {
+                totalVertexNo += getModelMeshVertexDataCount(handle, meshIndex);
+            }
+            return totalVertexNo;
+        } else
+        {
+            // Bad handle
+            return -1;
+        }
+    }
 
     /// <summary>
     /// Ambient texture filename. Returns null in case of errors, and empty if there is no such texture.
@@ -545,7 +580,7 @@ public class ObjMasterUnityFacade : MonoBehaviour {
         else
         {
             Vector3[] vPosData = new Vector3[vertexBuffer.Length];
-            for(int i = 0; i < vertexBuffer.Length; ++i)
+            for (int i = 0; i < vertexBuffer.Length; ++i)
             {
                 VertexStructure vs = vertexBuffer[i];
                 vPosData[i].x = ((uint)mirrorMode & (uint)MIRROR_MODE.MIRROR_X) != 0 ? vs.x : -vs.x;
@@ -571,7 +606,7 @@ public class ObjMasterUnityFacade : MonoBehaviour {
         else
         {
             Vector3[] vnData = new Vector3[vertexBuffer.Length];
-            for(int i = 0; i < vertexBuffer.Length; ++i)
+            for (int i = 0; i < vertexBuffer.Length; ++i)
             {
                 VertexStructure vs = vertexBuffer[i];
                 vnData[i].x = ((uint)mirrorMode & (uint)MIRROR_MODE.MIRROR_X) != 0 ? vs.i : -vs.i;
@@ -596,7 +631,7 @@ public class ObjMasterUnityFacade : MonoBehaviour {
         else
         {
             Vector2[] uvData = new Vector2[vertexBuffer.Length];
-            for(int i = 0; i < vertexBuffer.Length; ++i)
+            for (int i = 0; i < vertexBuffer.Length; ++i)
             {
                 VertexStructure vs = vertexBuffer[i];
                 uvData[i].x = vs.u;
@@ -620,7 +655,7 @@ public class ObjMasterUnityFacade : MonoBehaviour {
         int nativeDataLength = getModelMeshVertexData(handle, meshIndex, out ptrNativeData);
 
         // Check error (indicated by negative length)
-        if(nativeDataLength < 0)
+        if (nativeDataLength < 0)
         {
             // An error has happened, maybe throw exception instead of this?
             return new VertexStructure[0];
@@ -648,15 +683,16 @@ public class ObjMasterUnityFacade : MonoBehaviour {
     /// <param name="handle">The handle of the model</param>
     /// <param name="meshIndex">The index of the mesh</param>
     /// <param name="mirrorMode">The mirroring mode as the transformation - because mirroring vertex-data changes winding order of triangles, you should provide the same value here as with methods that extract vertex data!</param>
+    /// <param name="resetToZeroOffset">When set, the returned copy of indices are being "reseted" so in case they are referring to the first vertex data of this mesh, they have the value of 0, the second the value of 1 and so on. In case no reset would happen, the results depend on how this is stored in the c++ side (we might share vertex buffers there for optimalization or something). The default value for this is true, just there is a small speedup when this is false and you can access the real values.</param>
     /// <returns>The (possibly transformed) copy of the indices</returns>
-    public static UInt32[] getModelMeshIndicesCopy(int handle, int meshIndex, MIRROR_MODE mirrorMode)
+    public static UInt32[] getModelMeshIndicesCopy(int handle, int meshIndex, MIRROR_MODE mirrorMode, bool resetToZeroOffset = true)
     {
         // Fetch pointer to the native data
         IntPtr ptrNativeData;
         int nativeDataLength = getModelMeshIndices(handle, meshIndex, out ptrNativeData);
 
         // Check error (indicated by negative length)
-        if(nativeDataLength < 0)
+        if (nativeDataLength < 0)
         {
             // An error has happened, maybe throw exception instead of this?
             return new UInt32[0];
@@ -667,6 +703,18 @@ public class ObjMasterUnityFacade : MonoBehaviour {
         // TODO: this works only if the indices are containing triangle data!
         int currentTrianglePointNo = 0; // 0, 1, 2, 0, 1, 2, ...
         int size = (Marshal.SizeOf(typeof(UInt32)));
+        // See what is the offset - we spare native call if we can
+        int baseVertexOffset = 0;
+        if (resetToZeroOffset)
+        {
+            // TODO: Ensure that this thinking is right. For some moments I had doubts this is how I should do...
+            //       This only works if the vertex buffer is only shared THAT way that there can be duplications 
+            //       and the pointed areas for mesh contains all data for that mesh! Otherwise this will fail...
+            // Get the base offset that we can use to substract from indices to get per-mesh indices.
+            baseVertexOffset = getModelMeshBaseVertexOffset(handle, meshIndex);
+            // Just to give a little more endurance to the code. Should never happen to get zeroed here!
+            baseVertexOffset = baseVertexOffset < 0 ? 0 : baseVertexOffset;
+        }
         for(int i = 0; i < nativeDataLength; ++i)
         {
             // Calculate index expander value
@@ -694,7 +742,7 @@ public class ObjMasterUnityFacade : MonoBehaviour {
             // Get the pointed uint32_t value into our copy-array
             // Cast works here without data loss, see discussion at:
             // https://social.msdn.microsoft.com/Forums/vstudio/en-US/012d583d-dd88-45ac-ac81-abb72b54d6c5/marshalreadint32-returning-uint32?forum=csharpgeneral
-            indexArray[i + indexpander] =(UInt32) Marshal.ReadInt32(p, i * size); // Rem.: Offset is in bytes!
+            indexArray[i + indexpander] =(UInt32) (Marshal.ReadInt32(p, i * size) - baseVertexOffset); // Rem.: The second ReadInt32 offset param is in bytes!
 
             // update the indicator that holds information about which triangle we use
             currentTrianglePointNo = (currentTrianglePointNo + 1) % 3;
@@ -744,7 +792,7 @@ public class ObjMasterUnityFacade : MonoBehaviour {
             md.normalTexture = getModelMeshNormalTextureFileName(handle, meshIndex);
 
             // Fill indices
-            uint[] indices = getModelMeshIndicesCopy(handle, meshIndex, mirrorMode);
+            uint[] indices = getModelMeshIndicesCopy(handle, meshIndex, mirrorMode, true);
             // Unity seem to support only signed so I need this conversion code...
             int[] unitindices = new int[indices.Length];
             for(int i = 0; i < indices.Length; ++i)
