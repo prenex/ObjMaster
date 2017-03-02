@@ -14,6 +14,7 @@
 static char *windows_hacky_strncpy(char *dest, const char *src, size_t n) {
 	// I think this is only "more safe" when chars are not 8 bit represented...
 	strncpy_s(dest, n * sizeof(char), src, n);
+	return dest;
 }
 #endif
 
