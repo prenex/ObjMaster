@@ -16,6 +16,8 @@ namespace ObjMaster {
 
         VertexElement() {};
 
+        VertexElement(float xx, float yy, float zz) { x = xx; y = yy; z = zz; };
+
         VertexElement(char *fields);
 
         VertexElement(const char *fields);
