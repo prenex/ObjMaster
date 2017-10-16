@@ -4,6 +4,8 @@
 #ifndef NFTSIMPLEPROJ_VERTEXELEMENT_H
 #define NFTSIMPLEPROJ_VERTEXELEMENT_H
 
+#include <string>
+
 #include "objmasterlog.h"
 
 namespace ObjMaster {
@@ -23,6 +25,11 @@ namespace ObjMaster {
         VertexElement(const char *fields);
 
         static bool isParsable(const char *fields);
+
+	/** Gets the textual representation */
+	inline std::string asText() {
+		return "v " + std::to_string(x) + " " + std::to_string(y) + " " + std::to_string(z);
+	}
     private:
         void constructionHelper(char *fields);
     };
