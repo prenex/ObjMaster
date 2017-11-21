@@ -175,7 +175,7 @@ public class ObjMasterUnityFacade : MonoBehaviour {
     /// <param name="path">Path for the model - also search path of mtl file and relative names</param>
     /// <param name="fileName">Filename of the obj</param>
     /// <returns>A handle to reference this model or -1 in case of errors!</returns>
-    [DllImport("ObjMasterHololensUnity", EntryPoint = "loadObjModel")]
+    [DllImport("ObjMasterHololensUnity", EntryPoint = "loadObjModel", CallingConvention = CallingConvention.Cdecl)]
     public static extern int loadObjModel(string path, string fileName);
 
     /// <summary>
@@ -183,7 +183,7 @@ public class ObjMasterUnityFacade : MonoBehaviour {
     /// </summary>
     /// <param name="handle">The reference handle for the model to unload</param>
     /// <returns>True on success, false otherwise</returns>
-    [DllImport("ObjMasterHololensUnity", EntryPoint = "unloadObjModel")]
+    [DllImport("ObjMasterHololensUnity", EntryPoint = "unloadObjModel", CallingConvention = CallingConvention.Cdecl)]
     public static extern bool unloadObjModel(int handle);
 
     /// <summary>
@@ -193,7 +193,7 @@ public class ObjMasterUnityFacade : MonoBehaviour {
     /// be no memory leaks and left-overs unless there is a bug in the underlying library.
     /// </summary>
     /// <returns>false indicates that something went wrong and there might be a leak or inconsistency!</returns>
-    [DllImport("ObjMasterHololensUnity", EntryPoint = "unloadEverything")]
+    [DllImport("ObjMasterHololensUnity", EntryPoint = "unloadEverything", CallingConvention = CallingConvention.Cdecl)]
     public static extern bool unloadEverything();
 
     /// <summary>
@@ -201,7 +201,7 @@ public class ObjMasterUnityFacade : MonoBehaviour {
     /// </summary>
     /// <param name="handle">The handle of the model</param>
     /// <returns>-1 in case of errors or bad handle</returns>
-    [DllImport("ObjMasterHololensUnity", EntryPoint = "getModelMeshNo")]
+    [DllImport("ObjMasterHololensUnity", EntryPoint = "getModelMeshNo", CallingConvention = CallingConvention.Cdecl)]
     public static extern int getModelMeshNo(int handle);
 
     /// <summary>
@@ -211,7 +211,7 @@ public class ObjMasterUnityFacade : MonoBehaviour {
     /// <param name="meshIndex">The index of the mesh - should be smaller than getModelMeshNo</param>
     /// <returns>The material.</returns>
     // Maybe needed ", CallingConvention = CallingConvention.Cdecl)]" ???
-    [DllImport("ObjMasterHololensUnity", EntryPoint = "getModelMeshMaterial")]
+    [DllImport("ObjMasterHololensUnity", EntryPoint = "getModelMeshMaterial", CallingConvention = CallingConvention.Cdecl)]
     public static extern SimpleMaterial getModelMeshMaterial(int handle, int meshIndex);
 
     /// <summary>
@@ -220,7 +220,7 @@ public class ObjMasterUnityFacade : MonoBehaviour {
     /// <param name="handle">The handle of the model</param>
     /// <param name="meshIndex">The index of the mesh - should be smaller than getModelMeshNo</param>
     /// <returns>Number of vertex data for the given mesh</returns>
-    [DllImport("ObjMasterHololensUnity", EntryPoint = "getModelMeshVertexDataCount")]
+    [DllImport("ObjMasterHololensUnity", EntryPoint = "getModelMeshVertexDataCount", CallingConvention = CallingConvention.Cdecl)]
     public static extern int getModelMeshVertexDataCount(int handle, int meshIndex);
 
     /// <summary>
@@ -236,7 +236,7 @@ public class ObjMasterUnityFacade : MonoBehaviour {
     /// <param name="handle">The handle of the model</param>
     /// <param name="meshIndex">The index of the mesh of the model</param>
     /// <returns>Negative on errors - otherwise the offset value described above</returns>
-    [DllImport("ObjMasterHololensUnity", EntryPoint = "getModelMeshBaseVertexOffset")]
+    [DllImport("ObjMasterHololensUnity", EntryPoint = "getModelMeshBaseVertexOffset", CallingConvention = CallingConvention.Cdecl)]
     public static extern int getModelMeshBaseVertexOffset(int handle, int meshIndex);
 
     /// <summary>
@@ -251,7 +251,7 @@ public class ObjMasterUnityFacade : MonoBehaviour {
     /// 
     /// Example usage is something like this:
     ///     IntPtr ptrNativeData;
-    ///     int nativeDataLength = getModelMeshVertexData(0, 0, out ptrNativeData, out nativeDataLength);
+    ///     int nativeDataLength = getModelMeshVertexData(0, 0, out ptrNativeData);
     ///     VertexStructure[] vertexArray = new VertexStructure[nativeDataLength];
     ///     for(int i = 0; i &lt; nativeDataLength; ++i) {
     ///         Marshal.PtrToStructure(ptrNativeData, vertexArray[i]);
@@ -264,7 +264,7 @@ public class ObjMasterUnityFacade : MonoBehaviour {
     /// <param name="meshIndex">The index of the mesh - should be smaller than getModelMeshNo</param>
     /// <param name="pointer">Will hold pointer to the data as an IntPtr</param>
     /// <returns></returns>
-    [DllImport("ObjMasterHololensUnity", EntryPoint = "getModelMeshVertexData")]
+    [DllImport("ObjMasterHololensUnity", EntryPoint = "getModelMeshVertexData", CallingConvention = CallingConvention.Cdecl)]
     public static extern int getModelMeshVertexData(int handle, int meshIndex, out IntPtr pointer);
 
     /// <summary>
@@ -273,7 +273,7 @@ public class ObjMasterUnityFacade : MonoBehaviour {
     /// <param name="handle">The handle of the model</param>
     /// <param name="meshIndex">The index of the mesh - should be smaller than getModelMeshNo</param>
     /// <returns> Returns -1 in case of errors and zero when there is no data at all!</returns>
-    [DllImport("ObjMasterHololensUnity", EntryPoint = "getModelMeshIndicesCount")]
+    [DllImport("ObjMasterHololensUnity", EntryPoint = "getModelMeshIndicesCount", CallingConvention = CallingConvention.Cdecl)]
     public static extern int getModelMeshIndicesCount(int handle, int meshIndex);
 
     /// <summary>
@@ -285,7 +285,7 @@ public class ObjMasterUnityFacade : MonoBehaviour {
     /// <param name="meshIndex">The index of the mesh - should be smaller than getModelMeshNo</param>
     /// <param name="output">The pointer which will contain the location of the result</param>
     /// <returns>The number of indices of -1 in case of errors</returns>
-    [DllImport("ObjMasterHololensUnity", EntryPoint = "getModelMeshIndices")]
+    [DllImport("ObjMasterHololensUnity", EntryPoint = "getModelMeshIndices", CallingConvention = CallingConvention.Cdecl)]
     public static extern int getModelMeshIndices(int handle, int meshIndex, out IntPtr output);
 
     /// <summary>
@@ -294,7 +294,7 @@ public class ObjMasterUnityFacade : MonoBehaviour {
     /// <param name="handle">The handle of the model</param>
     /// <param name="meshIndex">The index of the mesh - should be smaller than getModelMeshNo</param>
     /// <returns>The pointer to the c-style string or nullptr in case of errors</returns>
-    [DllImport("ObjMasterHololensUnity", EntryPoint = "getModelMeshAmbientTextureFileName")]
+    [DllImport("ObjMasterHololensUnity", EntryPoint = "getModelMeshAmbientTextureFileName", CallingConvention = CallingConvention.Cdecl)]
     public static extern IntPtr getModelMeshAmbientTextureFileNamePtr(int handle, int meshIndex);
     /// <summary>
     /// Returns a pointer to the CSTR of the Diffuse texture filename. Returns nullptr in case of errors, and points to empty CSTR if there is no such texture.
@@ -302,7 +302,7 @@ public class ObjMasterUnityFacade : MonoBehaviour {
     /// <param name="handle">The handle of the model</param>
     /// <param name="meshIndex">The index of the mesh - should be smaller than getModelMeshNo</param>
     /// <returns>The pointer to the c-style string or nullptr in case of errors</returns>
-    [DllImport("ObjMasterHololensUnity", EntryPoint = "getModelMeshDiffuseTextureFileName")]
+    [DllImport("ObjMasterHololensUnity", EntryPoint = "getModelMeshDiffuseTextureFileName", CallingConvention = CallingConvention.Cdecl)]
     public static extern IntPtr getModelMeshDiffuseTextureFileNamePtr(int handle, int meshIndex);
     /// <summary>
     /// Returns a pointer to the CSTR of the Specular texture filename. Returns nullptr in case of errors, and points to empty CSTR if there is no such texture.
@@ -310,7 +310,7 @@ public class ObjMasterUnityFacade : MonoBehaviour {
     /// <param name="handle">The handle of the model</param>
     /// <param name="meshIndex">The index of the mesh - should be smaller than getModelMeshNo</param>
     /// <returns>The pointer to the c-style string or nullptr in case of errors</returns>
-    [DllImport("ObjMasterHololensUnity", EntryPoint = "getModelMeshSpecularTextureFileName")]
+    [DllImport("ObjMasterHololensUnity", EntryPoint = "getModelMeshSpecularTextureFileName", CallingConvention = CallingConvention.Cdecl)]
     public static extern IntPtr getModelMeshSpecularTextureFileNamePtr(int handle, int meshIndex);
     /// <summary>
     /// Returns a pointer to the CSTR of the Normal texture filename. Returns nullptr in case of errors, and points to empty CSTR if there is no such texture.
@@ -318,7 +318,7 @@ public class ObjMasterUnityFacade : MonoBehaviour {
     /// <param name="handle">The handle of the model</param>
     /// <param name="meshIndex">The index of the mesh - should be smaller than getModelMeshNo</param>
     /// <returns>The pointer to the c-style string or nullptr in case of errors</returns>
-    [DllImport("ObjMasterHololensUnity", EntryPoint = "getModelMeshNormalTextureFileName")]
+    [DllImport("ObjMasterHololensUnity", EntryPoint = "getModelMeshNormalTextureFileName", CallingConvention = CallingConvention.Cdecl)]
     public static extern IntPtr getModelMeshNormalTextureFileNamePtr(int handle, int meshIndex);
 
     #endregion
