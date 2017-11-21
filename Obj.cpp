@@ -10,6 +10,7 @@
 #include <memory>
 #include <vector>
 
+#define MAT_SEP ":mtl:"
 //#define DEBUG 1
 
 namespace ObjMaster {
@@ -141,7 +142,7 @@ OMLOGE(" - Start of object group: %s", currentObjectGroupName);
         // this is not only an optimization, but this is how we handle mtllib ...; o ... after each
         // other (so that we are not creating a lot of empty and unnecessary elements!)
         if (sizeOfFaceStripe > 0) {
-            this->objectMaterialGroups[currentObjectGroupName + ":" + currentMaterial.name]
+            this->objectMaterialGroups[currentObjectGroupName + MAT_SEP + currentMaterial.name]
                = ObjectMaterialFaceGroup {
                     currentObjectGroupName,
                     currentMaterial,
