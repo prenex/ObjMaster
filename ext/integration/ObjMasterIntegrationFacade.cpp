@@ -101,11 +101,8 @@ extern "C" {
 	const char* getModelMeshMaterialName(int handle, int meshIndex) {
 		try {
 			if ((int)models.size() > handle && (int)models[handle].meshes.size() > meshIndex) {
-				// enabled fields (useful for further queries too) TODO: what if we have more fields than the uint??
-				std::string name = models[handle].meshes[meshIndex].material.name;
-
 				// Return the pointer to the underlying c_str. This is okay as the user will immediately copy it as they are told to...
-				return name.c_str();
+				return models[handle].meshes[meshIndex].material.name.c_str();
 			}
 			else {
 				// Invalid handle or mesh index! Return a nullptr!

@@ -383,6 +383,8 @@ public class ObjMasterUnityFacade : MonoBehaviour {
                         // Simple material values
                         SimpleMaterial sm = getModelMeshMaterial(modelHandle, 0);
                         Debug.Log("The first mesh is having this material: " + sm);
+                        string firstMatName = getModelMeshMaterialName(modelHandle, 0);
+                        Debug.Log("The first mesh is having this material name: " + firstMatName);
 
                         // Texture filenames
                         string ambitex = getModelMeshAmbientTextureFileName(modelHandle, 0);
