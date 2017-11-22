@@ -21,6 +21,10 @@ using System.Text;
 /// </summary>
 public class ObjMasterUnityFacade : MonoBehaviour {
 
+    /// <summary>
+    /// The separator character for "annotated" obj files
+    /// </summary>
+    char OBJ_ANNOTATION_SEP_CHAR = ':';
     #region Other subtypes
     /// <summary>
     /// Defines which directions the vertex-pos and vertex-normal data should be mirrored
@@ -37,7 +41,6 @@ public class ObjMasterUnityFacade : MonoBehaviour {
         MIRROR_XYZ = 7
     }
     #endregion
-
     #region ObjMaster structures
     /// <summary>
     /// Simplified material that also contains texturing information for making texture queries
@@ -908,6 +911,11 @@ public class ObjMasterUnityFacade : MonoBehaviour {
             md.simpleMaterial = getModelMeshMaterial(handle, meshIndex);
             // Fill material name - the easiest to do this seperately
             md.materialName = getModelMeshMaterialName(handle, meshIndex);
+
+            // Fill in mesh names and identifications
+            string matFaceGroupName = getModelMeshObjMatFaceGroupName(handle, meshIndex);
+            md.objMatFaceGroupName = matFaceGroupName;
+            md.objGroupName = matFaceGroupName.Split(OBJ_ANNOTATION_SEP_CHAR)[0];
 
             // Fill possible textures
             md.ambientTexture = getModelMeshAmbientTextureFileName(handle, meshIndex);
