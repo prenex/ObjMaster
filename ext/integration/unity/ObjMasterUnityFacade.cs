@@ -24,7 +24,7 @@ public class ObjMasterUnityFacade : MonoBehaviour {
     /// <summary>
     /// The separator character for "annotated" obj files
     /// </summary>
-    char OBJ_ANNOTATION_SEP_CHAR = ':';
+    const char OBJ_ANNOTATION_SEP_CHAR = ':';
     #region Other subtypes
     /// <summary>
     /// Defines which directions the vertex-pos and vertex-normal data should be mirrored
@@ -603,7 +603,7 @@ public class ObjMasterUnityFacade : MonoBehaviour {
         try
         {
             // Get string
-            if (IntPtr.Zero.Equals(ptr))
+            if (IntPtr.Zero.Equals(nativeUtf8))
             {
                 // nullptr to null conversion
                 return null;
