@@ -79,6 +79,12 @@ extern "C" {
 	DLL_API SimpleMaterial getModelMeshMaterial(int handle, int meshIndex);
 
 	/**
+	 * Returns the "objMatFaceGroup" name of the mesh. This is basically the 'g' or 'o' name and the material name together in this form: <objGroupName>:mtl:<matName>.
+	 * To aid optimal rendering and grouping, geometry data is provided in chunks in which they belong to the same object/group and use the same material. Basically this function query the grouping key.
+	 */
+	DLL_API const char* getModelMeshObjMatFaceGroupName(int handle, int meshIndex);
+
+	/**
 	 * Returns the name of the material for the given mesh. The returned pointer is bound to the std::string in the C++ side of the loaded material in the mesh, so users better make an instant copy!
 	 */
 	DLL_API const char* getModelMeshMaterialName(int handle, int meshIndex);

@@ -96,6 +96,28 @@ extern "C" {
 	}
 
 	/**
+	 * Returns the "objMatFaceGroup" name of the mesh. This is basically the 'g' or 'o' name and the material name together in this form: <objGroupName>:mtl:<matName>.
+	 * To aid optimal rendering and grouping, geometry data is provided in chunks in which they belong to the same object/group and use the same material. Basically this function query the grouping key.
+	 * The returned pointer is bound to the std::string in the C++ side of the loaded mesh, so users better make an instant copy!
+	 */
+	const char* getModelMeshObjMatFaceGroupName(int handle, int meshIndex) {
+		try {
+			if ((int)models.size() > handle && (int)models[handle].meshes.size() > meshIndex) {
+				// Return the pointer to the underlying c_str. This is okay as the user will immediately copy it as they are told to...
+				return models[handle].meshes[meshIndex].name.c_str();
+			}
+			else {
+				// Invalid handle or mesh index! Return a nullptr!
+				return nullptr;
+			}
+		}
+		catch (...) {
+				// Something went wrong! Return nullptr!
+				return nullptr;
+		}
+	}
+
+	/**
 	 * Returns the name of the material for the given mesh. The returned pointer is bound to the std::string in the C++ side of the loaded material in the mesh, so users better make an instant copy!
 	 */
 	const char* getModelMeshMaterialName(int handle, int meshIndex) {

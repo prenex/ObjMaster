@@ -330,6 +330,16 @@ public class ObjMasterUnityFacade : MonoBehaviour {
     [DllImport("ObjMasterHololensUnity", EntryPoint = "getModelMeshMaterialName", CallingConvention = CallingConvention.Cdecl)]
     public static extern IntPtr getModelMeshMaterialNamePtr(int handle, int meshIndex);
 
+    /// <summary>
+    /// Returns the name of the objMatFaceGroup - see objMaster - basically the 'g' and 'o' group name with added :mtl:<materialName>.
+    /// The returned pointer is bound to the std::string in the C++ side of the loaded material in the mesh, so users better make an instant copy!
+    /// </summary>
+    /// <param name="handle">The handle of the *.obj file</param>
+    /// <param name="meshIndex">The mesh index in that *.obj file</param>
+    /// <returns>The pointer to the c-style string or nullptr in case of errors. An empty string should not be returned, but better expect that too as other side does not check!</returns>
+    [DllImport("ObjMasterHololensUnity", EntryPoint = "getModelMeshObjMatFaceGroupNamePtr", CallingConvention = CallingConvention.Cdecl)]
+    public static extern IntPtr getModelMeshObjMatFaceGroupNamePtr(int handle, int meshIndex);
+
     #endregion
     #region TEST
 #if TEST
@@ -551,6 +561,67 @@ public class ObjMasterUnityFacade : MonoBehaviour {
         else
         {
             return Marshal.PtrToStringAnsi(ptr);
+        }
+    }
+
+    /// <summary>
+    /// Returns the name of the objMatFaceGroup - see objMaster - basically the 'g' and 'o' group name with added :mtl:<materialName>.
+    /// </summary>
+    /// <param name="handle">The handle of the *.obj file</param>
+    /// <param name="meshIndex">The mesh index in that *.obj file</param>
+    /// <returns>The string or nullptr in case of errors. An empty string should not be returned, but better expect that too as other side does not check against it!</returns>
+    public static string getModelMeshObjMatFaceGroupName(int handle, int meshIndex)
+    {
+        // Get pointer
+        IntPtr ptr = getModelMeshObjMatFaceGroupNamePtr(handle, meshIndex);
+        return stringFromNativeUtf8(ptr);
+        /*
+        // Get string
+        if (IntPtr.Zero.Equals(ptr))
+        {
+            // nullptr to null conversion
+            return null;
+        }
+        else
+        {
+            // This does a copy and the widening too
+            return Marshal.PtrToStringAnsi(ptr);
+        }
+        */
+    }
+
+    /// <summary>
+    /// Conversion of a native ptr pointing at an UTF8 cstring to C# "string". Also handles nullptr.
+    /// </summary>
+    /// <param name="nativeUtf8">Pointer to an UTF8 null-terminated string. Surely it can be also an ANSi string...</param>
+    /// <returns>On nullptr we return null, otherwise a C# string object which contains copy of the data</returns>
+    public static string stringFromNativeUtf8(IntPtr nativeUtf8)
+    {
+        try
+        {
+            // Get string
+            if (IntPtr.Zero.Equals(ptr))
+            {
+                // nullptr to null conversion
+                return null;
+            }
+            else
+            {
+                // This does a copy and the widening too
+                // strlen
+                int len = 0;
+                while (Marshal.ReadByte(nativeUtf8, len) != 0) ++len;
+                // byte-wise copy
+                byte[] buffer = new byte[len];
+                Marshal.Copy(nativeUtf8, buffer, 0, buffer.Length);
+                // Creating an UTF8
+                return Encoding.UTF8.GetString(buffer);
+            }
+        }
+        catch(Exception)
+        {
+            // Some extra defensivity
+            return null;
         }
     }
 
@@ -794,6 +865,16 @@ public class ObjMasterUnityFacade : MonoBehaviour {
     /// </summary>
     public class MeshData
     {
+        /// <summary>
+        /// The full name of the objMatFaceGroup this mesh contains data for. This contains the group name, the many "group-encoded" (':<key>:<value>') things and the material name also encoded as ':mtl:<name>' as the last group-encoded thing.
+        /// </summary>
+        public string objMatFaceGroupName;
+        /// <summary>
+        /// The group name(*) this mesh belongs to. More than one mesh can belong to the same group, so one should create individual empty game objects for the meshes if groups to be handled.
+        /// Basically this is the prefix of the objMatFaceGroupName until the very first ':' character (or as whole if there is no such character)
+        /// (*) Rem.: This way the field here groups together all *.obj groups that only differ after the first ':' characted encountered! This might be unexpected by some actually but this way we can use group-hidden meta-data!
+        /// </summary>
+        public string objGroupName;
         /// <summary>
         /// The name of the material - it can be empty for the default materials!
         /// </summary>

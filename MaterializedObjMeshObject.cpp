@@ -13,6 +13,7 @@ namespace ObjMaster {
     MaterializedObjMeshObject::MaterializedObjMeshObject(const Obj& obj,
                                                          const FaceElement *meshFaces,
                                                          int meshFaceCount,
-                                                         TextureDataHoldingMaterial meshObjectMaterial)
-    : material(meshObjectMaterial), ObjMeshObject(obj, meshFaces, meshFaceCount){}
+                                                         TextureDataHoldingMaterial meshObjectMaterial,
+                                                         std::string mName)
+    : material(meshObjectMaterial), name(mName), ObjMeshObject(obj, meshFaces, meshFaceCount){}
 }

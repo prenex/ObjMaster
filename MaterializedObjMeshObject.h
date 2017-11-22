@@ -7,6 +7,7 @@
 
 #include "TextureDataHoldingMaterial.h"
 #include "ObjMeshObject.h"
+#include <string>
 
 namespace ObjMaster {
     /**
@@ -17,11 +18,13 @@ namespace ObjMaster {
      */
     class MaterializedObjMeshObject : public ObjMeshObject {
     public:
+		/** The name of the materialized obj mesh object. This usually contains the objFaceMatGroup key when built from an Obj object. */
+		std::string name;
         /** The corresponding material and possibly the texture data in it */
         TextureDataHoldingMaterial material;
 
         /** Create an obj mesh-object that is having an associated material */
-        MaterializedObjMeshObject(const Obj& obj, const FaceElement *meshFaces, int meshFaceCount, TextureDataHoldingMaterial textureDataHoldingMaterial);
+        MaterializedObjMeshObject(const Obj& obj, const FaceElement *meshFaces, int meshFaceCount, TextureDataHoldingMaterial textureDataHoldingMaterial, std::string name);
     };
 }
 

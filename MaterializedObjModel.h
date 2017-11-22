@@ -35,8 +35,9 @@ namespace ObjMaster {
         	OMLOGE("!!!!! Object material group have found as %s", gPair.first.c_str());
 			meshes.push_back(std::move(MaterializedObjMeshObject(obj,
 				&(obj.fs[gPair.second.faceIndex]),
-			       	gPair.second.meshFaceCount,
-			       	gPair.second.textureDataHoldingMaterial)));
+				gPair.second.meshFaceCount,
+				gPair.second.textureDataHoldingMaterial,
+				gPair.first)));
 		}
 
 		// Indicate that the model is loaded
