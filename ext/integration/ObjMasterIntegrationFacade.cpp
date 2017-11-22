@@ -96,6 +96,29 @@ extern "C" {
 	}
 
 	/**
+	 * Returns the name of the material for the given mesh. The returned pointer is bound to the std::string in the C++ side of the loaded material in the mesh, so users better make an instant copy!
+	 */
+	const char* getModelMeshMaterialName(int handle, int meshIndex) {
+		try {
+			if ((int)models.size() > handle && (int)models[handle].meshes.size() > meshIndex) {
+				// enabled fields (useful for further queries too) TODO: what if we have more fields than the uint??
+				std::string name = models[handle].meshes[meshIndex].material.name;
+
+				// Return the pointer to the underlying c_str. This is okay as the user will immediately copy it as they are told to...
+				return name.c_str();
+			}
+			else {
+				// Invalid handle or mesh index! Return a nullptr!
+				return nullptr;
+			}
+		}
+		catch (...) {
+				// Something went wrong! Return nullptr!
+				return nullptr;
+		}
+	}
+	
+	/**
 	 * Returns the simplified material descriptor for the mesh deignated by meshindex in the model designated by the handle.
 	 * Might return empty material in case of errors (both bad handle and index errors or other problems and exceptions)
 	 */

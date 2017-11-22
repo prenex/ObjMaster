@@ -321,6 +321,15 @@ public class ObjMasterUnityFacade : MonoBehaviour {
     [DllImport("ObjMasterHololensUnity", EntryPoint = "getModelMeshNormalTextureFileName", CallingConvention = CallingConvention.Cdecl)]
     public static extern IntPtr getModelMeshNormalTextureFileNamePtr(int handle, int meshIndex);
 
+    /// <summary>
+    /// Returns the name of the material for the given mesh. The returned pointer is bound to the std::string in the C++ side of the loaded material in the mesh, so users better make an instant copy!
+    /// </summary>
+    /// <param name="handle">The handle of the *.obj file</param>
+    /// <param name="meshIndex">The mesh index in that *.obj file</param>
+    /// <returns>The pointer to the c-style string or nullptr in case of errors. An empty string might be returned too!</returns>
+    [DllImport("ObjMasterHololensUnity", EntryPoint = "getModelMeshMaterialName", CallingConvention = CallingConvention.Cdecl)]
+    public static extern IntPtr getModelMeshMaterialNamePtr(int handle, int meshIndex);
+
     #endregion
     #region TEST
 #if TEST
@@ -544,6 +553,29 @@ public class ObjMasterUnityFacade : MonoBehaviour {
     }
 
     /// <summary>
+    /// Returns the name of the material for the given mesh. The returned pointer is bound to the std::string in the C++ side of the loaded material in the mesh, so users better make an instant copy!
+    /// </summary>
+    /// <param name="handle">The handle of the *.obj file</param>
+    /// <param name="meshIndex">The mesh index in that *.obj file</param>
+    /// <returns>The string or nullptr in case of errors. An empty string might be returned too!</returns>
+    public static string getModelMeshMaterialName(int handle, int meshIndex)
+    {
+        // Get pointer
+        IntPtr ptr = getModelMeshMaterialNamePtr(handle, meshIndex);
+        // Get string
+        if (IntPtr.Zero.Equals(ptr))
+        {
+            // nullptr to null conversion
+            return null;
+        }
+        else
+        {
+            // This does a copy and the widening too
+            return Marshal.PtrToStringAnsi(ptr);
+        }
+    }
+
+    /// <summary>
     /// Normal texture filename. Returns null in case of errors, and empty if there is no such texture.
     /// </summary>
     /// <param name="handle">The handle of the model</param>
@@ -756,10 +788,17 @@ public class ObjMasterUnityFacade : MonoBehaviour {
     #endregion
     #region Unity-friendly mesh-data class
     /// <summary>
-    /// More unity-friendly mesh data. See get*MeshData(...) methods for aquisition.
+    /// More unity-friendly mesh data. See various get*MeshData(...) and other get*(...) methods for individual aquisition.
     /// </summary>
     public class MeshData
     {
+        /// <summary>
+        /// The name of the material - it can be empty for the default materials!
+        /// </summary>
+        public string materialName;
+        /// <summary>
+        /// The data of the material
+        /// </summary>
         public SimpleMaterial simpleMaterial;
         public string ambientTexture;
         public string diffuseTexture;
@@ -784,6 +823,8 @@ public class ObjMasterUnityFacade : MonoBehaviour {
 
             // Fill material
             md.simpleMaterial = getModelMeshMaterial(handle, meshIndex);
+            // Fill material name - the easiest to do this seperately
+            md.materialName = getModelMeshMaterialName(handle, meshIndex);
 
             // Fill possible textures
             md.ambientTexture = getModelMeshAmbientTextureFileName(handle, meshIndex);

@@ -78,6 +78,11 @@ extern "C" {
 	 */
 	DLL_API SimpleMaterial getModelMeshMaterial(int handle, int meshIndex);
 
+	/**
+	 * Returns the name of the material for the given mesh. The returned pointer is bound to the std::string in the C++ side of the loaded material in the mesh, so users better make an instant copy!
+	 */
+	DLL_API const char* getModelMeshMaterialName(int handle, int meshIndex);
+
 	/** Tells the number of vertex data for the given mesh of the handle. Returns -1 in case of errors and zero when there is no data at all! */
 	DLL_API int getModelMeshVertexDataCount(int handle, int meshIndex);
 
