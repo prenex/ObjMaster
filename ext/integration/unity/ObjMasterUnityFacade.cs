@@ -340,7 +340,7 @@ public class ObjMasterUnityFacade : MonoBehaviour {
     /// <param name="handle">The handle of the *.obj file</param>
     /// <param name="meshIndex">The mesh index in that *.obj file</param>
     /// <returns>The pointer to the c-style string or nullptr in case of errors. An empty string should not be returned, but better expect that too as other side does not check!</returns>
-    [DllImport("ObjMasterHololensUnity", EntryPoint = "getModelMeshObjMatFaceGroupNamePtr", CallingConvention = CallingConvention.Cdecl)]
+    [DllImport("ObjMasterHololensUnity", EntryPoint = "getModelMeshObjMatFaceGroupName", CallingConvention = CallingConvention.Cdecl)]
     public static extern IntPtr getModelMeshObjMatFaceGroupNamePtr(int handle, int meshIndex);
 
     #endregion
