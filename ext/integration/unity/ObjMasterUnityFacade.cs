@@ -347,7 +347,7 @@ public class ObjMasterUnityFacade : MonoBehaviour {
     #region TEST
 #if TEST
     // The imported test function
-    [DllImport("ObjMasterHololensUnity", EntryPoint = "testSort")]
+    [DllImport("ObjMasterHololensUnity", EntryPoint = "testSort", CallingConvention = CallingConvention.Cdecl)]
     public static extern void testSort(int[] a, int length);
 
     // Test stuff
