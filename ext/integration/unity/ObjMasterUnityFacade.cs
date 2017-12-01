@@ -933,21 +933,21 @@ public class ObjMasterUnityFacade : MonoBehaviour {
         /// The data of the material
         /// </summary>
 		public SimpleMaterial simpleMaterial{ get{ return _simpleMaterial; }}
-        private string _ambientTexture;
+        protected string _ambientTexture;
 		public string ambientTexture{ get{ return _ambientTexture; }}
-        private string _diffuseTexture;
+        protected string _diffuseTexture;
 		public string diffuseTexture{ get{ return _diffuseTexture; }}
-        private string _specularTexture;
+        protected string _specularTexture;
 		public string specularTexture{ get{ return _specularTexture; }}
-        private string _normalTexture;
+        protected string _normalTexture;
 		public string normalTexture{ get{ return _normalTexture; }}
-        private Vector3[] _vertices;
+        protected Vector3[] _vertices;
 		public Vector3[] vertices{ get{ return _vertices; }}
-        private Vector3[] _normals;
+        protected Vector3[] _normals;
 		public Vector3[] normals{ get{ return _normals; }}
-        private Vector2[] _uv;
+        protected Vector2[] _uv;
 		public Vector2[] uv{ get{ return _uv; }}
-        private int[] _triangles;
+        protected int[] _triangles;
 		public int[] triangles{ get{ return _triangles; }}
 
         /// <summary>
@@ -975,13 +975,23 @@ public class ObjMasterUnityFacade : MonoBehaviour {
             /// </summary>
             private readonly uint maxIndexNo;
             /// <summary>
-            /// Full hash of all previously added indices
+            /// Full hash of all previously added indices - and mapping them to their new values after the transformation!
             /// </summary>
-            private HashSet<int> vertIndices = new HashSet<int>();
+            private Dictionary<int, int> vertIndexConvertor = new Dictionary<int, int>();
             /// <summary>
             /// The currently different vertex-data indexing values that are in use.
+            /// Also used to calculate the new indices (values for the keys) when adding to the dictionary.
             /// </summary>
             private uint usedVertIndNo = 0;
+
+            /// <summary>
+            /// Gets how many differend vertex-data indices are used - basically the number of vertex-data in the target list after convertion / computation.
+            /// </summary>
+            /// <returns></returns>
+            public uint getUsedVertIndNo()
+            {
+                return usedVertIndNo;
+            }
 
             /// <summary>
             /// Create the helper class for calculating collected constrained index usage of vertex-data
@@ -993,16 +1003,18 @@ public class ObjMasterUnityFacade : MonoBehaviour {
             }
 
             /// <summary>
-            /// Gets the set of vertex-data indices that appeared in the construction
+            /// Gets the set of vertex-data indices that appeared in the construction - and their mapping to the new indices after the reordering.
+            /// Basically an oldIndex -> newIndex mapping that contains at most maxIndexNo elements as configured in the constructor.
             /// </summary>
-            /// <returns></returns>
-            public HashSet<int> getIndiceSet()
+            /// <returns>oldIndex -> newIndex mapping</returns>
+            public Dictionary<int, int> getVertIndexConvertor()
             {
-                return vertIndices;
+                return vertIndexConvertor;
             }
 
             /// <summary>
             /// Try to add vertices for an ABC triangle to the current set. Either adds all the vertices to the set or none of them.
+            /// Rem.: Because here we can only add whole triangles integrity is ensured: no half triangles or dangling data can be filled!
             /// </summary>
             /// <param name="a">A-point index</param>
             /// <param name="b">B-point index</param>
@@ -1014,25 +1026,40 @@ public class ObjMasterUnityFacade : MonoBehaviour {
                 // All index might be one that we already have, in which case the used vertIndNo should not get incremented at all.
                 // We only need to increment for each addition that adds a non-exsisting vertex-data index!
                 // In cases we already reached the limit
-                uint increment = 0;
-                if (!vertIndices.Contains(a)) ++increment;
-                if (!vertIndices.Contains(b)) ++increment;
-                if (!vertIndices.Contains(c)) ++increment;
+                uint inca = 0;
+                uint incb = 0;
+                uint incc = 0;
+                if (!vertIndexConvertor.ContainsKey(a)) ++inca;
+                if (!vertIndexConvertor.ContainsKey(b)) ++incb;
+                if (!vertIndexConvertor.ContainsKey(c)) ++incc;
+                uint increment = inca + incb + incc;
 
                 // Check if there is place for the ones we want to add now.
                 if(usedVertIndNo + increment > maxIndexNo)
                 {
-                    // Indicate that we could not add this!
+                    // Indicate that we could not add this triangle!
                     return false;
                 }
                 else
                 {
                     // Add indices to our hash - this will not duplicate if it already exists!
-                    vertIndices.Add(a);
-                    vertIndices.Add(b);
-                    vertIndices.Add(c);
-                    // increment with calculated increment
-                    usedVertIndNo += increment;
+                    // The key is the original index and the value can be used to construct a new verex data with indices.
+
+                    if(inca != 0)
+                    {
+                        vertIndexConvertor.Add(a, (int)usedVertIndNo);
+                        ++usedVertIndNo;
+                    }
+                    if(incb != 0)
+                    {
+                        vertIndexConvertor.Add(b, (int)usedVertIndNo);
+                        ++usedVertIndNo;
+                    }
+                    if(incc != 0)
+                    {
+                        vertIndexConvertor.Add(c, (int)usedVertIndNo);
+                        ++usedVertIndNo;
+                    }
 
                     // Indicate that we successfully added this!
                     // The user-code can rely on this 
@@ -1053,7 +1080,7 @@ public class ObjMasterUnityFacade : MonoBehaviour {
             // Rem.: KeyValuePair is used instead of Tuple because many Mono versions does not supply proper stuff for the latter!
             if (vertices.Length < maxShortIndex)
             {
-                // We are already smaller than the target short index
+                // We are already smaller than the target short index so the tail is just null!
                 // RETURNS A REFERENCE - but still we don't change our object at least.
                 return new KeyValuePair<MeshData, MeshData>(this, null);
             }
@@ -1064,10 +1091,11 @@ public class ObjMasterUnityFacade : MonoBehaviour {
                 // TRIANGLE COLLECT //
                 // //////////////// //
                 // First collect which triangles can go into the "head" and which into the "tail"
-                List<int> trianglesToHead = new List<int>(); // index triplets for the head
-                List<int> trianglesToTail = new List<int>(); // index triplets for the tail
+                List<int> origTrianglesToHead = new List<int>(); // index triplets for the head - those among the original indices that will go to the head!
+                List<int> initialOriginalTrianglesToTail = new List<int>(); // index triplets for the tail - not the final: data after the first special run will be here!
                 // We also collect which vertex indices we are using and the total count  and such things with a helper class
-                VertIndexUsageCalculatorHelper vusage = new VertIndexUsageCalculatorHelper(maxShortIndex);
+                VertIndexUsageCalculatorHelper headCalculator = new VertIndexUsageCalculatorHelper(maxShortIndex);  // constrained index value for the head
+                VertIndexUsageCalculatorHelper tailCalculator = new VertIndexUsageCalculatorHelper(int.MaxValue);   // unconstrained index value for the tail
 
                 // CREATE INITIAL HEAD:TAIL
                 // ------------------------
@@ -1080,18 +1108,18 @@ public class ObjMasterUnityFacade : MonoBehaviour {
                     {
                         // Surely we can add this triangle with not using more varieties of indices than maxShortIndex later when indexing optimally.
                         // Just think about it!
-                        trianglesToHead.Add(triangles[i]);
-                        trianglesToHead.Add(triangles[i+1]);
-                        trianglesToHead.Add(triangles[i+2]);
-                        bool b = vusage.tryToAddTrivertIndex(triangles[i], triangles[i + 1], triangles[i + 2]);
-                        if(!b) throw new NotSupportedException("Code is broken! Should never happen!");
+                        origTrianglesToHead.Add(triangles[i]);
+                        origTrianglesToHead.Add(triangles[i+1]);
+                        origTrianglesToHead.Add(triangles[i+2]);
+                        bool b = headCalculator.tryToAddTrivertIndex(triangles[i], triangles[i + 1], triangles[i + 2]);
+                        if(!b) throw new NotSupportedException("Code is broken! Should never happen!"); // Defensive coding assert
                     }
                     else
                     {
-                        // All other triangles are going to the tail first
-                        trianglesToTail.Add(triangles[i]);
-                        trianglesToTail.Add(triangles[i+1]);
-                        trianglesToTail.Add(triangles[i+2]);
+                        // All other triangles are going to the tail initially
+                        initialOriginalTrianglesToTail.Add(triangles[i]);
+                        initialOriginalTrianglesToTail.Add(triangles[i+1]);
+                        initialOriginalTrianglesToTail.Add(triangles[i+2]);
                     }
                 }
 
@@ -1104,16 +1132,26 @@ public class ObjMasterUnityFacade : MonoBehaviour {
 
                 // Try finding more candidates from the tail that we can add
                 // for those we add from the tail we create a skipping list.
-                List<int> tailSkippingList3 = new List<int>(); // "3": When we have an index in here we need to also skip the two ones after that one!!!! (sorted automagically)
-                for(int i = 0; i < trianglesToTail.Count; i += 3)
+                List<int> tailSkippingList3 = new List<int>(); // "3": When we have an index in here we need to also skip the two ones after that one!!!! (also is automagically sorted)
+                for(int i = 0; i < initialOriginalTrianglesToTail.Count; i += 3)
                 {
                     // Add more if we can
-                    if(vusage.tryToAddTrivertIndex(triangles[i], triangles[i + 1], triangles[i + 2]))
+                    if(headCalculator.tryToAddTrivertIndex(triangles[i], triangles[i + 1], triangles[i + 2]))
                     {
-                        trianglesToHead.Add(triangles[i]);
-                        trianglesToHead.Add(triangles[i+1]);
-                        trianglesToHead.Add(triangles[i+2]);
+                        // Add these to the head list (with source index values that can serve as keys in the calculator!)
+                        origTrianglesToHead.Add(triangles[i]);
+                        origTrianglesToHead.Add(triangles[i+1]);
+                        origTrianglesToHead.Add(triangles[i+2]);
+                        // Update the skipping-list of the tail. So that we see which indexes in the tail we skip over
                         tailSkippingList3.Add(i);
+                    }
+                    else
+                    {
+                        // Real tail values need calculator only - the above don't needed it so we only do this here!
+                        // The tail calculator is unconstrained so this should always return true and we should always be able to add
+                        // We only do this here so that the old->new mapping is also constructed in this case that belong to the tail!
+                        bool b = tailCalculator.tryToAddTrivertIndex(triangles[i], triangles[i + 1], triangles[i + 2]);
+                        if(!b) throw new NotSupportedException("Code is broken! Should never happen!"); // Defensive coding assert
                     }
                 }
 
@@ -1122,28 +1160,160 @@ public class ObjMasterUnityFacade : MonoBehaviour {
                 // ///////////////// //
 
                 // We need to create the head-tail cross-cutting copies of our object
-                // Returns only copies to relevant data to keep our object unchanged...
-                KeyValuePair<MeshData, MeshData> ret = new KeyValuePair<MeshData, MeshData>();
-
                 // Tricky algorithm to get the head vertices and triangles! This is not
                 // so much better than just doing 20k triangles and copying vertices and such,
                 // but just a little bit tries to be more heuristical in using up shared vertices...
-                // Elemno is one greater than index no because of zero based indexin'
-                Vector3[] headVertices = new Vector3[maxShortIndex+1];
-                Vector3[] headNormals = new Vector3[maxShortIndex+1];
-                Vector2[] headUvs = new Vector2[maxShortIndex+1];
-                int[] headTriangles = new int[trianglesToHead.Count];
 
-                HashSet<int> usedHeadIndices = vusage.getIndiceSet();
-                // TODO: properly do this.... I see how but time is low :-)
+                // HEAD
+                // ----
 
-                // TODO: fill-in and create head mesh data according to the above
+                // Index of earlier data will go here to places with the mapped index in the calculator when filled!
+                Vector3[] headVertices = new Vector3[headCalculator.getUsedVertIndNo()];
+                Vector3[] headNormals = new Vector3[headCalculator.getUsedVertIndNo()];
+                Vector2[] headUvs = new Vector2[headCalculator.getUsedVertIndNo()];
+                // Into here we need converted index data
+                int[] headTriangles = new int[origTrianglesToHead.Count];
 
-                // TODO: fill-in and create the tail hash data with that skipping list also applied
+                // With this map, we can "convert" where this or that old index's data will go in the new vertex datas.
+                // So basically we can tell where our corresponding new index is.
+                Dictionary<int, int> headConv = headCalculator.getVertIndexConvertor();
+                for(int i = 0; i < origTrianglesToHead.Count; i+=3)
+                {
+                    // Grab those triangles data that gets transferred to the head
+                    // Origindices
+                    int origa = origTrianglesToHead[i];
+                    int origb = origTrianglesToHead[i+1];
+                    int origc = origTrianglesToHead[i+2];
+                    // New indices
+                    int newa = headConv[origa];
+                    int newb = headConv[origb];
+                    int newc = headConv[origc];
 
+                    // Apply data conversion for vertex-datas so that the new indices to the new triangle will point to them
+                    // The mapping is necessary because of data-sharing optimizations and stuff. This should fill the data near-completely!
+                    // vertices:
+                    headVertices[newa] = this.vertices[origa];
+                    headVertices[newb] = this.vertices[origb];
+                    headVertices[newc] = this.vertices[origc];
+                    // normals:
+                    headNormals[newa] = this.normals[origa];
+                    headNormals[newb] = this.normals[origb];
+                    headNormals[newc] = this.normals[origc];
+                    // uvs:
+                    headUvs[newa] = this.uv[origa];
+                    headUvs[newb] = this.uv[origb];
+                    headUvs[newc] = this.uv[origc];
+
+                    // Generate triangle indices pointing to the data vector properly.
+                    headTriangles[i] = newa;
+                    headTriangles[i+1] = newb;
+                    headTriangles[i+2] = newc;
+                }
+
+                // If we are here, the data for the head mesh should have been already prepared
+                MeshData headMesh = new MeshData();
+                // Set the newly generated data (so we are not referencing the source object here at all)
+                headMesh._vertices = headVertices;
+                headMesh._normals = headNormals;
+                headMesh._uv = headUvs;
+                headMesh._triangles = headTriangles;
+                // Set references for unchanged data like names and textures which can be just referenced back to this
+                headMesh._objMatFaceGroupName = this._objMatFaceGroupName;
+                headMesh._objGroupName = this._objGroupName;
+                headMesh._materialName = this._materialName;
+                headMesh._simpleMaterial = this._simpleMaterial;
+                headMesh._ambientTexture = this._ambientTexture;
+                headMesh._diffuseTexture = this._diffuseTexture;
+                headMesh._specularTexture = this._specularTexture;
+                headMesh._normalTexture = this._normalTexture;
+
+                // TAIL
+                // ----
+
+                // Create the tail hash data with that skipping list also applied
+                // Index of earlier data will go here to places with the mapped index in the calculator when filled!
+                Vector3[] tailVertices = new Vector3[tailCalculator.getUsedVertIndNo()];
+                Vector3[] tailNormals = new Vector3[tailCalculator.getUsedVertIndNo()];
+                Vector2[] tailUvs = new Vector2[tailCalculator.getUsedVertIndNo()];
+                // Into here we need converted index data
+                // Rem.: The size is like such becase we had an original list of tail triangles (that is what we still have) but we might need to skip elements in that.
+                //       The skipping list however only contains index for each second-run head-put triangles (3 consequtive indbuf elems) to spare some space and ensure skip integrity!
+                int[] tailTriangles = new int[initialOriginalTrianglesToTail.Count - 3*tailSkippingList3.Count];
+
+                // With this map, we can "convert" where this or that old index's data will go in the new vertex datas.
+                // So basically we can tell where our corresponding new index is.
+                Dictionary<int, int> tailConv = tailCalculator.getVertIndexConvertor();
+                // We iterate over all triangles we considered originally, but might "skip" in this list those that the second run could still add to the head!
+                // This way we have saved ourselves ffrom some maybe long memcpy at least... hopefully...
+                // (!) The skipping-list contains list index values to skip in an incremental fashion (see above) so we can rely on this and only store the "current" one we wait for.
+                //     When there is no current index to skip, this should contain (-1). The latter can happen if the skipping list is empty and after we are through the last skip.
+                int currentSkipIndexIndex = 0;
+                int currentSkipIndex = (tailSkippingList3.Count > currentSkipIndexIndex) ? tailSkippingList3[currentSkipIndexIndex] : (-1); // set first index to skip over
+                for (int i = 0; i < initialOriginalTrianglesToTail.Count; i += 3)
+                {
+                    // Skipping over:
+                    if(i == currentSkipIndex)
+                    {
+                        // Move the skipping-list index to its next
+                        ++currentSkipIndexIndex;
+                        currentSkipIndex = (tailSkippingList3.Count > currentSkipIndexIndex) ? tailSkippingList3[currentSkipIndexIndex] : (-1); // set index to skip over
+                        // and continue the loop by skipping this elem
+                        continue;
+                    }
+
+                    // Tail data creation:
+                    // Grab those triangles data that gets transferred to the tail
+                    // Origindices
+                    int origa = initialOriginalTrianglesToTail[i];
+                    int origb = initialOriginalTrianglesToTail[i+1];
+                    int origc = initialOriginalTrianglesToTail[i+2];
+                    // New indices
+                    int newa = tailConv[origa];
+                    int newb = tailConv[origb];
+                    int newc = tailConv[origc];
+
+                    // Apply data conversion for vertex-datas so that the new indices to the new triangle will point to them
+                    // The mapping is necessary because of data-sharing optimizations and stuff. This should fill the data near-completely!
+                    // vertices:
+                    tailVertices[newa] = this.vertices[origa];
+                    tailVertices[newb] = this.vertices[origb];
+                    tailVertices[newc] = this.vertices[origc];
+                    // normals:
+                    tailNormals[newa] = this.normals[origa];
+                    tailNormals[newb] = this.normals[origb];
+                    tailNormals[newc] = this.normals[origc];
+                    // uvs:
+                    tailUvs[newa] = this.uv[origa];
+                    tailUvs[newb] = this.uv[origb];
+                    tailUvs[newc] = this.uv[origc];
+
+                    // Generate triangle indices pointing to the data vector properly.
+                    tailTriangles[i] = newa;
+                    tailTriangles[i+1] = newb;
+                    tailTriangles[i+2] = newc;
+                }
+
+                // Fill-in the tail hash-data
+                MeshData tailMesh = new MeshData();
+                // Set the newly generated data (so we are not referencing the source object here at all)
+                tailMesh._vertices = tailVertices;
+                tailMesh._normals = tailNormals;
+                tailMesh._uv = tailUvs;
+                tailMesh._triangles = tailTriangles;
+                // Set references for unchanged data like names and textures which can be just referenced back to this
+                tailMesh._objMatFaceGroupName = this._objMatFaceGroupName;
+                tailMesh._objGroupName = this._objGroupName;
+                tailMesh._materialName = this._materialName;
+                tailMesh._simpleMaterial = this._simpleMaterial;
+                tailMesh._ambientTexture = this._ambientTexture;
+                tailMesh._diffuseTexture = this._diffuseTexture;
+                tailMesh._specularTexture = this._specularTexture;
+                tailMesh._normalTexture = this._normalTexture;
+
+                // Returns only copies to relevant data to keep our object unchanged...
+                KeyValuePair<MeshData, MeshData> ret = new KeyValuePair<MeshData, MeshData>(headMesh, tailMesh);
                 return ret;
             }
-
         }
 
         /// <summary>
