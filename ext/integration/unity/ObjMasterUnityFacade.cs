@@ -587,8 +587,8 @@ public class ObjMasterUnityFacade : MonoBehaviour {
         string objMatFaceGroupName = getModelMeshObjMatFaceGroupName(handle, meshIndex);
         if ((objMatFaceGroupName != null) && (objMatFaceGroupName != ""))
         {
-            int lastSepI = objMatFaceGroupName.LastIndexOf(OBJ_ANNOTATION_SEP_CHAR);
-            string groupName = objMatFaceGroupName.Substring(0, lastSepI - OBJ_ANNOTATION_MTL_NAME.Length - 1);
+            int lastSepI = objMatFaceGroupName.LastIndexOf(OBJ_ANNOTATION_SEP_CHAR + OBJ_ANNOTATION_MTL_NAME + OBJ_ANNOTATION_SEP_CHAR);
+            string groupName = objMatFaceGroupName.Substring(0, lastSepI);
             return groupName;
         }
         else
@@ -913,7 +913,7 @@ public class ObjMasterUnityFacade : MonoBehaviour {
         {
             get
             {
-                return objMatFaceGroupName;
+                return _objMatFaceGroupName;
             }
         }
         private string _objGroupName;
@@ -1029,9 +1029,10 @@ public class ObjMasterUnityFacade : MonoBehaviour {
                 uint inca = 0;
                 uint incb = 0;
                 uint incc = 0;
+                // Rem.: We need to take care of the case of degenarate triangles!!!
                 if (!vertIndexConvertor.ContainsKey(a)) ++inca;
-                if (!vertIndexConvertor.ContainsKey(b)) ++incb;
-                if (!vertIndexConvertor.ContainsKey(c)) ++incc;
+                if (!vertIndexConvertor.ContainsKey(b) && (a != b)) ++incb;
+                if (!vertIndexConvertor.ContainsKey(c) && (a != c) && (b != c)) ++incc;
                 uint increment = inca + incb + incc;
 
                 // Check if there is place for the ones we want to add now.
@@ -1073,8 +1074,8 @@ public class ObjMasterUnityFacade : MonoBehaviour {
         /// This ensures that small "short" indexing can be used in the targets - like for example 16bit indices.
         /// Rem.: The tail might contain non-short indices in which case further application of this very same method helps ;-)
         /// </summary>
-        /// <param name="maxShortIndex">Only triangle indices smaller than this value should be in the head.</param>
-        /// <returns>head:tail - where the head can be indexed with the short indices and the tail contains all the rest of the data.</returns>
+        /// <param name="maxShortIndex">Only triangle indices smaller than this value will happen in the generatd head so that head can be indexed with short indices after the operation.</param>
+        /// <returns>head:tail - where the head can be indexed with the short indices and the tail contains all the rest of the data. The tail can be null if there is no tail data.</returns>
         public KeyValuePair<MeshData, MeshData> shortIndexHeadTailCut(uint maxShortIndex)
         {
             // Rem.: KeyValuePair is used instead of Tuple because many Mono versions does not supply proper stuff for the latter!
@@ -1086,7 +1087,6 @@ public class ObjMasterUnityFacade : MonoBehaviour {
             }
             else
             {
-
                 // //////////////// //
                 // TRIANGLE COLLECT //
                 // //////////////// //
@@ -1136,12 +1136,12 @@ public class ObjMasterUnityFacade : MonoBehaviour {
                 for(int i = 0; i < initialOriginalTrianglesToTail.Count; i += 3)
                 {
                     // Add more if we can
-                    if(headCalculator.tryToAddTrivertIndex(triangles[i], triangles[i + 1], triangles[i + 2]))
+                    if(headCalculator.tryToAddTrivertIndex(initialOriginalTrianglesToTail[i], initialOriginalTrianglesToTail[i + 1], initialOriginalTrianglesToTail[i + 2]))
                     {
                         // Add these to the head list (with source index values that can serve as keys in the calculator!)
-                        origTrianglesToHead.Add(triangles[i]);
-                        origTrianglesToHead.Add(triangles[i+1]);
-                        origTrianglesToHead.Add(triangles[i+2]);
+                        origTrianglesToHead.Add(initialOriginalTrianglesToTail[i]);
+                        origTrianglesToHead.Add(initialOriginalTrianglesToTail[i+1]);
+                        origTrianglesToHead.Add(initialOriginalTrianglesToTail[i+2]);
                         // Update the skipping-list of the tail. So that we see which indexes in the tail we skip over
                         tailSkippingList3.Add(i);
                     }
@@ -1150,7 +1150,7 @@ public class ObjMasterUnityFacade : MonoBehaviour {
                         // Real tail values need calculator only - the above don't needed it so we only do this here!
                         // The tail calculator is unconstrained so this should always return true and we should always be able to add
                         // We only do this here so that the old->new mapping is also constructed in this case that belong to the tail!
-                        bool b = tailCalculator.tryToAddTrivertIndex(triangles[i], triangles[i + 1], triangles[i + 2]);
+                        bool b = tailCalculator.tryToAddTrivertIndex(initialOriginalTrianglesToTail[i], initialOriginalTrianglesToTail[i + 1], initialOriginalTrianglesToTail[i + 2]);
                         if(!b) throw new NotSupportedException("Code is broken! Should never happen!"); // Defensive coding assert
                     }
                 }
@@ -1249,7 +1249,7 @@ public class ObjMasterUnityFacade : MonoBehaviour {
                 //     When there is no current index to skip, this should contain (-1). The latter can happen if the skipping list is empty and after we are through the last skip.
                 int currentSkipIndexIndex = 0;
                 int currentSkipIndex = (tailSkippingList3.Count > currentSkipIndexIndex) ? tailSkippingList3[currentSkipIndexIndex] : (-1); // set first index to skip over
-                for (int i = 0; i < initialOriginalTrianglesToTail.Count; i += 3)
+                for (int i = 0, j = 0; i < initialOriginalTrianglesToTail.Count; i += 3) // j is incremented only when there is no skip, so it cannot be here!
                 {
                     // Skipping over:
                     if(i == currentSkipIndex)
@@ -1288,9 +1288,10 @@ public class ObjMasterUnityFacade : MonoBehaviour {
                     tailUvs[newc] = this.uv[origc];
 
                     // Generate triangle indices pointing to the data vector properly.
-                    tailTriangles[i] = newa;
-                    tailTriangles[i+1] = newb;
-                    tailTriangles[i+2] = newc;
+                    tailTriangles[j] = newa;
+                    tailTriangles[j+1] = newb;
+                    tailTriangles[j+2] = newc;
+                    j += 3; // increment j (here because we only do this when there was no skip)
                 }
 
                 // Fill-in the tail hash-data
