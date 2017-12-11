@@ -25,7 +25,7 @@ public class ObjMasterUnityFacade : MonoBehaviour {
     /// <summary>
     /// The separator character for "annotated" obj files
     /// </summary>
-    const char OBJ_ANNOTATION_SEP_CHAR = ':';
+    public const char OBJ_ANNOTATION_SEP_CHAR = ':';
 
     ///  <summary>
     ///  The separator that serves as the name of the last annotation of the group name when getting an objMatFaceGroup. After this, the material name follows!
