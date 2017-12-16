@@ -29,7 +29,8 @@ namespace ObjMaster {
 
 	/** Gets the textual representation */
 	inline std::string asText() {
-		return std::to_string(vIndex) + "/" + std::to_string(vtIndex) + "/" + std::to_string(vnIndex);
+		// Mind that in the *.obj file we need to start indexing by one!
+		return std::to_string(vIndex+1) + "/" + std::to_string(vtIndex+1) + "/" + std::to_string(vnIndex+1);
 	}
 
     private:
