@@ -21,6 +21,11 @@ namespace ObjMaster {
         VertexTextureElement(const char *fields);
 
         static bool isParsable(const char *fields);
+
+	/** Gets the textual representation */
+	inline std::string asText() {
+		return "vt " + std::to_string(u) + " " + std::to_string(v);
+	}
     private:
         void constructionHelper(char *fields);
     };

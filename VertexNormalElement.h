@@ -22,6 +22,10 @@ namespace ObjMaster {
         VertexNormalElement(const char *fields);
 
         static bool isParsable(const char *fields);
+	/** Gets the textual representation */
+	inline std::string asText() {
+		return "vn " + std::to_string(x) + " " + std::to_string(y) + " " + std::to_string(z);
+	}
     private:
         void constructionHelper(char *fields);
     };
