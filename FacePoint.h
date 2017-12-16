@@ -6,6 +6,7 @@
 #define NFTSIMPLEPROJ_FACEPOINT_H
 
 #include "objmasterlog.h"
+#include <string>
 
 namespace ObjMaster {
 
@@ -59,7 +60,7 @@ namespace ObjMaster {
             FacePoint fp(vnetest);
 #ifdef DEBUG
             OMLOGE("facepoint: %d/%d/%d", fp.vIndex, fp.vtIndex, fp.vnIndex);
-            OMLOGE("facepoint.asText(): %s", fp.asText().c_str();
+            OMLOGE("facepoint.asText(): %s", fp.asText().c_str());
 #endif
             // indexing is from 1 in the file - we use indexing from zero!
             if(fp.vIndex != 0) { OMLOGE("Bad vIndex value: %d", fp.vIndex); return false; }

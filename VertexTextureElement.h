@@ -6,6 +6,7 @@
 #define NFTSIMPLEPROJ_VERTEXTEXTUREELEMENT_H
 
 #include "objmasterlog.h"
+#include <string>
 
 namespace ObjMaster {
 

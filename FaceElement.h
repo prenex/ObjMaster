@@ -7,6 +7,7 @@
 
 #include "FacePoint.h"
 #include "objmasterlog.h"
+#include <string>
 
 namespace ObjMaster {
 
