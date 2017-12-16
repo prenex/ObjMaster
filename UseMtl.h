@@ -39,6 +39,12 @@ namespace ObjMaster {
 			free(copy);
 	    return ret;
         }
+
+	/** Gets the textual representation for *.obj generation */
+	inline std::string asText(std::string materialName) {
+		return "usemtl " + materialName;
+	}
+
     };
 }
 
