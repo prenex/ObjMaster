@@ -51,6 +51,7 @@ namespace ObjMaster {
             VertexTextureElement v(vnetest);
 #ifdef DEBUG
             OMLOGE("vt: (%f,%f)", v.u, v.v);
+            OMLOGE("vt.asText(): %s", v.asText().c_str());
 #endif
             if(v.u != 1.0) { OMLOGE("Bad u value: %f", v.u); return false; }
             if(v.v != 2.0) { OMLOGE("Bad v value: %f", v.v); return false; }

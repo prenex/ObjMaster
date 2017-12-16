@@ -51,6 +51,7 @@ namespace ObjMaster {
             VertexNormalElement v(vnetest);
 #ifdef DEBUG
             OMLOGE("vn: (%f,%f,%f)", v.x, v.y, v.z);
+            OMLOGE("vn.asText(): %s", v.asText().c_str());
 #endif
             if(v.x != 1.0) { OMLOGE("Bad x value: %f", v.x); return false; }
             if(v.y != 2.0) { OMLOGE("Bad y value: %f", v.y); return false; }
