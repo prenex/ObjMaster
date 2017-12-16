@@ -10,6 +10,7 @@
 #include "VertexTextureElement.h"
 #include "VertexNormalElement.h"
 #include "FaceElement.h"
+#include "ObjCommon.h"
 #include "AssetLibrary.h"
 #include "MtlLib.h"
 #include <memory>
@@ -17,7 +18,6 @@
 #include <unordered_map>
 
 namespace ObjMaster {
-    static char const *OBJ_DELIMITER = " ";
 
     /**
      * Represents a *.obj file. The semantic structure of the object is the same as the file. So
@@ -26,8 +26,6 @@ namespace ObjMaster {
      */
     class Obj final {
     public:
-        /** This is the maximum line length used for the line-by-line parsing */
-        static const int DEFAULT_LINE_PARSE_LEN = 256;
         /**
          * Used to initialize the vectors for vertices / normals / texture coordinates for models
          */
