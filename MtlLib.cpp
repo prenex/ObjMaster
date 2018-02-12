@@ -4,7 +4,7 @@
 
 #include "funhelper.h"
 #include "MtlLib.h"
-#include "Obj.h"
+#include "ObjCommon.h"
 #include <algorithm>  /* std::mismatch */
 #include <cstring>    /* strtok_r, strdup */
 #include <cstdlib>    /* free */
@@ -52,11 +52,11 @@ namespace ObjMaster {
             std::unique_ptr<std::istream> input = assetLibrary.getAssetStream(assetPath, libraryFile.c_str());
 
             OMLOGI("Reading mtl data file line-by-line");
-            char line[Obj::DEFAULT_LINE_PARSE_LEN];
+            char line[DEFAULT_LINE_PARSE_LEN];
             std::vector<std::string> descriptorLineFields;
             bool firstMaterial = true;
             std::string currentMaterialName;
-            while(input->getline(line, Obj::DEFAULT_LINE_PARSE_LEN)) {
+            while(input->getline(line, DEFAULT_LINE_PARSE_LEN)) {
                 // See if we have found a new material descriptor
                 if((line[0] == 'n') && isStartsWith(std::string(line), "newmtl")){
                     // A new material descriptor will start... process data found until now!

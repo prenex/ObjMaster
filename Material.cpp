@@ -5,7 +5,7 @@
 #define DEBUG
 
 #include "Material.h"
-#include "Obj.h"        /* OBJ_DELIMITER */
+#include "ObjCommon.h"        /* OBJ_DELIMITER */
 #include <cstring>      /* strtok_r, strdup */
 #include "objmasterlog.h"
 #include "wincompat.h" // msvc hax

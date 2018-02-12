@@ -8,7 +8,7 @@
 #include <string>
 #include "funhelper.h"
 #include <cstring>    /* strtok_r, strdup */
-#include "Obj.h"
+#include "ObjCommon.h"
 #include "wincompat.h" // msvc hax
 
 namespace ObjMaster {
@@ -35,10 +35,16 @@ namespace ObjMaster {
             // <material_name>
             char *mtlNameCstr = strtok_r(nullptr, OBJ_DELIMITER, &savePtr);
             // return a string corresponding the current material name
-			std::string ret = std::string(mtlNameCstr);
-			free(copy);
+	    std::string ret = std::string(mtlNameCstr);
+	    free(copy);
 	    return ret;
         }
+
+	/** Gets the textual representation for *.obj generation */
+	inline std::string asText(std::string materialName) {
+		return "usemtl " + materialName;
+	}
+
     };
 }
 

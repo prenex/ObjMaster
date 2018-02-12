@@ -6,6 +6,7 @@
 #define NFTSIMPLEPROJ_FACEPOINT_H
 
 #include "objmasterlog.h"
+#include <string>
 
 namespace ObjMaster {
 
@@ -25,6 +26,12 @@ namespace ObjMaster {
         FacePoint(char *fields, bool forceParser);
         FacePoint(const char *fields, bool forceParser);
         static bool isParsable(const char *fields);
+
+	/** Gets the textual representation */
+	inline std::string asText() {
+		// Mind that in the *.obj file we need to start indexing by one!
+		return std::to_string(vIndex+1) + "/" + std::to_string(vtIndex+1) + "/" + std::to_string(vnIndex+1);
+	}
 
     private:
         // Common parts of constructors
@@ -54,6 +61,7 @@ namespace ObjMaster {
             FacePoint fp(vnetest);
 #ifdef DEBUG
             OMLOGE("facepoint: %d/%d/%d", fp.vIndex, fp.vtIndex, fp.vnIndex);
+            OMLOGE("facepoint.asText(): %s", fp.asText().c_str());
 #endif
             // indexing is from 1 in the file - we use indexing from zero!
             if(fp.vIndex != 0) { OMLOGE("Bad vIndex value: %d", fp.vIndex); return false; }

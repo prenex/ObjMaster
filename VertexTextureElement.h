@@ -6,6 +6,7 @@
 #define NFTSIMPLEPROJ_VERTEXTEXTUREELEMENT_H
 
 #include "objmasterlog.h"
+#include <string>
 
 namespace ObjMaster {
 
@@ -21,6 +22,11 @@ namespace ObjMaster {
         VertexTextureElement(const char *fields);
 
         static bool isParsable(const char *fields);
+
+	/** Gets the textual representation */
+	inline std::string asText() {
+		return "vt " + std::to_string(u) + " " + std::to_string(v);
+	}
     private:
         void constructionHelper(char *fields);
     };
@@ -46,6 +52,7 @@ namespace ObjMaster {
             VertexTextureElement v(vnetest);
 #ifdef DEBUG
             OMLOGE("vt: (%f,%f)", v.u, v.v);
+            OMLOGE("vt.asText(): %s", v.asText().c_str());
 #endif
             if(v.u != 1.0) { OMLOGE("Bad u value: %f", v.u); return false; }
             if(v.v != 2.0) { OMLOGE("Bad v value: %f", v.v); return false; }

@@ -7,6 +7,7 @@
 
 #include "FacePoint.h"
 #include "objmasterlog.h"
+#include <string>
 
 namespace ObjMaster {
 
@@ -26,6 +27,16 @@ namespace ObjMaster {
         FaceElement(char *fields);
         FaceElement(const char *fields);
         static bool isParsable(const char *fields);
+
+	/** Gets the textual representation */
+	inline std::string asText() {
+		// Rem.: What to do if the facePointCount is 0? I better return an empty string then...
+		std::string faceStr = (facePointCount > 0) ? "f " : "";
+		for(int i = 0; i < facePointCount; ++i) {
+			faceStr += (facePoints[i].asText() + " ");
+		}
+		return faceStr;
+	}
 
     private:
         // Common parts of constructors
@@ -55,6 +66,7 @@ namespace ObjMaster {
             FaceElement f(vnetest);
 #ifdef DEBUG
             OMLOGE("f(facePointCount): %d", f.facePointCount);
+	    OMLOGE("Result of parse: %s", f.asText().c_str());
 #endif
             if(f.facePointCount != 3) { OMLOGE("Bad facePointCount value: %d", f.facePointCount); return false; }
 

@@ -5,8 +5,8 @@
 #include "LineElement.h"
 #include <cstring>    /* strtok_r, strdup */
 #include <cstdlib>     /* atof */
-#include "wincompat.h" // msvc hax
-#include "Obj.h"
+#include "wincompat.h" /* msvc hax */
+#include "ObjCommon.h" /* OBJ_DELIMITER */
 
 namespace ObjMaster {
     bool LineElement::isParsable(const char *fields) {

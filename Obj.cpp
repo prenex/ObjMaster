@@ -54,8 +54,8 @@ namespace ObjMaster {
 
         // Parse the given file line-by-line
         OMLOGI("Reading obj data file line-by-line");
-        char line[Obj::DEFAULT_LINE_PARSE_LEN];
-        while(input->getline(line, Obj::DEFAULT_LINE_PARSE_LEN)) {
+        char line[DEFAULT_LINE_PARSE_LEN];
+        while(input->getline(line, DEFAULT_LINE_PARSE_LEN)) {
             currentLastFacesPointer =( int)fs.size();;
             if(VertexElement::isParsable(line)) {
                 // v

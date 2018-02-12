@@ -6,7 +6,7 @@
 
 #include "FaceElement.h"
 #include <cstring>    /* strtok_r */
-#include "Obj.h"
+#include "ObjCommon.h"
 #include "wincompat.h" // msvc hax
 
 namespace ObjMaster {

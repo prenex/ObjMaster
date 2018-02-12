@@ -6,6 +6,7 @@
 #define NFTSIMPLEPROJ_VERTEXNORMALELEMENT_H
 
 #include "objmasterlog.h"
+#include <string>
 
 namespace ObjMaster {
 
@@ -22,6 +23,10 @@ namespace ObjMaster {
         VertexNormalElement(const char *fields);
 
         static bool isParsable(const char *fields);
+	/** Gets the textual representation */
+	inline std::string asText() {
+		return "vn " + std::to_string(x) + " " + std::to_string(y) + " " + std::to_string(z);
+	}
     private:
         void constructionHelper(char *fields);
     };
@@ -47,6 +52,7 @@ namespace ObjMaster {
             VertexNormalElement v(vnetest);
 #ifdef DEBUG
             OMLOGE("vn: (%f,%f,%f)", v.x, v.y, v.z);
+            OMLOGE("vn.asText(): %s", v.asText().c_str());
 #endif
             if(v.x != 1.0) { OMLOGE("Bad x value: %f", v.x); return false; }
             if(v.y != 2.0) { OMLOGE("Bad y value: %f", v.y); return false; }

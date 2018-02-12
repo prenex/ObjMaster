@@ -12,7 +12,10 @@
 #define OBJ_MASTER_INTEGR_FACADE_H
 
 // When the facade should not be built as DLL, you need to define this!
-/* #define NO_OBJMASTER_FACADE_DLL 1	// needed to get rid of the DLL specific stuff */
+
+#ifndef _MSC_VER	// If you want to build a DLL - yet not with MSVC - just remove this line!
+#define NO_OBJMASTER_FACADE_DLL 1	// needed to get rid of the DLL specific stuff
+#endif
 
 #include "../../VertexStructure.h"
 

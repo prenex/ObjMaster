@@ -6,7 +6,7 @@
 #include "VertexNormalElement.h"
 #include <cstring>    /* strtok_r */
 #include <cstdlib>     /* atof */
-#include "Obj.h"
+#include "ObjCommon.h"
 #include "wincompat.h" // msvc hax
 
 namespace ObjMaster {
