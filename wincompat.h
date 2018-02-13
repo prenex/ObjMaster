@@ -82,6 +82,18 @@ public:
 			unicode.push_back(uni);
 		}
 		std::wstring utf16;
+
+		/*
+		// DEBUG: print out the unicode code-space values
+		fprintf(stderr, "UNICODE: ");
+		for (size_t i = 0; i < unicode.size(); ++i)
+		{
+			fprintf(stderr, "%lx ", unicode[i]);
+		}
+		fprintf(stderr, "\n");
+		*/
+
+
 		for (size_t i = 0; i < unicode.size(); ++i)
 		{
 			unsigned long uni = unicode[i];
@@ -96,10 +108,22 @@ public:
 				// Unicode is a 20 bits wide code-space
 				// When we need more than 16 bits
 				// we first take the upper 10 bits and add that to 0xD800 => first char
-				utf16 += (wchar_t)((uni >> 10) + 0xD800);
+				auto upper = (wchar_t)((uni >> 10) + 0xD800);
 				// Then we take the lower 10 bits by and-ing with 0x3FF and add 0xDC00 => second char
-				utf16 += (wchar_t)((uni & 0x3FF) + 0xDC00);
+				auto lower = (wchar_t)((uni & 0x3FF) + 0xDC00);
+				utf16 += upper;
+				utf16 += lower;
 				// See: https://en.wikipedia.org/wiki/UTF-16#U+D800_to_U+DFFF
+
+				/* // Test for \u1313F bird sign - they both pass!
+				if (upper == 0xD80C) {
+					fprintf(stderr, "UPPER GOOD\n");
+				} else fprintf(stderr, "UPPER BAD\n");
+
+				if (lower == 0xDD3F) {
+					fprintf(stderr, "LOWER GOOD\n");
+				} else fprintf(stderr, "LOWER BAD\n");
+				*/
 			}
 		}
 		return utf16;
