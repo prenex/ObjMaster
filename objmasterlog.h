@@ -21,6 +21,7 @@
 // Rem.: If you enable this, you also better enable an fflush at least sometimes as seen here...
 // Rem.: This is much safer than just implementing different loggers for OMLOG* as this way random stdout and stderr gets logged too!
 static inline void stdredirect() {
+	/*
 	// Simple redirect for std out to support native code logging on unity projects
 	// built for example to aid us win10 devices where things go to /dev/null otherwise...
 	static bool redirected = false;
@@ -41,6 +42,7 @@ static inline void stdredirect() {
 		fflush(stdout);
 		fflush(stderr);
 	}
+	*/
 }
 
 #define  OMLOGD(...) stdredirect(); fprintf(stdout, "D "); fprintf(stdout, __VA_ARGS__); fprintf(stdout, "\n")
