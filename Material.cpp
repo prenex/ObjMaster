@@ -7,6 +7,7 @@
 #include "Material.h"
 #include "ObjCommon.h"        /* OBJ_DELIMITER */
 #include <cstring>      /* strtok_r, strdup */
+#include <cstdlib>
 #include "objmasterlog.h"
 #include "wincompat.h" // msvc hax
 

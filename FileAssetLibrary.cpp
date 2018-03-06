@@ -10,6 +10,13 @@
 // The maximum size of error messages to print on error logging
 #define ERR_MSG_SIZE 512
 
+#ifdef __clang__
+// Clang build support old clang versions without strerror_s
+void strerror_secure(char* errMsgHolder, size_t bufLen, int errnum){
+	strerror_r(errnum, errMsgHolder, bufLen);
+}
+#endif
+
 namespace ObjMaster {
 
 	std::unique_ptr<std::istream> FileAssetLibrary::getAssetStream(const char *path, const char *assetFileName) const {
@@ -35,7 +42,7 @@ namespace ObjMaster {
 			char errMsgHolder[ERR_MSG_SIZE];
 			// We only log about failure. The stream we return will act as empty so we will end up parsing an empty obj
 			// If this is not what you wish for, you can implement your own similar asset library on your own...
-			strerror_s(errMsgHolder, ERR_MSG_SIZE, errno);
+			strerror_secure(errMsgHolder, ERR_MSG_SIZE, errno);
 			OMLOGE("...Cannot open file because: %s", errMsgHolder);
 		} else {
 			OMLOGI("...Successfully opened %s%s", path, assetFileName);

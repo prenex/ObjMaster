@@ -14,6 +14,7 @@
 #define strtok_r strtok_s
 // strncpy seems to be unsafe in microsoft opinions so we need to hack around this a bit
 #define strncpy windows_hacky_strncpy
+
 static char *windows_hacky_strncpy(char *dest, const char *src, size_t n) {
 	// I think this is only "more safe" when chars are not 8 bit represented...
 	strncpy_s(dest, n * sizeof(char), src, n);
