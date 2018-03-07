@@ -26,6 +26,7 @@
 #include "../UseMtl.h"
 #include "../LineElement.h"
 #include "../ObjectGroupElement.h"
+#include "../Material.h"
 
 // At least we can try testing the facade as if we would see it from plain C...
 #include "../ext/integration/ObjMasterIntegrationFacade.h"
@@ -183,6 +184,7 @@ namespace ObjMasterTest {
 		errorCount += ObjMaster::TEST_UseMtl_Output();
 		errorCount += ObjMaster::TEST_LineElement_Output();
 		errorCount += ObjMaster::TEST_ObjectGroupElement_Output();
+		errorCount += ObjMaster::TEST_Material_Output();
 		
 		// Return error count
 		return errorCount;

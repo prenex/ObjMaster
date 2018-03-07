@@ -72,7 +72,7 @@ namespace ObjMaster {
          * @param name The name of the material
          * @param descriptorLineFields The collected descriptor lines for the material(following newmtl)
          */
-        Material(std::string materialName, std::vector <std::string> descriptorLineFields);
+        Material(std::string materialName, std::vector<std::string> descriptorLineFields);
         Material() {};
 
 	/** Returns the *.mtl supported text representation as a vector of strings (one per each line) - empty vector is returned for empty material! */
@@ -138,7 +138,54 @@ namespace ObjMaster {
     };
 
 
-    /** Test if parsing and stuff works */
+    /** testing output-related operations (like asText()) */
+    static int TEST_Material_Output(){
+	std::vector<std::string> example {
+			"newmtl Material_1",
+			"Ns 1.960784",
+			"Ka 0.000000 0.000000 0.000000",
+			"Kd 0.301176 0.301176 0.301176",
+			"Ks 0.045000 0.045000 0.045000",
+			"Ni 1.000000",
+			"d 1.000000",
+			"illum 2",
+			"map_Kd witch_hat(color).jpg",
+			"map_Bump witch_hat(normal).jpg",
+			"map_Ka witch_hat(color).jpg",
+			"map_Ks witch_hat(specular).jpg",
+	};
+
+	// Parse
+	Material m1("Material_1", example);
+
+	std::vector<std::string> output = m1.asText();
+
+#ifdef DEBUG
+	OMLOGE("Parsed mtl material asText returns:");
+	OMLOGE("-----------------------------------");
+	OMLOGE("");
+	for(auto s : output){
+		OMLOGE("%s", s.c_str());
+	}
+#endif
+
+	/*
+	// Compare original and reparsed - this should test output reasonably well
+	if(
+		((f0.vIndex == fb0.vIndex) && (f0.vtIndex == fb0.vtIndex) && (f0.vnIndex == fb0.vnIndex)) &&
+		((f1.vIndex == fb1.vIndex) && (f1.vtIndex == fb1.vtIndex) && (f1.vnIndex == fb1.vnIndex)) &&
+		((f2.vIndex == fb2.vIndex) && (f2.vtIndex == fb2.vtIndex) && (f2.vnIndex == fb2.vnIndex))
+	) {*/
+		// OK
+		return 0;
+	/*} else {
+		// ERROR
+		OMLOGE("Bad FaceElement output: %s instead of %s", str.c_str(), fetest);
+		return 1;
+	}*/
+    }
+
+    /** Test if parsing and loading stuff works */
     static bool TEST_Material() {
 #ifdef DEBUG
         OMLOGE("TEST_Material...");
