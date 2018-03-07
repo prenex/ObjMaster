@@ -10,6 +10,8 @@
 #include <bitset>
 #include "objmasterlog.h"
 
+#include <unordered_set> /* - Used for test code */
+
 namespace ObjMaster {
     /**
      * Defines a material. This corresponds to the supported properties of a newmtl in an *.mtl file
@@ -140,6 +142,9 @@ namespace ObjMaster {
 
     /** testing output-related operations (like asText()) */
     static int TEST_Material_Output(){
+	int errorCount = 0;
+	
+	// The test-case
 	std::vector<std::string> example {
 			"newmtl Material_1",
 			"Ns 1.960784",
@@ -155,34 +160,44 @@ namespace ObjMaster {
 			"map_Ks witch_hat(specular).jpg",
 	};
 
+	// The expected result after parsing and outputting a test case
+	std::unordered_set<std::string> expectedLines {
+		"newmtl Material_1",
+		"Ka 0.000000 0.000000 0.000000",
+		"Kd 0.301176 0.301176 0.301176",
+		"Ks 0.045000 0.045000 0.045000",
+		"map_Ka witch_hat(color).jpg",
+		"map_Kd witch_hat(color).jpg",
+		"map_Ks witch_hat(specular).jpg",
+		"map_bump witch_hat(normal).jpg",
+	};
+
 	// Parse
 	Material m1("Material_1", example);
 
+	// Output
 	std::vector<std::string> output = m1.asText();
 
+	// Test
 #ifdef DEBUG
 	OMLOGE("Parsed mtl material asText returns:");
 	OMLOGE("-----------------------------------");
 	OMLOGE("");
-	for(auto s : output){
-		OMLOGE("%s", s.c_str());
-	}
 #endif
+	for(auto s : output){
+#ifdef DEBUG
+		OMLOGE("%s", s.c_str());
+#endif
+		auto got = expectedLines.find(s);
+		if(got == expectedLines.end()){
+			// Got something unexpected
+			OMLOGE("Unexpected mtl line in asText() output: %s", s.c_str());
+			OMLOGI("This asText error might mean that the tests or the code is broken!");
+			++errorCount;	// Indicate error
+		}
+	}
 
-	/*
-	// Compare original and reparsed - this should test output reasonably well
-	if(
-		((f0.vIndex == fb0.vIndex) && (f0.vtIndex == fb0.vtIndex) && (f0.vnIndex == fb0.vnIndex)) &&
-		((f1.vIndex == fb1.vIndex) && (f1.vtIndex == fb1.vtIndex) && (f1.vnIndex == fb1.vnIndex)) &&
-		((f2.vIndex == fb2.vIndex) && (f2.vtIndex == fb2.vtIndex) && (f2.vnIndex == fb2.vnIndex))
-	) {*/
-		// OK
-		return 0;
-	/*} else {
-		// ERROR
-		OMLOGE("Bad FaceElement output: %s instead of %s", str.c_str(), fetest);
-		return 1;
-	}*/
+	return errorCount;
     }
 
     /** Test if parsing and loading stuff works */
