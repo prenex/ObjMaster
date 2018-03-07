@@ -23,10 +23,11 @@ namespace ObjMaster {
         /** The name of the material */
         std::string name;
 
-        /** Defines which fields can be used. See the various F_* consts for indexing this */
         // TODO: Change the bitset size when necessary...
+        /** Defines which fields are used - when creating a material on our own, we must fill this properly! See the various F_* consts for indexing this */
         std::bitset <32> enabledFields;
 
+	// Constants for indexing the bitset
         const static int F_KA = 0;
         const static int F_KD = 1;
         const static int F_KS = 2;
@@ -74,6 +75,60 @@ namespace ObjMaster {
         Material(std::string materialName, std::vector <std::string> descriptorLineFields);
         Material() {};
 
+	/** Returns the *.mtl supported text representation as a vector of strings (one per each line) - empty vector is returned for empty material! */
+	inline std::vector<std::string> asText() const {
+		
+		// counter for making unique fallback names
+		static int ncnt = 0;
+
+		std::vector<std::string> lines;
+		bool hasField = false;
+
+		// always give a name - except if we are not having any field!
+		std::string mtlName = name.empty() ? "unknown_" + std::to_string(++ncnt) : name;
+		lines.push_back("newmtl " + mtlName);
+
+		// Various color data
+		if(enabledFields[Material::F_KA]) {
+			lines.push_back("Ka " + std::to_string(ka[0]) + " " + std::to_string(ka[1]) + " " + std::to_string(ka[2]));
+			hasField = true;
+		}
+		if(enabledFields[Material::F_KD]) {
+			lines.push_back("Kd " + std::to_string(kd[0]) + " " + std::to_string(kd[1]) + " " + std::to_string(kd[2]));
+			hasField = true;
+		}
+		if(enabledFields[Material::F_KS]) {
+			lines.push_back("Ks " + std::to_string(ks[0]) + " " + std::to_string(ks[1]) + " " + std::to_string(ks[2]));
+			hasField = true;
+		}
+
+		// Various texture data
+		if(enabledFields[Material::F_MAP_KA]) {
+			lines.push_back("map_Ka " + map_ka);
+			hasField = true;
+		}
+		if(enabledFields[Material::F_MAP_KD]) {
+			lines.push_back("map_Kd " + map_kd);
+			hasField = true;
+		}
+		if(enabledFields[Material::F_MAP_KS]) {
+			lines.push_back("map_Ks " + map_ks);
+			hasField = true;
+		}
+		if(enabledFields[Material::F_MAP_BUMP]) {
+			lines.push_back("map_bump " + map_bump);
+			hasField = true;
+		}
+
+		// Check for empty material
+		if(hasField) {
+			// Had a meaningful field - return collected data
+			return lines;
+		} else {
+			// Had no meaningful field - return empty vector!
+			return std::vector<std::string>();
+		}
+	}
     private:
         static std::vector<float> fetchRGBParam(std::string &mtlLine);
         static std::string fetchStringParam(std::string &mtlLine);
