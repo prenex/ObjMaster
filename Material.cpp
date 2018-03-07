@@ -118,7 +118,7 @@ OMLOGD("Texture descriptor candidate line: %s", mtlLine.c_str());
                     continue;
                 }
                 if ((mtlLine.compare(0, std::string("map_bump").length(), std::string("map_bump")) == 0) ||
-                     (mtlLine.compare(0, std::string("map_Bump").length(), std::string("map_Bump")) == 0) {
+                     (mtlLine.compare(0, std::string("map_Bump").length(), std::string("map_Bump")) == 0)) {
                     // map_bump OR map_Bump
                     map_bump = fetchStringParam(mtlLine);
                     enabledFields[F_MAP_BUMP] = true;
