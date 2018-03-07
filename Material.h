@@ -27,7 +27,7 @@ namespace ObjMaster {
 
         // TODO: Change the bitset size when necessary...
         /** Defines which fields are used - when creating a material on our own, we must fill this properly! See the various F_* consts for indexing this */
-        std::bitset <32> enabledFields;
+        std::bitset<32> enabledFields;
 
 	// Constants for indexing the bitset
         const static int F_KA = 0;
@@ -43,11 +43,11 @@ namespace ObjMaster {
         //
 
         /** Ambient color */
-        std::vector <float> ka;
+        std::vector<float> ka;
         /** Diffuse color */
-        std::vector <float> kd;
+        std::vector<float> kd;
         /** Specular color */
-        std::vector <float> ks;
+        std::vector<float> ks;
 
         //
         // Texture assets
@@ -61,6 +61,42 @@ namespace ObjMaster {
         std::string map_ks;
         /** bump and map_bump */
         std::string map_bump;
+
+	//
+	// Convenience methods for setting fields and enabling them automatically
+	//
+
+	// Color attributes convenience methods
+	inline void setAndEnableKa(std::vector<float> newKa){
+		ka = newKa;
+		enabledFields[F_KA] = true;
+	}
+	inline void setAndEnableKd(std::vector<float> newKd){
+		kd = newKd;
+		enabledFields[F_KD] = true;
+	}
+	inline void setAndEnableKs(std::vector<float> newKs){
+		ks = newKs;
+		enabledFields[F_KS] = true;
+	}
+
+	// Texture assets convenience methods
+	inline void setAndEnableMapKa(std::string newMapKa){
+		map_ka = newMapKa;
+		enabledFields[F_MAP_KA] = true;
+	}
+	inline void setAndEnableMapKd(std::string newMapKd){
+		map_kd = newMapKd;
+		enabledFields[F_MAP_KD] = true;
+	}
+	inline void setAndEnableMapKs(std::string newMapKs){
+		map_ks = newMapKs;
+		enabledFields[F_MAP_KS] = true;
+	}
+	inline void setAndEnableMapBump(std::string newMapBump){
+		map_bump = newMapBump;
+		enabledFields[F_MAP_BUMP] = true;
+	}
 
         //
         // Construction
