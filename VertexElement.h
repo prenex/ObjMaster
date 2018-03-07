@@ -39,6 +39,26 @@ namespace ObjMaster {
 // test it compile-time with some unit testing framework as this way we rule out architectural
 // differences better. Tests will start by logging test starts to error (when #DEBUG is set!)
 // and info logs and the method returns false when anything has failed...
+    /** testing output-related operations (like asText()) */
+    static int TEST_VertexElement_Output(){
+        const char *vetest = "v 1.0 2.0 3.0";
+	// Parse
+	VertexElement v(vetest);
+	// Get as string
+	auto str = v.asText();
+	// Reparse result
+	VertexElement v2(str.c_str());
+	// Compare original and reparsed - this should test output reasonably well
+	if((v.x == v2.x) && (v.y == v2.y) && (v.z == v2.z)) {
+		// OK
+		return 0;
+	} else {
+		// ERROR
+		OMLOGE("Bad VertexElement output: %s instead of %s", str.c_str(), vetest);
+		return 1;
+	}
+    }
+
     static bool TEST_VertexElement() {
 #ifdef DEBUG
         OMLOGE("TEST_VertexElement...");

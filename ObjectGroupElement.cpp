@@ -8,7 +8,7 @@ namespace ObjMaster {
     /** Decides if the given fields can be parsed as an ObjectGroupElement */
     bool ObjectGroupElement::isParsable(const char *fields){
         // Not an empty string, the first character is an o and there is no second char of the key!
-        return (fields != nullptr) && (fields[0] != 0) && (fields[0] == 'o') && (fields[1] == ' ');
+        return (fields != nullptr) && (fields[0] != 0) && ((fields[0] == 'o')||(fields[0] == 'g')) && (fields[1] == ' ');
     }
 
     /** Given the fields that describe an ObjectGroupElement, return the name part */

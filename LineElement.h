@@ -37,6 +37,25 @@ namespace ObjMaster {
 	private:
 		void constructionHelper(char *fields);
 	};
+    /** testing output-related operations (like asText()) */
+    static int TEST_LineElement_Output(){
+		const char *test = "l 1 2";
+		// Parse
+		LineElement l(test);
+		// Get as string
+		auto str = l.asText();
+		// Reparse result
+		LineElement l2(str.c_str());
+		// Compare original and reparsed - this should test output reasonably well
+		if((l.bVindex == l2.bVindex) && (l.eVindex == l2.eVindex)) {
+			// OK
+			return 0;
+		} else {
+			// ERROR
+			OMLOGE("Bad LineElement output: %s instead of %s", str.c_str(), test);
+			return 1;
+		}
+    }
 }
 
 #endif // OBJMASTER_LINELEMENT_H

@@ -18,6 +18,15 @@
 #include "../StbImgTexturePreparationLibrary.h"
 #include "../ext/GlGpuTexturePreparationLibrary.h"
 
+// For output testing of elements
+#include "../VertexElement.h"
+#include "../VertexTextureElement.h"
+#include "../VertexNormalElement.h"
+#include "../FaceElement.h"
+#include "../UseMtl.h"
+#include "../LineElement.h"
+#include "../ObjectGroupElement.h"
+
 // At least we can try testing the facade as if we would see it from plain C...
 #include "../ext/integration/ObjMasterIntegrationFacade.h"
 
@@ -161,6 +170,38 @@ namespace ObjMasterTest {
 		return 0;
 	}
 
+	/** Tests the "asText()" calls to the various *Element classes */
+	int testElementOutputs() {
+		// Init error count
+		int errorCount = 0;
+
+		// Test all elements
+		errorCount += ObjMaster::TEST_VertexElement_Output();
+		errorCount += ObjMaster::TEST_VertexTextureElement_Output();
+		errorCount += ObjMaster::TEST_VertexNormalElement_Output();
+		errorCount += ObjMaster::TEST_FaceElement_Output();
+		errorCount += ObjMaster::TEST_UseMtl_Output();
+		errorCount += ObjMaster::TEST_LineElement_Output();
+		errorCount += ObjMaster::TEST_ObjectGroupElement_Output();
+		
+		// Return error count
+		return errorCount;
+	}
+
+	/** Run all tests for testing *.obj output methods */
+	int testObjOutput() {
+		OMLOGI("OBJ OUTPUT TEST...");
+		// Init error count
+		int errorCount = 0;
+
+		// Run all related tests
+		errorCount += testElementOutputs();
+		
+		OMLOGI("...OBJ OUTPUT TEST had %d errors", errorCount);
+		// Return error count
+		return errorCount;
+	}
+
 	/** Run all tests and return the number of error cases */
 	int testAll() {
 		// Init error count
@@ -168,6 +209,7 @@ namespace ObjMasterTest {
 		// Run all tests
 		errorCount += testIntegrationFacade();
 		errorCount += testMemoryLeakage();
+		errorCount += testObjOutput();
 		// Return error count
 		return errorCount;
 	}

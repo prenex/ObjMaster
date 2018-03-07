@@ -41,11 +41,29 @@ namespace ObjMaster {
         }
 
 	/** Gets the textual representation for *.obj generation */
-	inline std::string asText(std::string materialName) {
+	inline static std::string asText(std::string materialName) {
 		return "usemtl " + materialName;
 	}
 
     };
+
+    /** testing output-related operations (like asText()) */
+    static int TEST_UseMtl_Output(){
+        const char *test = "usemtl testMaterial";
+	// Parse
+	auto matName = UseMtl::fetchMtlName(test);
+	// Reparse result
+	auto str = UseMtl::asText(matName);
+	// Compare original and reparsed - this should test output reasonably well
+	if(std::string(test) == str) {
+		// OK
+		return 0;
+	} else {
+		// ERROR
+		OMLOGE("Bad UseMtl output: %s instead of %s", str.c_str(), test);
+		return 1;
+	}
+    }
 }
 
 #endif //NFTSIMPLEPROJ_USEMTL_H
