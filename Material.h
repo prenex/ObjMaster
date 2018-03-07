@@ -111,6 +111,9 @@ namespace ObjMaster {
          * @param descriptorLineFields The collected descriptor lines for the material(following newmtl)
          */
         Material(std::string materialName, std::vector<std::string> descriptorLineFields);
+	/** Create an empty material with the given name */
+        Material(std::string materialName) { name = materialName; }
+	/** Create an empty material with no name */
         Material() {};
 
 	/** Returns the *.mtl supported text representation as a vector of strings (one per each line) - empty vector is returned for empty material! */
@@ -214,7 +217,7 @@ namespace ObjMaster {
 	// Output
 	std::vector<std::string> output = m1.asText();
 
-	// Test
+	// Test1 (parsed)
 #ifdef DEBUG
 	OMLOGE("Parsed mtl material asText returns:");
 	OMLOGE("-----------------------------------");
@@ -226,6 +229,43 @@ namespace ObjMaster {
 #endif
 		auto got = expectedLines.find(s);
 		if(got == expectedLines.end()){
+			// Got something unexpected
+			OMLOGE("Unexpected mtl line in asText() output: %s", s.c_str());
+			OMLOGI("This asText error might mean that the tests or the code is broken!");
+			++errorCount;	// Indicate error
+		}
+	}
+
+	// The expected result for second test case
+	std::unordered_set<std::string> expectedLines2 {
+		"newmtl Material_2",
+		"Kd 1.000000 0.200000 0.200000",
+		"map_Kd my_diff_tex.png",
+		"map_bump my_bump_tex.png",
+	};
+
+	// Create new
+	Material m2("Material_2");
+	// with reddish diffuse color and some simple textures
+	m2.setAndEnableKd({1.0f, 0.2f, 0.2f});
+	m2.setAndEnableMapKd("my_diff_tex.png");
+	m2.setAndEnableMapBump("my_bump_tex.png");
+
+	// Output new
+	output = m2.asText();
+
+	// Test2 (new)
+#ifdef DEBUG
+	OMLOGE("Parsed mtl material asText returns:");
+	OMLOGE("-----------------------------------");
+	OMLOGE("");
+#endif
+	for(auto s : output){
+#ifdef DEBUG
+		OMLOGE("%s", s.c_str());
+#endif
+		auto got = expectedLines2.find(s);
+		if(got == expectedLines2.end()){
 			// Got something unexpected
 			OMLOGE("Unexpected mtl line in asText() output: %s", s.c_str());
 			OMLOGI("This asText error might mean that the tests or the code is broken!");
