@@ -20,6 +20,13 @@ namespace ObjMaster {
     Obj::Obj(const AssetLibrary &assetLibrary, const char *path, const char *fileName, int expectedVertexDataNum, int expectedFaceNum) {
         constructionHelper(assetLibrary, path, fileName, expectedVertexDataNum, expectedFaceNum);
     }
+    /** Save this MtlLib as a *.mtl - using the path, fileName and the provided asset-out library */
+    void saveAs(const AssetOutputLibrary &assetOutputLibrary, const char* path, const char* fileName){
+	OMLOGI("Opening (obj) output stream for %s%s", path, fileName);
+	std::unique_ptr<std::ostream> output = assetOutputLibrary.getAssetOutputStream(path, fileName);
+
+	// TODO!!!
+    }
 
     // Helper function for common constructor code-paths
     void Obj::constructionHelper(const AssetLibrary &assetLibrary, const char *path, const char *fileName, int expectedVertexDataNum, int expectedFaceNum) {

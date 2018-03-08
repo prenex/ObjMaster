@@ -8,6 +8,7 @@
 #include <algorithm>  /* std::mismatch */
 #include <cstring>    /* strtok_r, strdup */
 #include <cstdlib>    /* free */
+#include <iostream>   /* readLine, << and write calls */
 #include "wincompat.h" // msvc hax
 
 namespace ObjMaster {
@@ -124,6 +125,41 @@ namespace ObjMaster {
 #endif
             }
         }
+
+	// Rem.: input is closed with RAII ;-)
+    }
+
+    void MtlLib::saveAs(const AssetOutputLibrary &assetOutputLibrary, const char* path, const char* fileName, bool alwaysGrowLibraryFilesList){
+	// Add this mtl file to the list if the list is empty or if the user explicitly asks us to always grow the list
+	// The latter is useful when we deliberately want to add separate *.mtl files to the single *.obj for some reason...
+	// This latter functionality is not in widespread use...
+	if(alwaysGrowLibraryFilesList || (libraryFiles.size() == 0)) {
+		libraryFiles.push_back(std::string(path) + fileName);
+	}
+	// open an output stream for us
+	OMLOGI("Opening (mtl) output stream for %s%s", path, fileName);
+	std::unique_ptr<std::ostream> output = assetOutputLibrary.getAssetOutputStream(path, fileName);
+
+	bool firstMat = true;
+	for(auto matNameAndMat : materials){
+		std::string matName = matNameAndMat.first;
+		// Auto is necessary here for future-proofing so that asText() can be hidden if we ever want to change its implementation!
+		auto &mat =  matNameAndMat.second;
+
+		// Put a seperating newline between materials in the resulting *.mtl
+		if(firstMat) {
+			firstMat = false;
+		} else {
+			(*output) << std::endl;
+		}
+
+		// Print out the lines representing the material in the *.mtl representation
+		auto lines = mat.asText();
+		for(auto line : lines) {
+			output->write(line.c_str(), line.length())<<'\n';
+		}
+	}
+	// Rem.: output is closed with RAII ;-)
     }
 
     /** Helper function - BEWARE: This changes the argument! */

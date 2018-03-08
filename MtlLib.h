@@ -8,8 +8,8 @@
 #include "TextureDataHoldingMaterial.h"
 #include "AssetLibrary.h"
 #include <memory>
-#include<vector>
-#include<string>
+#include <vector>
+#include <string>
 #include <unordered_map>
 
 namespace ObjMaster {
@@ -41,6 +41,25 @@ namespace ObjMaster {
         MtlLib(char *fields, const char *assetPath, const AssetLibrary &assetLibrary);
         /** The default constructor just create a completely empty library */
         MtlLib() {}
+
+	/** The absolute textual reference to the *.mtl as it is references from the *.obj file - this should go into the *.obj output! */
+	inline std::string asText(const char *path, const char *fileName) {
+		// Rem.: The compiler should be smart-enough to optimize this when inlined...
+		std::string fullPath = std::string(path) + fileName;
+		return asText(fullPath.c_str());
+	}
+
+	/** The relative textual reference to the *.mtl as it is references from the *.obj file - this should go into the *.obj output! */
+	inline std::string asText(const char *fileName) {
+		return KEYWORD + " " + fileName;
+	}
+
+	/** Save this MtlLib as a *.mtl - using the (relative) fileName and the provided asset-out library */
+	inline void saveAs(const AssetOutputLibrary &assetOutputLibrary, const char* fileName){
+		saveAs(assetOutputLibrary, "", fileName);
+	}
+	/** Save this MtlLib as a *.mtl - using the path, fileName and the provided asset-out library */
+	void saveAs(const AssetOutputLibrary &assetOutputLibrary, const char* path, const char* fileName, bool alwaysGrowLibraryFilesList = false);
 
         /** Returns a copy of the given material  */
         TextureDataHoldingMaterial getNonLoadedMaterialFor(std::string materialName);

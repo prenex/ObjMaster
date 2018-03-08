@@ -35,6 +35,10 @@ namespace ObjMasterTest {
 
 	const char* TEST_MODEL_PATH = "objmaster/tests/models/";
 	const char* TEST_MODEL = "test.obj";
+	const char* TEST_OUT_PATH = "";
+	const char* TEST_OUT_MTL = "out.mtl"; // This is to separate MtlLib.saveAs(..) testing from the full round-trip test
+	// Rem.: this will have its test_out.mtl too
+	const char* TEST_OUT_MODEL = "test_out.obj";
 	const int INNER_LOOPS = 16;
 	const int OUTER_LOOPS = 4;
 
@@ -171,6 +175,21 @@ namespace ObjMasterTest {
 		return 0;
 	}
 
+	/** Tests for saving *.mtl files */
+	int testMtlLibSave() {
+		OMLOGI("Testing *.mtl saving...");
+		// Parse the test model
+		ObjMaster::Obj obj = ObjMaster::Obj(ObjMaster::FileAssetLibrary(), TEST_MODEL_PATH, TEST_MODEL);
+		// Save out its mtl file near the current directory as out.mtl
+		obj.mtlLib.saveAs(ObjMaster::FileAssetLibrary(), "out.mtl");
+		// Notify user about the saved file
+		OMLOGI("See out.mtl for the results!");
+
+		OMLOGI("...tested *.mtl saving!");
+		// This testing is only here for manual tests as of now...
+		return 0;
+	}
+
 	/** Tests the "asText()" calls to the various *Element classes */
 	int testElementOutputs() {
 		// Init error count
@@ -185,6 +204,9 @@ namespace ObjMasterTest {
 		errorCount += ObjMaster::TEST_LineElement_Output();
 		errorCount += ObjMaster::TEST_ObjectGroupElement_Output();
 		errorCount += ObjMaster::TEST_Material_Output();
+
+		// Test *.mtl writeout
+		errorCount += testMtlLibSave();
 		
 		// Return error count
 		return errorCount;
@@ -209,10 +231,10 @@ namespace ObjMasterTest {
 		// Init error count
 		int errorCount = 0;
 		// Run all tests
-		errorCount += testIntegrationFacade();
 		errorCount += testMemoryLeakage();
 		errorCount += testObjOutput();
-		// Return error count
+		errorCount += testIntegrationFacade();
+		// Return sum of error counts
 		return errorCount;
 	}
 }

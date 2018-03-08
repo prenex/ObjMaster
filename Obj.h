@@ -67,6 +67,9 @@ namespace ObjMaster {
          */
         Obj(const AssetLibrary &assetLibrary, const char *path, const char *fileName,
             int expectedVertexDataNum, int expectedFaceNum);
+
+	/** Save this Obj as a *.obj - using the path, fileName and the provided asset-out library */
+	void saveAs(const AssetOutputLibrary &assetOutputLibrary, const char* path, const char* fileName);
     private:
         void constructionHelper(const AssetLibrary &assetLibrary,
                             const char *path, const char *fileName,
