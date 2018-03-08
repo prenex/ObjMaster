@@ -48,11 +48,30 @@ namespace ObjMaster {
 
 	// Reference the (already existing or generated) *.mtl file(s)
 	auto mtlLibLine = mtlLib.asText();
-	output->write(mtlLibLine.c_str(), mtlLibLine.length())<<'\n';
+	// TODO: uncomment when usemtl and grouping is implemented!
+	//output->write(mtlLibLine.c_str(), mtlLibLine.length())<<'\n';
 
 	// Write out all vertex data as 'v's
 	for(auto v : vs) {
 		auto line = v.asText();
+		output->write(line.c_str(), line.length())<<'\n';
+	}
+	// Write out all vertex data as 'vt's
+	for(auto vt : vts) {
+		auto line = vt.asText();
+		output->write(line.c_str(), line.length())<<'\n';
+	}
+	// Write out all vertex data as 'vn's
+	for(auto vn : vns) {
+		auto line = vn.asText();
+		output->write(line.c_str(), line.length())<<'\n';
+	}
+
+
+	// Write out faces
+	// TODO: we should write out materials and groups and stuff - not just like this!!!
+	for(auto f : fs) {
+		auto line = f.asText();
 		output->write(line.c_str(), line.length())<<'\n';
 	}
     }
