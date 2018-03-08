@@ -97,10 +97,8 @@ static void setup_buffers(GLuint positionLoc, GLuint normalLoc, GLuint texCoordL
 		bool notFirstRun = indVertBufIdPair.first; // ensure we do not setup buffers too many times
 		GLuint s_vertexPosObject = indVertBufIdPair.second.first;
 		GLuint s_indexObject = indVertBufIdPair.second.second;
-		printf("KULA: %d %d\n", s_vertexPosObject, s_indexObject);
 
 		if(!notFirstRun) {
-			printf("asadfasdf\n");
 			// Generate vertex buffer object
 			glGenBuffers(1, &s_vertexPosObject);
 			glBindBuffer(GL_ARRAY_BUFFER, s_vertexPosObject );
