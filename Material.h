@@ -221,7 +221,6 @@ namespace ObjMaster {
 #ifdef DEBUG
 	OMLOGE("Parsed mtl material asText returns:");
 	OMLOGE("-----------------------------------");
-	OMLOGE("");
 #endif
 	for(auto s : output){
 #ifdef DEBUG
@@ -258,7 +257,6 @@ namespace ObjMaster {
 #ifdef DEBUG
 	OMLOGE("Parsed mtl material asText returns:");
 	OMLOGE("-----------------------------------");
-	OMLOGE("");
 #endif
 	for(auto s : output){
 #ifdef DEBUG

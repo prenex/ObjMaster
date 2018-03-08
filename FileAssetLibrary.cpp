@@ -4,17 +4,21 @@
 #include <istream>
 #include <fstream>
 #include <string>
+#include <cstring>
 #include <memory>
 #include <cerrno> /* for strerror(errno) */
 
 // The maximum size of error messages to print on error logging
 #define ERR_MSG_SIZE 512
 
-#ifdef __clang__
-// Clang build support old clang versions without strerror_s
+#ifndef _MSC_VER
+// Clang and g++ build support old clang versions without strerror_s
 void strerror_secure(char* errMsgHolder, size_t bufLen, int errnum){
 	strerror_r(errnum, errMsgHolder, bufLen);
 }
+#else
+// Windows build seems to have this
+#define strerror_secure strerror_s
 #endif
 
 namespace ObjMaster {

@@ -33,6 +33,8 @@
 #include <cstring>
 #include <sys/time.h>
 #include <unistd.h>
+#include <vector>
+#include <utility>
 
 #ifdef __APPLE__
 #include <OpenGL/gl.h>
@@ -46,7 +48,7 @@
 #define DEBUG 1
 /*#define DEBUG_EXTRA 1*/
 // Enable this setting for automatic test runs
-#define TEST 1
+/*#define TEST 1*/
 
 #include "objmaster/Obj.h"
 #include "objmaster/ObjMeshObject.h"
@@ -85,26 +87,40 @@ static void printGlError(std::string where) {
 }
 
 /** Setup various vertex and index buffers for the given model to get ready for rendering - call only once! */
-static void setup_buffers(GLuint positionLoc, GLuint normalLoc, GLuint texCoordLoc, const ObjMaster::ObjMeshObject &model) {
+static void setup_buffers(GLuint positionLoc, GLuint normalLoc, GLuint texCoordLoc, const ObjMaster::ObjMeshObject &model,
+		std::pair<bool, std::pair<GLuint, GLuint>> &indVertBufIdPair) {
    	printGlError("Before setup_buffers");
 	if(model.inited && (model.vertexCount > 0) && (model.indexCount > 0)) {
 		// This little program is really a one-shot renderer so we do not save
 		// the object handles. In a bigger application you should handle them properly!
 		// Rem.: This is why you call the method at most only once...
-		GLuint s_vertexPosObject, s_indexObject;
+		bool notFirstRun = indVertBufIdPair.first; // ensure we do not setup buffers too many times
+		GLuint s_vertexPosObject = indVertBufIdPair.second.first;
+		GLuint s_indexObject = indVertBufIdPair.second.second;
+		printf("KULA: %d %d\n", s_vertexPosObject, s_indexObject);
 
-		// Generate vertex buffer object
-		glGenBuffers(1, &s_vertexPosObject);
-		glBindBuffer(GL_ARRAY_BUFFER, s_vertexPosObject );
-		glBufferData(GL_ARRAY_BUFFER, model.vertexCount * sizeof(VertexStructure), &((*(model.vertexData))[0].x), GL_STATIC_DRAW);
+		if(!notFirstRun) {
+			printf("asadfasdf\n");
+			// Generate vertex buffer object
+			glGenBuffers(1, &s_vertexPosObject);
+			glBindBuffer(GL_ARRAY_BUFFER, s_vertexPosObject );
+			glBufferData(GL_ARRAY_BUFFER, model.vertexCount * sizeof(VertexStructure),
+					&((*(model.vertexData))[0].x), GL_STATIC_DRAW);
 
-		// Generate index buffer object
-		glGenBuffers(1, &s_indexObject);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, s_indexObject);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-		             model.indexCount * sizeof((*(model.indices))[0]),
-			     &((*(model.indices))[0]),
-			     GL_STATIC_DRAW);
+			// Generate index buffer object
+			glGenBuffers(1, &s_indexObject);
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, s_indexObject);
+			glBufferData(GL_ELEMENT_ARRAY_BUFFER,
+				     model.indexCount * sizeof((*(model.indices))[0]),
+				     &((*(model.indices))[0]),
+				     GL_STATIC_DRAW);
+			// Save generated buffers
+			indVertBufIdPair.second.first = s_vertexPosObject;
+			indVertBufIdPair.second.second = s_indexObject; 
+			// Stop doing extra bullshit every frame!
+			indVertBufIdPair.first = true;
+			//firstRun = false;
+		}
 
 		// Bind the vertex buffer object and create two vertex attributes from the bound buffer
 		glBindBuffer(GL_ARRAY_BUFFER, s_vertexPosObject);
@@ -221,8 +237,11 @@ static void draw() {
    rotate(transform, 2 * M_PI * view_rot[1] / 360.0, 0, 1, 0);
    rotate(transform, 2 * M_PI * view_rot[2] / 360.0, 0, 0, 1);
 
+   // Create vector object for holding data buffers
+   static std::vector<std::pair<bool, std::pair<GLuint, GLuint>>> indVertBufIdPairs(model.meshes.size());
    // Render the model
    if(model.inited && model.meshes.size() > 0) {
+	int i = 0;
  	for(auto mesh : model.meshes) {
  		// TODO: remove the "color" parameter
 		// TODO: This is really suboptimal! The VBOs should
@@ -230,9 +249,10 @@ static void draw() {
 		// example is not performance critical so it is ookay...
 		// I mean... the data copy in setup buffers is too much!
 		// Setup buffers for rendering the first mesh
-	 	setup_buffers(0, 1, 2, mesh); 
+	 	setup_buffers(0, 1, 2, mesh, indVertBufIdPairs[i]); 
 		draw_model(mesh, transform, red);
  		printGlError("after draw_model");
+		++i;
 	}
    }
 
