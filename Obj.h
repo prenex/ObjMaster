@@ -68,14 +68,34 @@ namespace ObjMaster {
         Obj(const AssetLibrary &assetLibrary, const char *path, const char *fileName,
             int expectedVertexDataNum, int expectedFaceNum);
 
+	// Rem.: bit trickery here
+	/** Defines the saving mode */
+	enum ObjSaveModeFlags{
+		/** Only vertices, texcoords and normals plus the faces. No grouping and no materials. */
+		ONLY_UNGROUPED_GEOMETRY = 0,
+		/** Saving materials - no grouping */
+		MATERIALS_GEOMETRY = 1,
+		/** Saving 'o' groups - no materials */
+		GROUPS_GEOMETRY = 2,
+		/** Both materials and 'o' groups */
+		MATERIALS_AND_GROUPS = 3,
+		// 4) Rem.: bit at position 3 means using 'g' instead of 'o'
+		/** !!UNUSED!! */
+		G = 4,
+		/** Saving 'g' groups - no materials */
+		G_GROUPS_GEOMETRY = 2+4,
+		/** Both materials and 'g' groups */
+		MATERIALS_AND_G_GROUPS = 3+4,
+	};
+
 	/** Save this Obj as a (relative) *.obj - using the given fileName and the provided asset-out library. By default this also saves the *.mtl */
-	inline void saveAs(const AssetOutputLibrary &assetOutputLibrary, const char* fileName, bool saveAsMtlToo = true){
+	inline void saveAs(const AssetOutputLibrary &assetOutputLibrary, const char* fileName, bool saveAsMtlToo = true, ObjSaveModeFlags saveMode = ObjSaveModeFlags::MATERIALS_AND_GROUPS){
 		// Just delegate to the real method
-		saveAs(assetOutputLibrary, "", fileName, saveAsMtlToo);
+		saveAs(assetOutputLibrary, "", fileName, saveAsMtlToo, saveMode);
 	}
 
 	/** Save this Obj as an (absolute) *.obj - using the given path, fileName and the provided asset-out library. By default this also saves the *.mtl */
-	void saveAs(const AssetOutputLibrary &assetOutputLibrary, const char* path, const char* fileName, bool saveAsMtlToo = true);
+	void saveAs(const AssetOutputLibrary &assetOutputLibrary, const char* path, const char* fileName, bool saveAsMtlToo = true, ObjSaveModeFlags saveMode = ObjSaveModeFlags::MATERIALS_AND_GROUPS);
     private:
         void constructionHelper(const AssetLibrary &assetLibrary,
                             const char *path, const char *fileName,

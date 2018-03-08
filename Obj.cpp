@@ -10,6 +10,8 @@
 #include <memory>
 #include <vector>
 
+#include <map> /* for saveAs *.obj compacting with ordered operations */
+
 #define MAT_SEP ":mtl:"
 //#define DEBUG 1
 
@@ -21,12 +23,13 @@ namespace ObjMaster {
         constructionHelper(assetLibrary, path, fileName, expectedVertexDataNum, expectedFaceNum);
     }
     /** Save this MtlLib as a *.mtl - using the path, fileName and the provided asset-out library */
-    void Obj::saveAs(const AssetOutputLibrary &assetOutputLibrary, const char* path, const char* fileName, bool saveAsMtlToo){
+    void Obj::saveAs(const AssetOutputLibrary &assetOutputLibrary, const char* path, const char* fileName, bool saveAsMtlToo, ObjSaveModeFlags saveMode){
 	OMLOGI("Opening (obj) output stream for %s%s", path, fileName);
 	std::unique_ptr<std::ostream> output = assetOutputLibrary.getAssetOutputStream(path, fileName);
 
 	// saveAs our mtlLib if the caller wants that too and there is anything to write
-	if(saveAsMtlToo) {
+	// Also the mtl lib is not saved if the saveMode does not use materials at all
+	if(saveAsMtlToo && (((int)saveMode & ObjSaveModeFlags::MATERIALS_GEOMETRY) != 0)) {
 		// Generate proper *.mtl file name using the provided *.obj file name
 		// If there is .*obj extension, we change that to *.mtl if there were none, we just add...
 		std::string fn(fileName);
@@ -46,10 +49,11 @@ namespace ObjMaster {
 		mtlLib.saveAs(assetOutputLibrary, path, mtlFileName.c_str());
 	}
 
-	// Reference the (already existing or generated) *.mtl file(s)
-	auto mtlLibLine = mtlLib.asText();
-	// TODO: uncomment when usemtl and grouping is implemented!
-	//output->write(mtlLibLine.c_str(), mtlLibLine.length())<<'\n';
+	// Reference the (already existing or generated) *.mtl file(s) - if save mode saves materials
+	if(((int)saveMode & ObjSaveModeFlags::MATERIALS_GEOMETRY) != 0) {
+		auto mtlLibLine = mtlLib.asText();
+		output->write(mtlLibLine.c_str(), mtlLibLine.length())<<'\n';
+	}
 
 	// Write out all vertex data as 'v's
 	for(auto v : vs) {
@@ -68,11 +72,70 @@ namespace ObjMaster {
 	}
 
 
-	// Write out faces
-	// TODO: we should write out materials and groups and stuff - not just like this!!!
-	for(auto f : fs) {
-		auto line = f.asText();
-		output->write(line.c_str(), line.length())<<'\n';
+	// Write out faces, groups, materials
+	// ----------------------------------
+
+	if((int)saveMode == ObjSaveModeFlags::ONLY_UNGROUPED_GEOMETRY) {
+		// Simples case: only geometry - just write out faces
+		for(auto f : fs) {
+			auto line = f.asText();
+			output->write(line.c_str(), line.length())<<'\n';
+		}
+	} else {
+		// For proper compact output generation we need the objMatFaceGroups sorted
+		std::map<std::string, ObjectMaterialFaceGroup> sortedObjectMaterialGroups;
+		bool gbit = false;
+
+		// The sorting key should be either matName:err:groupName or groupName:mtl:matName according to mode!
+		// This ensures that those face elements we can compact together are near each other!
+		for(auto kv : objectMaterialGroups) {
+			if(((int)saveMode == ObjSaveModeFlags::GROUPS_GEOMETRY) ||
+			   ((int)saveMode == ObjSaveModeFlags::MATERIALS_AND_GROUPS)) {
+				// set the gbit here
+				if(((int)saveMode & ObjSaveModeFlags::G) != 0){
+					gbit = true; // indicate 'g' usage
+				}
+
+				// groupName:mtl:matName - it is already available
+				// Rem.: Both above cases we need to sort by groups basically!
+				std::string key = kv.first;
+				sortedObjectMaterialGroups[key] = kv.second;
+			} else if((int)saveMode == ObjSaveModeFlags::MATERIALS_GEOMETRY) {
+				// matName:err:groupName
+				// Rem.: We use :err: deliberately to force ourself handling things as it should!
+				//       We cannot just save out these keys when generating real output - only used for sorting!
+				std::string key = kv.second.textureDataHoldingMaterial.name + ":err:" + kv.second.objectGroupName;
+				sortedObjectMaterialGroups[key] = kv.second;
+			} else {
+				// This should never happen - unless someone breaks ObjMaster!
+				OMLOGE("Code is utterly broken! Unkown savemode!");
+				exit(0);
+			}
+		}
+
+		// Print out stuff
+		std::string currentMat;	// material now used
+		std::string currentGrp;	// group now used
+		for(auto skv : sortedObjectMaterialGroups) {
+			std::string &matName = skv.second.textureDataHoldingMaterial.name;
+			std::string &grpName = skv.second.objectGroupName;
+
+			// See if we need to print out groups or not - and if we need: then see if group has changed or not!
+			if((((int)saveMode & ObjSaveModeFlags::GROUPS_GEOMETRY) != 0) && (currentGrp != grpName)) {
+				// Write out the group
+				std::string line = ObjectGroupElement::asTextO(grpName);
+				if(gbit) {
+					line = ObjectGroupElement::asTextG(grpName);
+				}
+				output->write(line.c_str(), line.length())<<'\n';
+
+				// Erase current material (as we better always restart when the groups have changed!)
+				currentMat = "";
+
+				// Update current group
+				currentGrp = grpName;
+			}
+		}
 	}
     }
 
