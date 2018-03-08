@@ -68,8 +68,14 @@ namespace ObjMaster {
         Obj(const AssetLibrary &assetLibrary, const char *path, const char *fileName,
             int expectedVertexDataNum, int expectedFaceNum);
 
-	/** Save this Obj as a *.obj - using the path, fileName and the provided asset-out library */
-	void saveAs(const AssetOutputLibrary &assetOutputLibrary, const char* path, const char* fileName);
+	/** Save this Obj as a (relative) *.obj - using the given fileName and the provided asset-out library. By default this also saves the *.mtl */
+	inline void saveAs(const AssetOutputLibrary &assetOutputLibrary, const char* fileName, bool saveAsMtlToo = true){
+		// Just delegate to the real method
+		saveAs(assetOutputLibrary, "", fileName, saveAsMtlToo);
+	}
+
+	/** Save this Obj as an (absolute) *.obj - using the given path, fileName and the provided asset-out library. By default this also saves the *.mtl */
+	void saveAs(const AssetOutputLibrary &assetOutputLibrary, const char* path, const char* fileName, bool saveAsMtlToo = true);
     private:
         void constructionHelper(const AssetLibrary &assetLibrary,
                             const char *path, const char *fileName,

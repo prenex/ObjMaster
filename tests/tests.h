@@ -180,13 +180,30 @@ namespace ObjMasterTest {
 		OMLOGI("Testing *.mtl saving...");
 		// Parse the test model
 		ObjMaster::Obj obj = ObjMaster::Obj(ObjMaster::FileAssetLibrary(), TEST_MODEL_PATH, TEST_MODEL);
-		// Save out its mtl file near the current directory as out.mtl
-		obj.mtlLib.saveAs(ObjMaster::FileAssetLibrary(), "out.mtl");
+		// Save out its mtl file in the current directory
+		obj.mtlLib.saveAs(ObjMaster::FileAssetLibrary(), TEST_OUT_MTL);
 		// Notify user about the saved file
-		OMLOGI("See out.mtl for the results!");
+		OMLOGI("See %s for the results!", TEST_OUT_MTL);
 
 		OMLOGI("...tested *.mtl saving!");
 		// This testing is only here for manual tests as of now...
+		return 0;
+	}
+
+	int testObjSaveAndCreate() {
+		OMLOGI("Testing *.obj (re-)saving...");
+		// Parse the test model
+		ObjMaster::Obj obj = ObjMaster::Obj(ObjMaster::FileAssetLibrary(), TEST_MODEL_PATH, TEST_MODEL);
+		// Save out its *.obj and *.mtl in the current directory
+		obj.saveAs(ObjMaster::FileAssetLibrary(), TEST_OUT_MODEL);
+		OMLOGI("See %s for the results!", TEST_OUT_MODEL);
+
+		OMLOGI("...tested *.obj (re-)saving!");
+
+		OMLOGI("Testing *.obj creation and saving...");
+		// TODO: Test these when they are implemented
+		OMLOGI("...tested *.obj creation and saving!");
+
 		return 0;
 	}
 
@@ -207,6 +224,8 @@ namespace ObjMasterTest {
 
 		// Test *.mtl writeout
 		errorCount += testMtlLibSave();
+		// Test *.obj writeout and creation
+		errorCount += testObjSaveAndCreate();
 		
 		// Return error count
 		return errorCount;

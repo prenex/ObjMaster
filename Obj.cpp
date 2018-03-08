@@ -21,11 +21,40 @@ namespace ObjMaster {
         constructionHelper(assetLibrary, path, fileName, expectedVertexDataNum, expectedFaceNum);
     }
     /** Save this MtlLib as a *.mtl - using the path, fileName and the provided asset-out library */
-    void saveAs(const AssetOutputLibrary &assetOutputLibrary, const char* path, const char* fileName){
+    void Obj::saveAs(const AssetOutputLibrary &assetOutputLibrary, const char* path, const char* fileName, bool saveAsMtlToo){
 	OMLOGI("Opening (obj) output stream for %s%s", path, fileName);
 	std::unique_ptr<std::ostream> output = assetOutputLibrary.getAssetOutputStream(path, fileName);
 
-	// TODO!!!
+	// saveAs our mtlLib if the caller wants that too and there is anything to write
+	if(saveAsMtlToo) {
+		// Generate proper *.mtl file name using the provided *.obj file name
+		// If there is .*obj extension, we change that to *.mtl if there were none, we just add...
+		std::string fn(fileName);
+		size_t lastIndex = fn.find_last_of("."); 
+		std::string rawName;
+		if(lastIndex == std::string::npos) {
+			// There were no *.obj extension or any extension
+			rawName = fn;
+		} else {
+			// There were an extension - remove that
+			rawName = fn.substr(0, lastIndex); 
+		}
+		// And *.mtl ending for getting the extension
+		std::string mtlFileName = rawName + ".mtl";
+
+		// Save the *.mtl file near the *.obj
+		mtlLib.saveAs(assetOutputLibrary, path, mtlFileName.c_str());
+	}
+
+	// Reference the (already existing or generated) *.mtl file(s)
+	auto mtlLibLine = mtlLib.asText();
+	output->write(mtlLibLine.c_str(), mtlLibLine.length())<<'\n';
+
+	// Write out all vertex data as 'v's
+	for(auto v : vs) {
+		auto line = v.asText();
+		output->write(line.c_str(), line.length())<<'\n';
+	}
     }
 
     // Helper function for common constructor code-paths

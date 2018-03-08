@@ -17,9 +17,9 @@ namespace ObjMaster {
     public:
         static const std::string KEYWORD;
         /**
-         * The names of the material library files that this library builds upon.
+         * !ONLY USE IF YOU KNOW WHAT YOU ARE DOING! Contains the names of the material library files that this library builds upon.
          */
-        // TODO: In the *.obj file, they can be there as a CSV - currently unused, only one is added
+        // TODO: In the *.obj file, they can be there as a CSV - currently not supported when reading *.obj files!
         std::vector <std::string> libraryFiles;
 
         /** Decides if the given fields can be parsed as an MtlLib element */
@@ -48,9 +48,26 @@ namespace ObjMaster {
 		std::string fullPath = std::string(path) + fileName;
 		return asText(fullPath.c_str());
 	}
+	/** The relative textual reference to the *.mtl as it is references from the *.obj file - this should go into the *.obj output! */
+	inline std::string asText() {
+		// Rem.: This is not that much suboptimal as in most cases there is only one *.mtl
+		std::string allLibraryFiles = "";
+		bool first = true;
+		for(int i = 0; i < libraryFiles.size(); ++i) {
+			// Add separating spaces
+			if(first) {
+				first = false;
+			}else{
+				allLibraryFiles+=' ';
+			}
+			// Add library file to the concatenated string
+			allLibraryFiles+=libraryFiles[i];
+		}
+		return asText(allLibraryFiles.c_str());
+	}
 
 	/** The relative textual reference to the *.mtl as it is references from the *.obj file - this should go into the *.obj output! */
-	inline std::string asText(const char *fileName) {
+	inline static std::string asText(const char *fileName) {
 		return KEYWORD + " " + fileName;
 	}
 
@@ -67,10 +84,8 @@ namespace ObjMaster {
         /** Returns the number of materials in this library */
         int getMaterialCount();
 
-        // Rem.: Currently the mtllib is completely empty if there are no source files
-        // - this might change in the future code versions accordingly!
         /** Returns if this mtllib is a completely empty library or not! */
-        bool isEmpty() { return libraryFiles.size() == 0; }
+        bool isEmpty() { return materials.empty(); }
     private:
 
         /** Material name -> material hash for basic material access without loaded texture data */
