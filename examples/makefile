@@ -1,11 +1,11 @@
 # TODO: Currently only compiles the showobj example
 
 # for gcc5.1+:
-CC=g++
+#CC=g++
 # for clang3.4+:
 #CC=clang++
 # for emscripten / webgl
-#CC=em++
+CC=em++
 
 ifeq ($(CC),g++)
 	# g++ (ver 5.1+ tested)
