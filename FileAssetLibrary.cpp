@@ -67,10 +67,11 @@ namespace ObjMaster {
 #ifdef _MSC_VER
 			// Rem.: this can fail if the character cannot be represented with 16bit unicodes and this got translated to winapi that only support 16bit UNICODE spaces....
 			// Rem.: When cross compiling with MSVC to android and stuff this works at least for ASCII - I could not test what happens in that case :-(
-			UtfHelper::utf8_to_utf16(utf8FullPath) // MSVC has override for wstring paths - this is not standard however!
+			UtfHelper::utf8_to_utf16(utf8FullPath), // MSVC has override for wstring paths - this is not standard however!
 #else
-			utf8FullPath				// Every normal operating system handles UTF-8 as-is, so in other cases we just do this
+			utf8FullPath,				// Every normal operating system handles UTF-8 as-is, so in other cases we just do this
 #endif
+			std::ios::trunc				// better overwrite files as there is very little error handling anyways
 		));
 
 		if (assetStream->fail()) {

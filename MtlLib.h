@@ -85,16 +85,19 @@ namespace ObjMaster {
 		materials[m.name] = TextureDataHoldingMaterial(m);
 	}
 
-	/** Adds the given (runtime generated) material to the material library. If there is a material with the same name, it gets overwritten! */
-	inline void addRuntimeGeneratedMaterial(Material &&m) {
-		// Convert the provided to an unloaded TextureDataHoldingMaterial...
-		materials[m.name] = TextureDataHoldingMaterial(std::move(m));
-	}
-
         /** Returns a copy of the material with the given name */
 	inline TextureDataHoldingMaterial getNonLoadedMaterialFor(std::string materialName) {
 		// Just return the material for the name
 		return materials[materialName];
+	}
+
+	/** Gets all material names that are currently stored in the material library */
+	inline std::vector<std::string> getAllMaterialNames() {
+		std::vector<std::string> ret;
+		for(auto kv : materials) {
+			ret.push_back(kv.first);
+		}
+		return ret;
 	}
 
         /** Returns the number of materials in this library */

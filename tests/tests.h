@@ -190,10 +190,18 @@ namespace ObjMasterTest {
 		return 0;
 	}
 
+	/** Full I/O round-trip testing with a real model and also some generated data! */
 	int testObjSaveAndCreate() {
 		OMLOGI("Testing *.obj (re-)saving...");
 		// Parse the test model
 		ObjMaster::Obj obj = ObjMaster::Obj(ObjMaster::FileAssetLibrary(), TEST_MODEL_PATH, TEST_MODEL);
+
+		// Add a new material to the *.mtl file generated back
+		ObjMaster::Material m("runtime_added_material");
+		m.setAndEnableKd({1.0f, 0.0f, 0.0f});
+		m.setAndEnableKs({0.0f, 1.0f, 0.0f});
+		obj.mtlLib.addRuntimeGeneratedMaterial(m);
+
 		// Save out its *.obj and *.mtl in the current directory
 		obj.saveAs(ObjMaster::FileAssetLibrary(), TEST_MODEL_PATH, TEST_OUT_MODEL);
 		OMLOGI("See %s for the results!", TEST_OUT_MODEL);
