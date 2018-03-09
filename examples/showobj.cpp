@@ -48,7 +48,7 @@
 #define DEBUG 1
 /*#define DEBUG_EXTRA 1*/
 // Enable this setting for automatic test runs
-/*#define TEST 1*/
+#define TEST 1
 
 #include "objmaster/Obj.h"
 #include "objmaster/ObjMeshObject.h"

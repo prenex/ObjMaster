@@ -34,7 +34,7 @@
 namespace ObjMasterTest {
 
 	const char* TEST_MODEL_PATH = "objmaster/tests/models/";
-	const char* TEST_MODEL = "test.obj";
+	const char* TEST_MODEL = "Rose_flower_tex3.obj"; //"test.obj";
 	const char* TEST_OUT_PATH = "";
 	const char* TEST_OUT_MTL = "out.mtl"; // This is to separate MtlLib.saveAs(..) testing from the full round-trip test
 	// Rem.: this will have its test_out.mtl too
@@ -195,7 +195,7 @@ namespace ObjMasterTest {
 		// Parse the test model
 		ObjMaster::Obj obj = ObjMaster::Obj(ObjMaster::FileAssetLibrary(), TEST_MODEL_PATH, TEST_MODEL);
 		// Save out its *.obj and *.mtl in the current directory
-		obj.saveAs(ObjMaster::FileAssetLibrary(), TEST_OUT_MODEL);
+		obj.saveAs(ObjMaster::FileAssetLibrary(), TEST_MODEL_PATH, TEST_OUT_MODEL);
 		OMLOGI("See %s for the results!", TEST_OUT_MODEL);
 
 		OMLOGI("...tested *.obj (re-)saving!");

@@ -135,6 +135,26 @@ namespace ObjMaster {
 				// Update current group
 				currentGrp = grpName;
 			}
+
+			// See if we need to print out materials or not - and if we need: then see if material has changed or not!
+			if((((int)saveMode & ObjSaveModeFlags::MATERIALS_GEOMETRY) != 0) && (currentMat != matName)) {
+				// Write out the group
+				std::string line = UseMtl::asText(matName);
+				output->write(line.c_str(), line.length())<<'\n';
+
+				// Update current group
+				currentMat = matName;
+			}
+
+			// Print out the faces for this material-face group
+			int startFaceIndex = skv.second.faceIndex;
+			int faceCount = skv.second.meshFaceCount;
+
+			for(int i = 0; i < faceCount; ++i) {
+				auto f = fs[startFaceIndex + i];
+				auto line = f.asText();
+				output->write(line.c_str(), line.length())<<'\n';
+			}
 		}
 	}
     }
