@@ -48,7 +48,8 @@
 #define DEBUG 1
 /*#define DEBUG_EXTRA 1*/
 // Enable this setting for automatic test runs
-#define TEST 1
+// (use with --test to do this)
+#define TEST 1 // enables --test
 
 #include "objmaster/Obj.h"
 #include "objmaster/ObjMeshObject.h"
@@ -146,10 +147,10 @@ static void setup_buffers(GLuint positionLoc, GLuint normalLoc, GLuint texCoordL
    		printGlError("after setup_buffers");
 
 #ifdef DEBUG_EXTRA
-OMLOGE("Vertex data sent to the GPU:");
+OMLOGI("Vertex data sent to the GPU:");
 if(model.vertexData != nullptr) {
 for(int i = 0; i < model.vertexData->size(); ++i) {
-	OMLOGE("v(%f, %f, %f) vn(%f, %f, %f) vt(%f, %f)", 
+	OMLOGI("v(%f, %f, %f) vn(%f, %f, %f) vt(%f, %f)", 
 			(*model.vertexData)[i].x,
 			(*model.vertexData)[i].y,
 			(*model.vertexData)[i].z,
@@ -161,10 +162,10 @@ for(int i = 0; i < model.vertexData->size(); ++i) {
 	);
 }
 }
-OMLOGE("Index data sent to the GPU:");
+OMLOGI("Index data sent to the GPU:");
 if(model.indices != nullptr) {
 for(int i = 0; i < model.indices->size() / 3; ++i) {
-	OMLOGE("f %d %d %d", (*model.indices)[3*i], (*model.indices)[3*i+1], (*model.indices)[3*i+2]);
+	OMLOGI("f %d %d %d", (*model.indices)[3*i], (*model.indices)[3*i+1], (*model.indices)[3*i+2]);
 }
 }
 #endif
@@ -499,12 +500,14 @@ static void init(char* modelFileNameAndPath) {
 
 int main(int argc, char *argv[]) {
 #ifdef TEST
-	// Run all tests
-	int errorNo = ObjMasterTest::testAll();
-	printf("Number of errors on testing: %d\n", errorNo);
-	// Just exit program
-	return errorNo;
-#else
+	if((argc == 2) && (std::string(argv[1]) == "--test")) {
+		// Run all tests
+		int errorNo = ObjMasterTest::testAll();
+		printf("Number of errors on testing: %d\n", errorNo);
+		// Just exit program
+		return errorNo;
+	}
+#endif
    // Otherwise start application!
 #ifdef TEST_MEMORYPROFILER_ALLOCATIONS_MAP
    printf("You should see an interactive CPU profiler graph below, and below that an allocation map of the Emscripten main HEAP, with a long blue block of allocated memory.\n");
@@ -526,8 +529,18 @@ int main(int argc, char *argv[]) {
 
    /* Do our initialization */
    if(argc == 2) {
-	// User provided the model to load
-	init(argv[1]);
+	if(std::string(argv[1]) == "--help") {
+		printf("USAGES:\n");
+		printf("   ./showobj my_model.obj        - show the given obj file.\n");
+		printf("   ./showobj                     - show the default test model (for emscripten build).\n");
+		printf("   ./showobj --help              - show this help message and quit.\n");
+#ifdef TEST
+		printf("   ./showobj --test              - run all possible unit tests.\n");
+#endif
+	} else {
+		// User provided the model to load
+		init(argv[1]);
+	}
    } else {
 	init(nullptr);
    }
@@ -535,5 +548,4 @@ int main(int argc, char *argv[]) {
    glutMainLoop();
 
    return 0;
-#endif // TEST
 }

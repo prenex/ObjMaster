@@ -232,12 +232,12 @@ namespace ObjMaster {
 
 	// Test1 (parsed)
 #ifdef DEBUG
-	OMLOGE("Parsed mtl material asText returns:");
-	OMLOGE("-----------------------------------");
+	OMLOGI("Parsed mtl material asText returns:");
+	OMLOGI("-----------------------------------");
 #endif
 	for(auto s : output){
 #ifdef DEBUG
-		OMLOGE("%s", s.c_str());
+		OMLOGI("%s", s.c_str());
 #endif
 		auto got = expectedLines.find(s);
 		if(got == expectedLines.end()){
@@ -268,12 +268,12 @@ namespace ObjMaster {
 
 	// Test2 (new)
 #ifdef DEBUG
-	OMLOGE("Parsed mtl material asText returns:");
-	OMLOGE("-----------------------------------");
+	OMLOGI("Parsed mtl material asText returns:");
+	OMLOGI("-----------------------------------");
 #endif
 	for(auto s : output){
 #ifdef DEBUG
-		OMLOGE("%s", s.c_str());
+		OMLOGI("%s", s.c_str());
 #endif
 		auto got = expectedLines2.find(s);
 		if(got == expectedLines2.end()){
