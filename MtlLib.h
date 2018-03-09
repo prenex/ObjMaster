@@ -11,6 +11,7 @@
 #include <vector>
 #include <string>
 #include <unordered_map>
+#include <algorithm>
 
 namespace ObjMaster {
     class MtlLib {
@@ -78,8 +79,23 @@ namespace ObjMaster {
 	/** Save this MtlLib as a *.mtl - using the path, fileName and the provided asset-out library */
 	void saveAs(const AssetOutputLibrary &assetOutputLibrary, const char* path, const char* fileName, bool alwaysGrowLibraryFilesList = false);
 
-        /** Returns a copy of the given material  */
-        TextureDataHoldingMaterial getNonLoadedMaterialFor(std::string materialName);
+	/** Adds the given (runtime generated) material to the material library. If there is a material with the same name, it gets overwritten! */
+	inline void addRuntimeGeneratedMaterial(Material m) {
+		// Convert the provided to an unloaded TextureDataHoldingMaterial...
+		materials[m.name] = TextureDataHoldingMaterial(m);
+	}
+
+	/** Adds the given (runtime generated) material to the material library. If there is a material with the same name, it gets overwritten! */
+	inline void addRuntimeGeneratedMaterial(Material &&m) {
+		// Convert the provided to an unloaded TextureDataHoldingMaterial...
+		materials[m.name] = TextureDataHoldingMaterial(std::move(m));
+	}
+
+        /** Returns a copy of the material with the given name */
+	inline TextureDataHoldingMaterial getNonLoadedMaterialFor(std::string materialName) {
+		// Just return the material for the name
+		return materials[materialName];
+	}
 
         /** Returns the number of materials in this library */
         int getMaterialCount();

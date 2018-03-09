@@ -173,11 +173,7 @@ namespace ObjMaster {
         return std::string(mtlNameCstr);
     }
 
-    TextureDataHoldingMaterial MtlLib::getNonLoadedMaterialFor(std::string materialName) {
-        // Just return the name of the material
-        return materials[materialName];
-    }
-
+    // return the number of materials
     int MtlLib::getMaterialCount() {
         return materials.size();
     }
