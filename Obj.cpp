@@ -9,10 +9,13 @@
 #include <fstream>
 #include <memory>
 #include <vector>
+#include <climits>
 
 #include <map> /* for saveAs *.obj compacting with ordered operations */
 
 #define MAT_SEP ":mtl:"
+#define TECHNICAL_UNKNOWN_GROUP "__UNKNOWN__"
+
 //#define DEBUG 1
 
 namespace ObjMaster {
@@ -113,12 +116,14 @@ namespace ObjMaster {
 			}
 		}
 
-		// Print out stuff
-		std::string currentMat;	// material now used
-		std::string currentGrp;	// group now used
+		// Print out stuff that have the group or material for it
+		std::string currentMat("");	// material now used - USING EMPTY STRING IS NECESSARY! SEE BELOW LOOP FOR HANDLING UNGROUPED DATA!
+		std::string currentGrp("");	// group now used - USING EMPTY STRING IS NECESSARY HERE TOO!
+		int minStartFaceIndex = INT_MAX; // we do a min-search to see if there are faces that does not belong to any materials or groups!
 		for(auto skv : sortedObjectMaterialGroups) {
 			std::string &matName = skv.second.textureDataHoldingMaterial.name;
 			std::string &grpName = skv.second.objectGroupName;
+
 
 			// See if we need to print out groups or not - and if we need: then see if group has changed or not!
 			if((((int)saveMode & ObjSaveModeFlags::GROUPS_GEOMETRY) != 0) && (currentGrp != grpName)) {
@@ -146,12 +151,45 @@ namespace ObjMaster {
 				currentMat = matName;
 			}
 
-			// Print out the faces for this material-face group
+			// Get where is this mat-face group - in which slice
 			int startFaceIndex = skv.second.faceIndex;
+			// We save the minimal start index we find
+			if(minStartFaceIndex > startFaceIndex) {
+				minStartFaceIndex = startFaceIndex;
+			}
 			int faceCount = skv.second.meshFaceCount;
 
+			// Print out the faces for this material-face group
 			for(int i = 0; i < faceCount; ++i) {
 				auto f = fs[startFaceIndex + i];
+				auto line = f.asText();
+				output->write(line.c_str(), line.length())<<'\n';
+			}
+		}
+
+		// (!)There might be faces not belonging to any group or material.
+		// We need to write them out somehow - and we add them to a new technical group...
+		// Rem.: we could add these before any 'o', 'g' or 'usemtl' as it should be - but that would slow us down considerably...
+		// Rem.: This problematic case never happens if the file is read-in with objmaster. Then the objMatFaceGroups are always
+		//       generated for the non-grouped and non-materialized faces too - with an empty name. Because the empty name is
+		//       the default empty setup above, that means that their faces are written out "automagically" well as it should
+		//       (before any 'o', 'g', 'usemtl')! This is quite tricky, but visibly working - see the above code!
+		//       The below code only handles the cases when the Obj object is manually constructed in-memory and has a bad layout.
+
+		// The ungrouped faces start from face no zero, and lasts until the minimum start face of the matFace groups
+		int ungroupmatFaceEndIndex = minStartFaceIndex;
+		if(ungroupmatFaceEndIndex > 0) {
+			// Write out a technical group for these elements
+			std::string grpName(TECHNICAL_UNKNOWN_GROUP);
+			std::string line = ObjectGroupElement::asTextO(grpName);
+			if(gbit) {
+				line = ObjectGroupElement::asTextG(grpName);
+			}
+			output->write(line.c_str(), line.length())<<'\n';
+
+			// Simples case: only geometry - just write out faces until that point
+			for(int i = 0; i < ungroupmatFaceEndIndex; ++i) {
+				auto f = fs[i];
 				auto line = f.asText();
 				output->write(line.c_str(), line.length())<<'\n';
 			}
