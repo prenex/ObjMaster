@@ -79,7 +79,7 @@ namespace ObjMaster {
     }
     static bool TEST_FaceElement() {
 #ifdef DEBUG
-        OMLOGE("TEST_FaceElement...");
+        OMLOGI("TEST_FaceElement...");
 #endif
         // Should parse
         const char *fetest = "f 1/2/3 4/5/6 7/8/9";
@@ -94,8 +94,8 @@ namespace ObjMaster {
         if(FaceElement::isParsable(fetest)) {
             FaceElement f(fetest);
 #ifdef DEBUG
-            OMLOGE("f(facePointCount): %d", f.facePointCount);
-	    OMLOGE("Result of parse: %s", f.asText().c_str());
+            OMLOGI("f(facePointCount): %d", f.facePointCount);
+	    OMLOGI("Result of parse: %s", f.asText().c_str());
 #endif
             if(f.facePointCount != 3) { OMLOGE("Bad facePointCount value: %d", f.facePointCount); return false; }
 
@@ -134,7 +134,7 @@ namespace ObjMaster {
         }
 
 #ifdef DEBUG
-        OMLOGE("...TEST_FaceElement completed (OK)");
+        OMLOGI("...TEST_FaceElement completed (OK)");
 #endif
         return true;
     }

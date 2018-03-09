@@ -238,7 +238,7 @@ namespace ObjMaster {
                 VertexElement v = VertexElement((const char*)line);
                 vs.push_back(v);
 #ifdef DEBUG
-OMLOGE(" - Added VertexElement: (%f, %f, %f)", v.x, v.y, v.z);
+OMLOGI(" - Added VertexElement: (%f, %f, %f)", v.x, v.y, v.z);
 #endif
             } else if(VertexTextureElement::isParsable(line)) {
                 // vt
@@ -263,7 +263,7 @@ OMLOGE(" - Added VertexElement: (%f, %f, %f)", v.x, v.y, v.z);
                 // Rem.: This copy is cheap as it does not contain texture data etc!
                 currentMaterial = mtlLib.getNonLoadedMaterialFor(UseMtl::fetchMtlName(line));
 #ifdef DEBUG
-OMLOGE(" - Using current-material: %s", currentMaterial.name);
+OMLOGI(" - Using current-material: %s", currentMaterial.name);
 #endif
                 // Set the current face start pointer to the current position
                 // so that the faces will be "collected" for the group
@@ -279,7 +279,7 @@ OMLOGE(" - Using current-material: %s", currentMaterial.name);
                                            currentLastFacesPointer - currentObjectMaterialFacesPointer);
                 currentObjectGroupName = ObjectGroupElement::getObjectGroupName(line);
 #ifdef DEBUG
-OMLOGE(" - Start of object group: %s", currentObjectGroupName);
+OMLOGI(" - Start of object group: %s", currentObjectGroupName);
 #endif
                 // Set the current face start pointer to the current position
                 // so that the faces will be "collected" for the group

@@ -290,7 +290,7 @@ namespace ObjMaster {
     /** Test if parsing and loading stuff works */
     static bool TEST_Material() {
 #ifdef DEBUG
-        OMLOGE("TEST_Material...");
+        OMLOGI("TEST_Material...");
 #endif
 
         Material test1 = Material("test1", std::vector<std::string> {
@@ -341,7 +341,7 @@ namespace ObjMaster {
         }
 
 #ifdef DEBUG
-        OMLOGE("...TEST_Material success!");
+        OMLOGI("...TEST_Material success!");
 #endif
         // All checks hopefully passed!
         return true;

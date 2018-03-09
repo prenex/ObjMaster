@@ -57,7 +57,7 @@ namespace ObjMaster {
     }
     static bool TEST_VertexNormalElement() {
 #ifdef DEBUG
-        OMLOGE("TEST_VertexNormalElement...");
+        OMLOGI("TEST_VertexNormalElement...");
 #endif
         const char *vnetest = "vn 1.0 2.0 3.0";
         const char *vnetest2 = "vt 1.0 2.0 3.0";
@@ -70,8 +70,8 @@ namespace ObjMaster {
         if(VertexNormalElement::isParsable(vnetest)) {
             VertexNormalElement v(vnetest);
 #ifdef DEBUG
-            OMLOGE("vn: (%f,%f,%f)", v.x, v.y, v.z);
-            OMLOGE("vn.asText(): %s", v.asText().c_str());
+            OMLOGI("vn: (%f,%f,%f)", v.x, v.y, v.z);
+            OMLOGI("vn.asText(): %s", v.asText().c_str());
 #endif
             if(v.x != 1.0) { OMLOGE("Bad x value: %f", v.x); return false; }
             if(v.y != 2.0) { OMLOGE("Bad y value: %f", v.y); return false; }
@@ -107,7 +107,7 @@ namespace ObjMaster {
         }
 
 #ifdef DEBUG
-        OMLOGE("...TEST_VertexNormalElement completed (OK)");
+        OMLOGI("...TEST_VertexNormalElement completed (OK)");
 #endif
         return true;
     }

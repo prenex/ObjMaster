@@ -57,7 +57,7 @@ namespace ObjMaster {
     }
     static bool TEST_VertexTextureElement() {
 #ifdef DEBUG
-        OMLOGE("TEST_VertexTextureElement...");
+        OMLOGI("TEST_VertexTextureElement...");
 #endif
         const char *vnetest = "vt 1.0 2.0";
         const char *vnetest2 = "vn 1.0 2.0 3.0";
@@ -70,8 +70,8 @@ namespace ObjMaster {
         if(VertexTextureElement::isParsable(vnetest)) {
             VertexTextureElement v(vnetest);
 #ifdef DEBUG
-            OMLOGE("vt: (%f,%f)", v.u, v.v);
-            OMLOGE("vt.asText(): %s", v.asText().c_str());
+            OMLOGI("vt: (%f,%f)", v.u, v.v);
+            OMLOGI("vt.asText(): %s", v.asText().c_str());
 #endif
             if(v.u != 1.0) { OMLOGE("Bad u value: %f", v.u); return false; }
             if(v.v != 2.0) { OMLOGE("Bad v value: %f", v.v); return false; }
@@ -106,7 +106,7 @@ namespace ObjMaster {
         }
 
 #ifdef DEBUG
-        OMLOGE("...TEST_VertexTextureElement completed (OK)");
+        OMLOGI("...TEST_VertexTextureElement completed (OK)");
 #endif
         return true;
     }

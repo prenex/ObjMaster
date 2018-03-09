@@ -61,7 +61,7 @@ namespace ObjMaster {
 
     static bool TEST_VertexElement() {
 #ifdef DEBUG
-        OMLOGE("TEST_VertexElement...");
+        OMLOGI("TEST_VertexElement...");
 #endif
         const char *vetest = "v 1.0 2.0 3.0";
         const char *vetest2 = "vt 1.0 2.0 3.0";
@@ -74,8 +74,8 @@ namespace ObjMaster {
         if(VertexElement::isParsable(vetest)) {
             VertexElement v(vetest);
 #ifdef DEBUG
-            OMLOGE("v: (%f,%f,%f)", v.x, v.y, v.z);
-            OMLOGE("v.asText(): %s", v.asText().c_str());
+            OMLOGI("v: (%f,%f,%f)", v.x, v.y, v.z);
+            OMLOGI("v.asText(): %s", v.asText().c_str());
 #endif
             if(v.x != 1.0) { OMLOGE("Bad x value: %f", v.x); return false; }
             if(v.y != 2.0) { OMLOGE("Bad y value: %f", v.y); return false; }
@@ -111,7 +111,7 @@ namespace ObjMaster {
         }
 
 #ifdef DEBUG
-        OMLOGE("...TEST_VertexElement completed (OK)");
+        OMLOGI("...TEST_VertexElement completed (OK)");
 #endif
         return true;
     }

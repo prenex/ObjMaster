@@ -113,7 +113,7 @@ namespace ObjMaster {
     /** Run tests for underlying elements */
     static bool TEST_Obj() {
 #ifdef DEBUG
-        OMLOGE("TEST_Obj...");
+        OMLOGI("TEST_Obj...");
 #endif
         bool res = true;
         res &= ObjMaster::TEST_VertexElement();
@@ -122,7 +122,7 @@ namespace ObjMaster {
         res &= ObjMaster::TEST_FaceElement();
         res &= ObjMaster::TEST_FacePoint();
 #ifdef DEBUG
-        OMLOGE("...TEST_Obj ended!");
+        OMLOGI("...TEST_Obj ended!");
 #endif
         return res;
     }

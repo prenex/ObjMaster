@@ -45,7 +45,7 @@ namespace ObjMaster {
 // and info logs and the method returns false when anything has failed...
     static bool TEST_FacePoint() {
 #ifdef DEBUG
-        OMLOGE("TEST_FacePoint...");
+        OMLOGI("TEST_FacePoint...");
 #endif
         // should parse
         const char *vnetest = "1/1/1";
@@ -60,8 +60,8 @@ namespace ObjMaster {
         if(FacePoint::isParsable(vnetest)) {
             FacePoint fp(vnetest);
 #ifdef DEBUG
-            OMLOGE("facepoint: %d/%d/%d", fp.vIndex, fp.vtIndex, fp.vnIndex);
-            OMLOGE("facepoint.asText(): %s", fp.asText().c_str());
+            OMLOGI("facepoint: %d/%d/%d", fp.vIndex, fp.vtIndex, fp.vnIndex);
+            OMLOGI("facepoint.asText(): %s", fp.asText().c_str());
 #endif
             // indexing is from 1 in the file - we use indexing from zero!
             if(fp.vIndex != 0) { OMLOGE("Bad vIndex value: %d", fp.vIndex); return false; }
@@ -76,7 +76,7 @@ namespace ObjMaster {
         if(FacePoint::isParsable(vnetest2)) {
             FacePoint fp(vnetest2, true);
 #ifdef DEBUG
-            OMLOGE("facepoint: %d/%d/%d", fp.vIndex, fp.vtIndex, fp.vnIndex);
+            OMLOGI("facepoint: %d/%d/%d", fp.vIndex, fp.vtIndex, fp.vnIndex);
 #endif
             // indexing is from 1 in the file - we use indexing from zero!
             if(fp.vIndex != 1) { OMLOGE("Bad vIndex value: %d", fp.vIndex); return false; }
@@ -108,7 +108,7 @@ namespace ObjMaster {
         }
 
 #ifdef DEBUG
-        OMLOGE("...TEST_FacePoint completed (OK)");
+        OMLOGI("...TEST_FacePoint completed (OK)");
 #endif
         return true;
     }
