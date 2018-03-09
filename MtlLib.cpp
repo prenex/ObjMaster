@@ -143,12 +143,11 @@ namespace ObjMaster {
 	bool firstMat = true;
 	for(auto matNameAndMat : materials){
 		std::string matName = matNameAndMat.first;
-/*#ifdef DEBUG*/
-		OMLOGE("Found material to write out: %s", matName.c_str());
-		THE GENERATED MATERIALS AER MISSING HERE!! THEY ONLY HAVE THEIR NAMES!!! FIX PLS!!
-/*#endif*/
+#ifdef DEBUG
+		OMLOGI("Found material to write out: %s", matName.c_str());
+#endif
 		// Auto is necessary here for future-proofing so that asText() can be hidden if we ever want to change its implementation!
-		auto &mat =  matNameAndMat.second;
+		auto &mat = matNameAndMat.second;
 
 		// Put a seperating newline between materials in the resulting *.mtl
 		if(firstMat) {
@@ -161,7 +160,9 @@ namespace ObjMaster {
 		auto lines = mat.asText();
 		for(auto line : lines) {
 			output->write(line.c_str(), line.length())<<'\n';
-			OMLOGE("===mat=== %s", line.c_str());
+#ifdef DEBUG
+			OMLOGI("===mat=== %s", line.c_str());
+#endif
 		}
 	}
 	// Rem.: output is closed with RAII ;-)

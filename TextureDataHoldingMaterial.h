@@ -69,9 +69,9 @@ namespace ObjMaster {
                                    std::vector<std::string> descriptorLineFields);
 
 	/** Create the texture data holding material with NOT_LOADED states from the given Material */
-	TextureDataHoldingMaterial(Material data) {
+	TextureDataHoldingMaterial(Material &data) {
 		// TRICKZ here: copy over base-class parts of ours (TODO: test this!)
-		(Material)((*this)) = data; // I really hope this works!
+		data.cloneInto(this);
 		// Set the texture holding states to empty
 		memoryHoldingState = TextureLoadState::NOT_LOADED;
 		gpuHoldingState = TextureLoadState::NOT_LOADED;

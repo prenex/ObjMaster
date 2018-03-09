@@ -200,6 +200,7 @@ namespace ObjMasterTest {
 		ObjMaster::Material m("runtime_added_material");
 		m.setAndEnableKd({1.0f, 0.0f, 0.0f});
 		m.setAndEnableKs({0.0f, 1.0f, 0.0f});
+		m.setAndEnableMapKd("UV_exampl_3_C.png");
 		obj.mtlLib.addRuntimeGeneratedMaterial(m);
 
 		// Save out its *.obj and *.mtl in the current directory

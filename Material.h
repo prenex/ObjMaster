@@ -116,6 +116,19 @@ namespace ObjMaster {
 	/** Create an empty material with no name */
         Material() {};
 
+	/** Clones this material into the other */
+	inline void cloneInto(Material *other) {
+		other->ka = ka;
+		other->kd = kd;
+		other->ks = ks;
+		other->map_ka = map_ka;
+		other->map_kd = map_kd;
+		other->map_ks = map_ks;
+		other->map_bump = map_bump;
+		other->enabledFields = enabledFields;
+		other->name = name;
+	}
+
 	/** Returns the *.mtl supported text representation as a vector of strings (one per each line) - empty vector is returned for empty material! */
 	inline std::vector<std::string> asText() const {
 		
