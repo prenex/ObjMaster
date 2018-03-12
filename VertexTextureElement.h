@@ -17,6 +17,8 @@ namespace ObjMaster {
 
         VertexTextureElement() {};
 
+        VertexTextureElement(float uu, float vv) {u = uu; v = vv;};
+
         VertexTextureElement(char *fields);
 
         VertexTextureElement(const char *fields);

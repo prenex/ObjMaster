@@ -500,12 +500,24 @@ static void init(char* modelFileNameAndPath) {
 
 int main(int argc, char *argv[]) {
 #ifdef TEST
-	if((argc == 2) && (std::string(argv[1]) == "--test")) {
-		// Run all tests
-		int errorNo = ObjMasterTest::testAll();
-		printf("Number of errors on testing: %d\n", errorNo);
-		// Just exit program
-		return errorNo;
+	if(argc == 2) {
+		if(std::string(argv[1]) == "--test") {
+			// Run all tests
+			int errorNo = ObjMasterTest::testAll();
+			printf("Number of errors on testing: %d\n", errorNo);
+			// Just exit program - with the number of errors found as retval!
+			return errorNo;
+		}
+		if(std::string(argv[1]) == "--help") {
+			printf("USAGES:\n");
+			printf("   ./showobj my_model.obj        - show the given obj file.\n");
+			printf("   ./showobj                     - show the default test model (for emscripten build).\n");
+			printf("   ./showobj --help              - show this help message and quit.\n");
+#ifdef TEST
+			printf("   ./showobj --test              - run all possible unit tests.\n");
+#endif
+			return 0;	// quit
+		}
 	}
 #endif
    // Otherwise start application!
@@ -529,18 +541,8 @@ int main(int argc, char *argv[]) {
 
    /* Do our initialization */
    if(argc == 2) {
-	if(std::string(argv[1]) == "--help") {
-		printf("USAGES:\n");
-		printf("   ./showobj my_model.obj        - show the given obj file.\n");
-		printf("   ./showobj                     - show the default test model (for emscripten build).\n");
-		printf("   ./showobj --help              - show this help message and quit.\n");
-#ifdef TEST
-		printf("   ./showobj --test              - run all possible unit tests.\n");
-#endif
-	} else {
 		// User provided the model to load
 		init(argv[1]);
-	}
    } else {
 	init(nullptr);
    }

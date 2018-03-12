@@ -21,6 +21,11 @@ namespace ObjMaster {
         unsigned int vnIndex;
 
         FacePoint();
+	FacePoint(unsigned int vvIndex, unsigned int vvtIndex, unsigned int vvnIndex) {
+		vIndex = vvIndex;
+		vtIndex = vvtIndex;
+		vnIndex = vvnIndex;
+	}
         FacePoint(char *fields);
         FacePoint(const char *fields);
         FacePoint(char *fields, bool forceParser);

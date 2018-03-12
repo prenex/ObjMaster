@@ -18,6 +18,8 @@ namespace ObjMaster {
 
         VertexNormalElement() {};
 
+        VertexNormalElement(float xx, float yy, float zz) { x = xx; y = yy; z = zz; };
+
         VertexNormalElement(char *fields);
 
         VertexNormalElement(const char *fields);

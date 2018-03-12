@@ -85,7 +85,11 @@ namespace ObjMaster {
 		materials[m.name] = TextureDataHoldingMaterial(m);
 	}
 
-        /** Returns a copy of the material with the given name */
+        /**
+	 * Returns a copy of the material with the given name - this material is always non-loaded!
+	 * Rem.: Implementation uses "operator[]" so this adds a new empty material to the MtlLib
+	 *       in case a bad name is provided! This is usually a sensible fallback - but beware!
+	 */
 	inline TextureDataHoldingMaterial getNonLoadedMaterialFor(std::string materialName) {
 		// Just return the material for the name
 		return materials[materialName];

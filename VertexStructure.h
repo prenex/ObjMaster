@@ -2,7 +2,7 @@
 // Created by rthier on 2016.04.20..
 // This code should be able to get included as a C-header, because it is used in the interop facade layer!
 //
-// BECAUSE OF THIS: NO C++ FEATURES SHOULD BE USED HERE!
+// BECAUSE OF THIS: NO C++ FEATURES SHOULD BE USED HERE EVER!
 //
 
 #ifndef NFTSIMPLEPROJ_VERTEXSTRUCTURE_H

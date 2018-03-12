@@ -108,6 +108,8 @@ namespace ObjMaster {
                                         TextureDataHoldingMaterial &currentMaterial,
                                         int currentObjectMaterialFacesPointer,
                                         int sizeOfFaceStripe);
+
+	friend class ObjCreator;
     };
 
     /** Run tests for underlying elements */

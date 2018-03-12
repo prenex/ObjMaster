@@ -15,7 +15,7 @@ namespace ObjMaster {
     public:
         int facePointCount;
         // REMARK: Currently we handle faces with at most 3 points
-        // If you want to handle quads or other things, never use alloc/dealloc all the way
+        // If you want to handle quads or other things(obj tristrips), never use alloc/dealloc all the way
         // as it can result in contention for memory manager resorces and direct sizes are faster.
         // If you need to handle other cases, just make the array able to hold the longest sequence
         // that you want! The memory overuse is much less than the overhead of many release/aquire
@@ -23,8 +23,18 @@ namespace ObjMaster {
         static const int MAX_FACEPOINT_COUNT = 3;
         FacePoint facePoints[MAX_FACEPOINT_COUNT];
 
+	/** Create empty FaceElement */
         FaceElement() {};
+	/** Create a triangle */
+	FaceElement(FacePoint a, FacePoint b, FacePoint c) {
+		facePointCount = 3;
+		facePoints[0] = a;
+		facePoints[1] = b;
+		facePoints[2] = c;
+	}
+	/** Create FaceElement by parsing the given string */
         FaceElement(char *fields);
+	/** Create FaceElement by parsing the given string */
         FaceElement(const char *fields);
         static bool isParsable(const char *fields);
 

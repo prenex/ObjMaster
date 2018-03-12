@@ -17,6 +17,7 @@
 #include "../FileAssetLibrary.h"
 #include "../StbImgTexturePreparationLibrary.h"
 #include "../ext/GlGpuTexturePreparationLibrary.h"
+#include "../ObjCreator.h"
 
 // For output testing of elements
 #include "../VertexElement.h"
@@ -231,12 +232,30 @@ namespace ObjMasterTest {
 		errorCount += ObjMaster::TEST_ObjectGroupElement_Output();
 		errorCount += ObjMaster::TEST_Material_Output();
 
-		// Test *.mtl writeout
-		errorCount += testMtlLibSave();
-		// Test *.obj writeout and creation
-		errorCount += testObjSaveAndCreate();
-		
 		// Return error count
+		return errorCount;
+	}
+
+	ObjMaster::Obj createRuntimeTestObj() {
+		ObjMaster::ObjCreator creator;
+
+		return creator.getObj();
+	}
+
+	int testSaveRuntimeCreatedObj(const ObjMaster::Obj &obj){
+		// TODO: Save the obj that has been created
+		return 0;
+	}
+
+	int testObjCreator() {
+		OMLOGI("Runtime *.obj generation tests...");
+		// Init error count
+		int errorCount = 0;
+
+		auto obj = createRuntimeTestObj();
+		errorCount += testSaveRuntimeCreatedObj(obj);
+
+		OMLOGI("...runtime *.obj generation tests had %d errors!", errorCount);
 		return errorCount;
 	}
 
@@ -248,6 +267,10 @@ namespace ObjMasterTest {
 
 		// Run all related tests
 		errorCount += testElementOutputs();
+		// Test *.mtl writeout
+		errorCount += testMtlLibSave();
+		// Test *.obj writeout and creation
+		errorCount += testObjSaveAndCreate();
 		
 		OMLOGI("...OBJ OUTPUT TEST had %d errors", errorCount);
 		// Return error count
@@ -261,6 +284,7 @@ namespace ObjMasterTest {
 		// Run all tests
 		errorCount += testMemoryLeakage();
 		errorCount += testObjOutput();
+		errorCount += testObjCreator();
 		errorCount += testIntegrationFacade();
 		// Return sum of error counts
 		return errorCount;
