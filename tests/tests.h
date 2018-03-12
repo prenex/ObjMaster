@@ -40,6 +40,7 @@ namespace ObjMasterTest {
 	const char* TEST_OUT_MTL = "out.mtl"; // This is to separate MtlLib.saveAs(..) testing from the full round-trip test
 	// Rem.: this will have its test_out.mtl too
 	const char* TEST_OUT_MODEL = "test_out.obj";
+	const char* GENERATED_TEST_OUT_MODEL = "gen_test_out.obj";
 	const int INNER_LOOPS = 16;
 	const int OUTER_LOOPS = 4;
 
@@ -239,11 +240,51 @@ namespace ObjMasterTest {
 	ObjMaster::Obj createRuntimeTestObj() {
 		ObjMaster::ObjCreator creator;
 
+		// Create a quad with UV and normals - facing upwards
+		// B C
+		// A D
+		// ---
+		// A
+		creator.unsafeAddVertexStructure(
+				VertexStructure{
+					0, 0, 0,
+					0, 0, 1,
+					0, 0
+				}
+		);
+		// B
+		creator.unsafeAddVertexStructure(
+				VertexStructure{
+					0, 1, 0,
+					0, 0, 1,
+					0, 1
+				}
+		);
+		// C
+		creator.unsafeAddVertexStructure(
+				VertexStructure{
+					1, 1, 0,
+					0, 0, 1,
+					1, 1
+				}
+		);
+		// D
+		creator.unsafeAddVertexStructure(
+				VertexStructure{
+					1, 0, 0,
+					0, 0, 1,
+					1, 0
+				}
+		);
+
 		return creator.getObj();
 	}
 
-	int testSaveRuntimeCreatedObj(const ObjMaster::Obj &obj){
-		// TODO: Save the obj that has been created
+	int testSaveRuntimeCreatedObj(ObjMaster::Obj &obj){
+		// Save the obj that has been created
+		obj.saveAs(ObjMaster::FileAssetLibrary(), GENERATED_TEST_OUT_MODEL);
+
+		// TODO: do some testing with reading back the result maybe?
 		return 0;
 	}
 

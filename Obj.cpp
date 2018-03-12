@@ -26,7 +26,7 @@ namespace ObjMaster {
         constructionHelper(assetLibrary, path, fileName, expectedVertexDataNum, expectedFaceNum);
     }
     /** Save this MtlLib as a *.mtl - using the path, fileName and the provided asset-out library */
-    void Obj::saveAs(const AssetOutputLibrary &assetOutputLibrary, const char* path, const char* fileName, bool saveAsMtlToo, ObjSaveModeFlags saveMode){
+    void Obj::saveAs(const AssetOutputLibrary &assetOutputLibrary, const char* path, const char* fileName, bool saveAsMtlToo, ObjSaveModeFlags saveMode) {
 	OMLOGI("Opening (obj) output stream for %s%s", path, fileName);
 	std::unique_ptr<std::ostream> output = assetOutputLibrary.getAssetOutputStream(path, fileName);
 

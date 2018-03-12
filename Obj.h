@@ -89,7 +89,7 @@ namespace ObjMaster {
 	};
 
 	/** Save this Obj as a (relative) *.obj - using the given fileName and the provided asset-out library. By default this also saves the *.mtl */
-	inline void saveAs(const AssetOutputLibrary &assetOutputLibrary, const char* fileName, bool saveAsMtlToo = true, ObjSaveModeFlags saveMode = ObjSaveModeFlags::MATERIALS_AND_GROUPS){
+	inline void saveAs(const AssetOutputLibrary &assetOutputLibrary, const char* fileName, bool saveAsMtlToo = true, ObjSaveModeFlags saveMode = ObjSaveModeFlags::MATERIALS_AND_GROUPS) {
 		// Just delegate to the real method
 		saveAs(assetOutputLibrary, "", fileName, saveAsMtlToo, saveMode);
 	}

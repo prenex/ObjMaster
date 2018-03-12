@@ -73,7 +73,7 @@ namespace ObjMaster {
 	}
 
 	/** Save this MtlLib as a *.mtl - using the (relative) fileName and the provided asset-out library */
-	inline void saveAs(const AssetOutputLibrary &assetOutputLibrary, const char* fileName){
+	inline void saveAs(const AssetOutputLibrary &assetOutputLibrary, const char* fileName) {
 		saveAs(assetOutputLibrary, "", fileName);
 	}
 	/** Save this MtlLib as a *.mtl - using the path, fileName and the provided asset-out library */
