@@ -43,6 +43,13 @@ namespace ObjMaster {
 			obj = notOwnedObj;
 		}
 
+		/** Use the obj-creator to "extend" and already existing Obj. The provided Obj will be cloned and the original unaffected! */
+		ObjCreator(Obj &&objToCopy) {
+			ownsObj = true;
+			obj = new Obj();
+			*obj = std::move(objToCopy);
+		}
+
 		/** Delete the creator and release all owned resources - basically we delete the underlying Obj if we own that and is not shared */
 		~ObjCreator() {
 			if(ownsObj) {

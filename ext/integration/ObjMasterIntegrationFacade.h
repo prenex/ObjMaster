@@ -26,6 +26,10 @@
 #endif // NO_OBJMASTER_FACADE_DLL
 
 extern "C" {
+
+	// Obj loading and handling functions
+	// ==================================
+
 	/** Just a test-function for checking DLL linkage success */
 	DLL_API void testSort(int a[], int length);
 
@@ -150,6 +154,37 @@ extern "C" {
 	 * Returns the pointer to the null terminated fileName or nullptr in case of errors. If there is no texture file for the one asked for, we return an empty string!
 	 */
 	DLL_API const char* getModelMeshNormalTextureFileName(int handle, int meshIndex);
+
+	// Obj creation functions
+	// ======================
+
+	/**
+	  * Creates an ObjCreator factory for runtime Obj generation and an empty *.obj model in it and return the handle for the factory.
+	  * Rem.: Useful when creating / saving models from scratch.
+	  */
+	DLL_API int createObjFactory();
+
+	/**
+	  * Creates an ObjCreator factory for runtime Obj generation by loading the given *.obj model in it as a base and return the handle for the factory.
+	  * Rem.: The file designated by path+fileName is not affected or changed, unless there is a save operatios as that designation as its target!
+	  * Rem.: Useful when "appending" new data to an already existing obj file (output can be saved as a different obj however)
+	  */
+	DLL_API int createObjFactoryWithBaseObj(const char* path, const char* fileName);
+
+	/**
+	  * (!) CLOSE/reset THE FACTORY and save a *.obj file out created by the given factory handle to the given path.
+	  */
+	DLL_API bool saveObjFromFactoryToFileAndPossiblyCloseFactory(int factoryHandle, const char* path, const char* fileName, bool closeFactory);
+
+	/**
+	  * Save a *.obj file out created by the given factory handle to the given path.
+	  */
+	DLL_API bool saveObjFromFactoryToFile(int factoryHandle, const char* path, const char* fileName);
+
+	/**
+	  * Closes all ObjCreator factories created by the ObjMasterIntegrationFacade
+	  */
+	DLL_API bool closeAllFactories();
 }
 
 #endif

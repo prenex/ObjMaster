@@ -1,5 +1,6 @@
 #include "ObjMasterIntegrationFacade.h"
 #include "../../Obj.h"
+#include "../../ObjCreator.h"
 #include "../../MaterializedObjModel.h"
 #include "../../NopTexturePreparationLibrary.h"
 #include "../../FileAssetLibrary.h"
@@ -7,11 +8,14 @@
 #include <algorithm>
 
 /** This is a mapping of all the already loaded models - caching them in case of reload. The key is (path+filename) */
-std::unordered_map<std::string, int> modelMap;
+static std::unordered_map<std::string, int> modelMap;
 
 // We do not have any texture preparation library as the unity side is the one that should handle that somehow
 /** The vector of loaded models, handles are indices in this vector! */
-std::vector<ObjMaster::MaterializedObjModel<ObjMaster::NopTexturePreparationLibrary>> models;
+static std::vector<ObjMaster::MaterializedObjModel<ObjMaster::NopTexturePreparationLibrary>> models;
+
+/** The vector of ObjCreators - for saving and generating *.obj files */
+static std::vector<ObjMaster::ObjCreator> creators;
 
 /** This block contains the public interface of the dynamic library */
 extern "C" {
@@ -21,6 +25,9 @@ extern "C" {
 	void testSort(int a[], int length) {
 		std::sort(a, a+length);
 	}
+
+	// Obj loading and handling functions
+	// ==================================
 
 	/** 
 	  * Load the given obj with the objmaster system and return the handle for referencing it.
@@ -61,13 +68,19 @@ extern "C" {
 		}
 	}
 
-	/** Tries to unload everything and release all resources. Returns true in case of success and false if something went wrong! */
+	/**
+	 * Tries to unload everything and release all resources. Returns true in case of success and false if something went wrong!
+	 * After this operation, every handle is invalidated and gets unusable!
+	 */
 	bool unloadEverything() {
 		try {
-			// Proper RAII should solve everything here. If not, then there is some weird error in objmaster which is of course possible.
+			// Release models: Proper RAII should solve everything here. If not, then there is some weird error in objmaster which is of course possible.
 			models = std::vector<ObjMaster::MaterializedObjModel<ObjMaster::NopTexturePreparationLibrary>>();
 			// Of course the cache should get to be empty once again now too!
 			modelMap = std::unordered_map<std::string, int>();
+			// Close all factories - as they are also resources
+			closeAllFactories(); // In the terminology here, we call them factories...
+
 			// Indicate success
 			return true;
 		}
@@ -77,13 +90,13 @@ extern "C" {
 	}
 
 	/**
-	  * Returns the number of meshes in the model. Useful for later queries for iterating over all.
-	  *
-	  * Because we seperate new meshes for different materials,
-	  * this value can be greater than what you see in a content creation tool like blender!
-	  * Returns: -1 in case of errors (like a bad handle) and 0 if there is no mesh in the model!
-	  *          The latter can happen also in the cases of not loaded/unloaded meshes!
-	  */
+	 * Returns the number of meshes in the model. Useful for later queries for iterating over all.
+	 *
+	 * Because we seperate new meshes for different materials,
+	 * this value can be greater than what you see in a content creation tool like blender!
+	 * Returns: -1 in case of errors (like a bad handle) and 0 if there is no mesh in the model!
+	 *          The latter can happen also in the cases of not loaded/unloaded meshes!
+	 */
 	int getModelMeshNo(int handle) {
 		if ((int)models.size() > handle) {
 			// Return the number of meshes
@@ -497,5 +510,65 @@ extern "C" {
 			return nullptr;	// Exceptions will not pass through the boundaries of the library!
 		}
 	}
+	// Obj creation/generation functions
+	// =================================
+
+	/**
+	  * Creates an ObjCreator factory for runtime Obj generation and an empty *.obj model in it and return the handle for the factory.
+	  * Rem.: Useful when creating / saving models from scratch.
+	  */
+	int createObjFactory() {
+		// nullptr in the fileName means to create empty
+		return createObjFactoryWithBaseObj(nullptr, nullptr);
+	}
+
+	/**
+	  * Creates an ObjCreator factory for runtime Obj generation by loading the given *.obj model in it as a base and return the handle for the factory.
+	  * Rem.: The file designated by path+fileName is not affected or changed, unless there is a save operatios as that designation as its target!
+	  * Rem.: Useful when "appending" new data to an already existing obj file (output can be saved as a different obj however).
+	  */
+	int createObjFactoryWithBaseObj(const char* path, const char* fileName) {
+		// The index will be the current size
+		int ret = creators.size();
+		if(fileName != nullptr) {
+			// Create using the parsed *.obj as a basis to append data to
+			creators.push_back(std::move(ObjMaster::ObjCreator(std::move(ObjMaster::Obj(ObjMaster::FileAssetLibrary(), path, fileName)))));
+		}else{
+			// Create empty
+			creators.push_back(ObjMaster::ObjCreator());
+		}
+
+		// Return the id of the creator (as a handle)
+		return ret;
+	}
+
+	/**
+	  * (!) CLOSE/reset THE FACTORY and save a *.obj file out created by the given factory handle to the given path.
+	  */
+	bool saveObjFromFactoryToFileAndPossiblyCloseFactory(int factoryHandle, const char* path, const char* fileName, bool closeFactory){
+		// TODO
+		return false;
+	}
+
+	/**
+	  * Save a *.obj file out created by the given factory handle to the given path.
+	  */
+	bool saveObjFromFactoryToFile(int factoryHandle, const char* path, const char* fileName){
+		// TODO
+		return false;
+	}
+
+	/**
+	  * Closes all ObjCreator factories created by the ObjMasterIntegrationFacade
+	  */
+	bool closeAllFactories() {
+		try{
+			creators = std::vector<ObjMaster::ObjCreator>();
+			return true;
+		}catch(...){
+			return false;
+		}
+	}
+
 #pragma endregion
 }
