@@ -254,6 +254,9 @@ namespace ObjMasterTest {
 		creator.addRuntimeGeneratedMaterial(blue);
 
 		// Create a quad with UV and normals - facing upwards
+		// This example demonstates well how one is usually exporting
+		// data already prepared for rendering (like data from index and VAO buffers)
+
 		// B C
 		// A D
 		// ---
@@ -296,6 +299,115 @@ namespace ObjMasterTest {
 		// ACD triangle
 		creator.useMaterial("blue");
 		creator.addFace(0, 2, 3);
+
+		// Create the box - in this case with dense obj representation
+		// This is a good example to show how to export and generate Objs with
+		// tricks and a lot of shared data that will be exported int a compact presentation
+
+		// Test copy of material - this must share textures
+		ObjMaster::Material wall = red;
+		wall.setAndEnableKd({1.0f, 1.0f, 1.0f, 1.0f});
+		wall.name = "wall";
+		// Add this material to the material library
+		creator.addRuntimeGeneratedMaterial(wall);
+		// Use this material for the whole box
+		creator.useMaterial("wall");
+		creator.useGroup("dense_box");
+		// The bottom 4 points
+		int b1 = 0; //Re-use first vertex from above! Alternative: int b1 = creator.llAddVertex(0, 0, 0);
+		int b2 = creator.llAddVertex(0, 0, 0.5f);
+		int b3 = creator.llAddVertex(0.5f, 0, 0.5f);
+		int b4 = creator.llAddVertex(0.5f, 0, 0);
+		// The top 4 points
+		int t1 = creator.llAddVertex(0, 0.5f, 0);
+		int t2 = creator.llAddVertex(0, 0.5f, 0.5f);
+		int t3 = creator.llAddVertex(0.5f, 0.5f, 0.5f);
+		int t4 = creator.llAddVertex(0.5f, 0.5f, 0);
+		// normal-vectors
+		int up = 0; // Re-use the normal defined above already
+		int left = creator.llAddVertexNormal(-1, 0, 0);
+		int right = creator.llAddVertexNormal(1, 0, 0);
+		int down = creator.llAddVertexNormal(0, -1, 0);
+		int frwd = creator.llAddVertexNormal(0, 0, 1);
+		int back = creator.llAddVertexNormal(0, 0, -1);
+		// uvs
+		int uv1 = 0; // Re-use the already existing UV-s
+		int uv2 = 1;
+		int uv3 = 2;
+		int uv4 = 3;
+		// Add faces - this is a good example to use named data when generating!
+		// down1
+		creator.addFaceNonHomogenous(
+				b1, uv1, down,
+				b3, uv2, down,
+				b2, uv3, down
+		);
+		// down2
+		creator.addFaceNonHomogenous(
+				b1, uv1, down,
+				b4, uv3, down,
+				b3, uv4, down
+		);
+		// top1
+		creator.addFaceNonHomogenous(
+				t1, uv1, up,
+				t2, uv2, up,
+				t3, uv3, up
+		);
+		// top2
+		creator.addFaceNonHomogenous(
+				t1, uv1, up,
+				t3, uv3, up,
+				t4, uv4, up
+		);
+		// front1
+		creator.addFaceNonHomogenous(
+				b1, uv1, back,
+				t1, uv2, back,
+				t4, uv3, back
+		);
+		// front2
+		creator.addFaceNonHomogenous(
+				b1, uv1, back,
+				t4, uv3, back,
+				b4, uv4, back
+		);
+		// back1
+		creator.addFaceNonHomogenous(
+				b2, uv1, frwd,
+				t3, uv2, frwd,
+				t2, uv3, frwd
+		);
+		// back2
+		creator.addFaceNonHomogenous(
+				b2, uv1, frwd,
+				b3, uv3, frwd,
+				t3, uv4, frwd
+		);
+		// left1
+		creator.addFaceNonHomogenous(
+				b2, uv1, left,
+				t2, uv2, left,
+				t1, uv3, left
+		);
+		// left2
+		creator.addFaceNonHomogenous(
+				b2, uv1, left,
+				t1, uv3, left,
+				b1, uv4, left
+		);
+		// right1
+		creator.addFaceNonHomogenous(
+				b4, uv1, right,
+				t4, uv2, right,
+				t3, uv3, right
+		);
+		// right2
+		creator.addFaceNonHomogenous(
+				b4, uv1, right,
+				t3, uv3, right,
+				b3, uv4, right
+		);
 
 		// Get a copy of the created obj
 		return creator.getObj();
