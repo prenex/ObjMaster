@@ -261,23 +261,23 @@ namespace ObjMasterTest {
 		creator.unsafeAddVertexStructure(
 				VertexStructure{
 					0, 0, 0,
-					0, 0, 1,
+					0, 1, 0,
 					0, 0
 				}
 		);
 		// B
 		creator.unsafeAddVertexStructure(
 				VertexStructure{
-					0, 1, 0,
 					0, 0, 1,
+					0, 1, 0,
 					0, 1
 				}
 		);
 		// C
 		creator.unsafeAddVertexStructure(
 				VertexStructure{
-					1, 1, 0,
-					0, 0, 1,
+					1, 0, 1,
+					0, 1, 0,
 					1, 1
 				}
 		);
@@ -285,7 +285,7 @@ namespace ObjMasterTest {
 		creator.unsafeAddVertexStructure(
 				VertexStructure{
 					1, 0, 0,
-					0, 0, 1,
+					0, 1, 0,
 					1, 0
 				}
 		);
