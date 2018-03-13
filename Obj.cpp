@@ -120,6 +120,7 @@ namespace ObjMaster {
 		std::string currentMat("");	// material now used - USING EMPTY STRING IS NECESSARY! SEE BELOW LOOP FOR HANDLING UNGROUPED DATA!
 		std::string currentGrp("");	// group now used - USING EMPTY STRING IS NECESSARY HERE TOO!
 		int minStartFaceIndex = INT_MAX; // we do a min-search to see if there are faces that does not belong to any materials or groups!
+		constexpr int NO_MAT_FACE_GRP = INT_MAX; // If the minStartFaceIndex stays the INT_MAX it means there were no matFace groups at all!
 		for(auto skv : sortedObjectMaterialGroups) {
 			std::string &matName = skv.second.textureDataHoldingMaterial.name;
 			std::string &grpName = skv.second.objectGroupName;
@@ -176,9 +177,9 @@ namespace ObjMaster {
 		//       (before any 'o', 'g', 'usemtl')! This is quite tricky, but visibly working - see the above code!
 		//       The below code only handles the cases when the Obj object is manually constructed in-memory and has a bad layout.
 
-		// The ungrouped faces start from face no zero, and lasts until the minimum start face of the matFace groups
+		// The ungrouped faces start from faceNo zero, and lasts until the minimum start face of the matFace groups
 		int ungroupmatFaceEndIndex = minStartFaceIndex;
-		if(ungroupmatFaceEndIndex > 0) {
+		if((ungroupmatFaceEndIndex != NO_MAT_FACE_GRP) && (ungroupmatFaceEndIndex > 0)) {
 			// Write out a technical group for these elements
 			std::string grpName(TECHNICAL_UNKNOWN_GROUP);
 			std::string line = ObjectGroupElement::asTextO(grpName);
