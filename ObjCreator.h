@@ -50,13 +50,15 @@ namespace ObjMaster {
 			}
 		}
 
-		/** Gets the Obj - but beware this might be owned by the creator! */
+		/** Gets the Obj and finish any possibly opened groups - but beware this might be owned by the creator! */
 		inline Obj* getOwnedObj() {
+			finishCurrentGroup();
 			return obj;
 		}
 
-		/** Gets a copy of the Obj that is created so far */
+		/** Gets a copy of the Obj that is created so far - also finishes any possibly opened groups  */
 		inline Obj getObj() {
+			finishCurrentGroup();
 			return *obj;
 		}
 

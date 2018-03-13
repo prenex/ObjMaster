@@ -239,6 +239,19 @@ namespace ObjMasterTest {
 
 	ObjMaster::Obj createRuntimeTestObj() {
 		ObjMaster::ObjCreator creator;
+		ObjMaster::Material red;
+		red.setAndEnableKd({1.0f, 0.0f, 0.0f, 1.0f});
+		red.setAndEnableMapKd("wall_diff.jpg");
+		red.setAndEnableMapBump("wall_norm.jpg");
+		red.name = "red";
+		ObjMaster::Material blue;
+		blue.setAndEnableKd({0.0f, 0.0f, 1.0f, 1.0f});
+		blue.setAndEnableMapKd("wall_diff.jpg");
+		blue.setAndEnableMapBump("wall_norm.jpg");
+		blue.name = "blue";
+
+		creator.addRuntimeGeneratedMaterial(red);
+		creator.addRuntimeGeneratedMaterial(blue);
 
 		// Create a quad with UV and normals - facing upwards
 		// B C
@@ -277,6 +290,14 @@ namespace ObjMasterTest {
 				}
 		);
 
+		// ABC triangle
+		creator.useMaterial("red");
+		creator.addFace(0, 1, 2);
+		// ACD triangle
+		creator.useMaterial("blue");
+		creator.addFace(0, 2, 3);
+
+		// Get a copy of the created obj
 		return creator.getObj();
 	}
 
