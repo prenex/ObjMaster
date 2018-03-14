@@ -177,7 +177,7 @@ extern "C" {
 	/**
 	 * (!) CLOSE/reset THE FACTORY and save a *.obj file out created by the given factory handle to the given path.
 	 */
-	DLL_API bool saveObjFromFactoryToFileAndPossiblyResetFactory(int factoryHandle, const char* path, const char* fileName, bool closeFactory);
+	DLL_API bool saveObjFromFactoryToFileAndPossiblyCloseFactory(int factoryHandle, const char* path, const char* fileName, bool closeFactory);
 
 	/**
 	 * Save a *.obj file out created by the given factory handle to the given path.

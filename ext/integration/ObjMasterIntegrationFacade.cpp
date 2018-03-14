@@ -566,7 +566,7 @@ extern "C" {
 	 * Rem.: Really useful in case we just created a factory "temporally" (like we would do in case of a local stack-object if we were in C++ / OOP)
 	 *       and we want to have a method to release its resources immediately (for example generiting **lots** of *.obj files in bulk!)
 	 */
-	bool saveObjFromFactoryToFileAndPossiblyResetFactory(int factoryHandle, const char* path, const char* fileName, bool closeFactory = true){
+	bool saveObjFromFactoryToFileAndPossiblyCloseFactory(int factoryHandle, const char* path, const char* fileName, bool closeFactory = true){
 		// check if the handle exists at least...
 		CHECK_HANDLE
 		// Try to save the file
@@ -595,7 +595,7 @@ extern "C" {
 	 * Rem.: This keeps the factory open so beware of the memory leaking! If you don't want to reuse the factory, better reset it or close all factories!
 	 */
 	bool saveObjFromFactoryToFile(int factoryHandle, const char* path, const char* fileName){
-		return saveObjFromFactoryToFileAndPossiblyResetFactory(factoryHandle, path, fileName, false);
+		return saveObjFromFactoryToFileAndPossiblyCloseFactory(factoryHandle, path, fileName, false);
 	}
 
 	/**

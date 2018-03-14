@@ -41,6 +41,7 @@ namespace ObjMasterTest {
 	// Rem.: this will have its test_out.mtl too
 	const char* TEST_OUT_MODEL = "test_out.obj";
 	const char* GENERATED_TEST_OUT_MODEL = "gen_test_out.obj";
+	const char* GENERATED_APPEND_TEST_OUT_MODEL = "gen_test_append_out.obj";
 	const int INNER_LOOPS = 16;
 	const int OUTER_LOOPS = 4;
 
@@ -421,6 +422,64 @@ namespace ObjMasterTest {
 		return 0;
 	}
 
+	/** Parse the saved obj file; append some data; save as a third file */
+	int testFacadeObjFactoryAppendResave(const char *srcName, const char *dstName) {
+		// Create a factory - prefilled with data from the src file as base *.obj
+		int handle = createObjFactoryWithBaseObj("", srcName);
+
+		// Add one more quad at Y=0.5f (similar to the other at Y=0.0f in this test.h)
+		// B C
+		// A D
+		// ---
+		// A
+		auto a = addHomogenousVertexStructure(
+				handle,
+				VertexStructure{
+					0, 0.5f, 0,
+					0, 1, 0,
+					0, 0
+				}
+		);
+		// B
+		auto b = addHomogenousVertexStructure(
+				handle,
+				VertexStructure{
+					0, 0.5f, 1,
+					0, 1, 0,
+					0, 1
+				}
+		);
+		// C
+		auto c = addHomogenousVertexStructure(
+				handle,
+				VertexStructure{
+					1, 0.5f, 1,
+					0, 1, 0,
+					1, 1
+				}
+		);
+		// D
+		auto d = addHomogenousVertexStructure(
+				handle,
+				VertexStructure{
+					1, 0.5f, 0,
+					0, 1, 0,
+					1, 0
+				}
+		);
+
+		// Add two faces - the first "reuses" a material from the original file and the second has a new one
+		// TODO: material tests here!
+		int f1 = addFace(handle, a, b, c);
+		int f2 = addFace(handle, a, b, c);
+
+		// also close the factory - because we are not reusing it
+		saveObjFromFactoryToFileAndPossiblyCloseFactory(handle, "", dstName, true);
+
+		// TODO: do some better testing and stuff
+		return 0;
+	}
+
 	int testObjCreator() {
 		OMLOGI("Runtime *.obj generation tests...");
 		// Init error count
@@ -428,6 +487,7 @@ namespace ObjMasterTest {
 
 		auto obj = createRuntimeTestObj();
 		errorCount += testSaveRuntimeCreatedObj(obj);
+		errorCount += testFacadeObjFactoryAppendResave(GENERATED_TEST_OUT_MODEL, GENERATED_APPEND_TEST_OUT_MODEL);
 
 		OMLOGI("...runtime *.obj generation tests had %d errors!", errorCount);
 		return errorCount;
