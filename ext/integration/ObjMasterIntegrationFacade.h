@@ -42,21 +42,21 @@ extern "C" {
 	};
 
 	/** 
-	  * Load the given obj with the objmaster system and return the handle for referencing it.
-	  * The system uses caching so asking for the same, already loaded model ends up returning the same model reference.
-	  * If the model already exists and not loaded, we reload it into memory from scratch and the old state will be destroyed!
-	  *
-	  * Returns -1 on errors, otherwise the valid handle for the model that has been loaded
-	  */
+	 * Load the given obj with the objmaster system and return the handle for referencing it.
+	 * The system uses caching so asking for the same, already loaded model ends up returning the same model reference.
+	 * If the model already exists and not loaded, we reload it into memory from scratch and the old state will be destroyed!
+	 *
+	 * Returns -1 on errors, otherwise the valid handle for the model that has been loaded
+	 */
 	DLL_API int loadObjModel(const char* path, const char* fileName);
 
 	/** 
-	  * Load the given obj with the objmaster system and return the handle for referencing it.
-	  * The system uses caching so asking for the same, already loaded model ends up returning the same model reference.
-	  * If the model already exists and not loaded, we reload it into memory from scratch and the old state will be destroyed!
-	  *
-	  * Returns -1 on errors, otherwise the valid handle for the model that has been loaded
-	  */
+	 * Load the given obj with the objmaster system and return the handle for referencing it.
+	 * The system uses caching so asking for the same, already loaded model ends up returning the same model reference.
+	 * If the model already exists and not loaded, we reload it into memory from scratch and the old state will be destroyed!
+	 *
+	 * Returns -1 on errors, otherwise the valid handle for the model that has been loaded
+	 */
 	DLL_API int loadObjModelExt(const char* path, const char* fileName, bool reloadEarlier);
 
 	/**
@@ -70,13 +70,13 @@ extern "C" {
 	DLL_API bool unloadEverything();
 
 	/**
-	  * Returns the number of meshes in the model. Useful for later queries.
-	  *
-	  * Because we seperate new meshes for different materials,
-	  * this value can be greater than what you see in a content creation tool like blender!
-	  * Returns: -1 in case of errors (like a bad handle) and 0 if there is no mesh in the model!
-	  *          The latter can happen also in the cases of not loaded/unloaded meshes!
-	  */
+	 * Returns the number of meshes in the model. Useful for later queries.
+	 *
+	 * Because we seperate new meshes for different materials,
+	 * this value can be greater than what you see in a content creation tool like blender!
+	 * Returns: -1 in case of errors (like a bad handle) and 0 if there is no mesh in the model!
+	 *          The latter can happen also in the cases of not loaded/unloaded meshes!
+	 */
 	DLL_API int getModelMeshNo(int handle);
 
 	/**
@@ -158,33 +158,82 @@ extern "C" {
 	// Obj creation functions
 	// ======================
 
+	// 1.) Creation / closure
+	// ----------------------
+
 	/**
-	  * Creates an ObjCreator factory for runtime Obj generation and an empty *.obj model in it and return the handle for the factory.
-	  * Rem.: Useful when creating / saving models from scratch.
-	  */
+	 * Creates an ObjCreator factory for runtime Obj generation and an empty *.obj model in it and return the handle for the factory.
+	 * Rem.: Useful when creating / saving models from scratch.
+	 */
 	DLL_API int createObjFactory();
 
 	/**
-	  * Creates an ObjCreator factory for runtime Obj generation by loading the given *.obj model in it as a base and return the handle for the factory.
-	  * Rem.: The file designated by path+fileName is not affected or changed, unless there is a save operatios as that designation as its target!
-	  * Rem.: Useful when "appending" new data to an already existing obj file (output can be saved as a different obj however)
-	  */
+	 * Creates an ObjCreator factory for runtime Obj generation by loading the given *.obj model in it as a base and return the handle for the factory to extend this geometry.
+	 * Rem.: The file designated by path+fileName is not affected or changed, unless there is a save operation as that designation as its target!
+	 * Rem.: Useful when "appending" new data to an already existing obj file (output can be saved as a different obj however)
+	 */
 	DLL_API int createObjFactoryWithBaseObj(const char* path, const char* fileName);
 
 	/**
-	  * (!) CLOSE/reset THE FACTORY and save a *.obj file out created by the given factory handle to the given path.
-	  */
-	DLL_API bool saveObjFromFactoryToFileAndPossiblyCloseFactory(int factoryHandle, const char* path, const char* fileName, bool closeFactory);
+	 * (!) CLOSE/reset THE FACTORY and save a *.obj file out created by the given factory handle to the given path.
+	 */
+	DLL_API bool saveObjFromFactoryToFileAndPossiblyResetFactory(int factoryHandle, const char* path, const char* fileName, bool closeFactory);
 
 	/**
-	  * Save a *.obj file out created by the given factory handle to the given path.
-	  */
+	 * Save a *.obj file out created by the given factory handle to the given path.
+	 */
 	DLL_API bool saveObjFromFactoryToFile(int factoryHandle, const char* path, const char* fileName);
 
 	/**
-	  * Closes all ObjCreator factories created by the ObjMasterIntegrationFacade
-	  */
+	 * Resets the given factory. This saves a bit memory - but keeps the factory handle **reusable**.
+	 * - Return value of false indicates that there was some error in this operation!
+	 */
+	DLL_API bool resetFactory(int factoryHandle);
+
+	/**
+	 * The system tries its best to release all resources aquired by the factory: it is not defined if leaks are possible of not - so if you do not want leaks then use closeAllFactories()!
+	 * This saves a bit of memory and makes the factory handle unusable! In good implementations it should be safe to rely on this method saving most resources that is possible.
+	 * - Return value of false indicates that there was some error in this operation!
+	 */
+	DLL_API bool hintCloseFactory(int factoryHandle);
+
+	/**
+	 * A WAY TO SURELY RELEASE ALL RESOURCES for factories: Closes all ObjCreator factories created by the ObjMasterIntegrationFacade!
+	 * - Return value of false indicates that there was some error in this operation!
+	 */
 	DLL_API bool closeAllFactories();
+
+	// 2.) Runtime generation of *.obj geometry and materials
+	// ------------------------------------------------------
+
+	/** Adds the given runtime-generated material to the given factory - beware of filling "enabledFields" properly! */
+	DLL_API bool addRuntimeGeneratedMaterial(int factoryHandle, SimpleMaterial m, const char *materialName,
+		       const char *map_ka = nullptr, const char *map_kd = nullptr, const char *map_ks = nullptr, const char *map_bump = nullptr);
+
+	/**
+	  * Unsafe and fast: adds a vertex structure to the Obj
+	  * - We expect that the Obj is build only using this method and nothing else.
+	  * - The index of the added 'v' is returned - or in case of errors: (-1)
+	  * - This index can be used as a global index for everything in the vData (like uvs and normals too)
+	  * - However the latter only works if we do not use the objs support of "different indices per element" logic!
+	  *   This means that we can easily bulk-generate output for data already in a renderer-friendly format, but
+	  *   we better not mix generating data from that with "extending" already opened obj files for example!
+	  */
+	DLL_API int addHomogenousVertexStructure(int factoryHandle, VertexStructure vData);
+
+	/**
+	  * Add a face with homogenous indices (v, vt, vn indices are the same).
+	  * Three index is necessary for forming a triangle!
+	  *
+	  * Returns the face-Index
+	  */
+	DLL_API int addFace(int factoryHandle, unsigned int aIndex, unsigned int bIndex, unsigned int cIndex);
+
+	/** Use the given group-name from now on - every face will be in the group. */
+	DLL_API int useGroup(int factoryHandle, const char *name);
+
+	/** Use the given material-name from now on - every face will have the given material. If materialName not exists, an empty material gets generated! */
+	DLL_API int useMaterial(int factoryHandle, const char *materialName);
 }
 
 #endif

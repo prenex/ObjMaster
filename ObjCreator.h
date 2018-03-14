@@ -83,7 +83,7 @@ namespace ObjMaster {
 		}
 
 		/** Add new material to the material lib */
-		inline void addRuntimeGeneratedMaterial(Material &&m) {
+		inline void addMovedRuntimeGeneratedMaterial(Material &&m) {
 			obj->mtlLib.addRuntimeGeneratedMaterial(std::forward<Material>(m));
 		}
 		

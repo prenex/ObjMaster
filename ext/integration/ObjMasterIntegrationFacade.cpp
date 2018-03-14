@@ -367,14 +367,14 @@ extern "C" {
 	}
 
 
+	// Rem.: The handle is the index in the loadedModels vector
 	/** 
-	  * Load the given obj with the objmaster system and return the handle for referencing it.
-	  * The system uses caching so asking for the same, already loaded model ends up returning the same model reference.
-	  * If the model already exists and not loaded, we reload it into memory from scratch and the old state will be destroyed!
-	  *
-	  * Returns -1 on errors, otherwise the valid handle for the model that has been loaded
-	  */
-	// The handle is the index in the loadedModels vector
+	 * Load the given obj with the objmaster system and return the handle for referencing it.
+	 * The system uses caching so asking for the same, already loaded model ends up returning the same model reference.
+	 * If the model already exists and not loaded, we reload it into memory from scratch and the old state will be destroyed!
+	 *
+	 * Returns -1 on errors, otherwise the valid handle for the model that has been loaded
+	 */
 	int loadObjModelExt(const char* path, const char* fileName, bool reloadEarlier) {
 		try {
 			// Calculate the key for the model map cache
@@ -513,61 +513,213 @@ extern "C" {
 	// Obj creation/generation functions
 	// =================================
 
+	// COMMONMACROS:
+// Rem.: size_t casting is here to ensure that -1 counts as a big value and is not available!
+// check if the handle exists at least - return false otherwise
+#define CHECK_HANDLE if((size_t)factoryHandle > creators.size()) { return false; }
+// check if the handle exists at least - return -1 otherwise
+#define CHECK_HANDLE_RETNEG if((size_t)factoryHandle > creators.size()) { return -1; }
+
+	// 1.) Creation / closure
+	// ----------------------
+
+	// Rem.: The returned handle is the index in the creators vector
 	/**
 	  * Creates an ObjCreator factory for runtime Obj generation and an empty *.obj model in it and return the handle for the factory.
+	  * - returns a negative value in case of errors!
 	  * Rem.: Useful when creating / saving models from scratch.
 	  */
 	int createObjFactory() {
-		// nullptr in the fileName means to create empty
+		// Rem.: nullptr in the fileName means to create empty
+		// Rem.: delegating also handles errors properly
 		return createObjFactoryWithBaseObj(nullptr, nullptr);
 	}
 
+	// Rem.: The returned handle is the index in the creators vector
 	/**
-	  * Creates an ObjCreator factory for runtime Obj generation by loading the given *.obj model in it as a base and return the handle for the factory.
-	  * Rem.: The file designated by path+fileName is not affected or changed, unless there is a save operatios as that designation as its target!
-	  * Rem.: Useful when "appending" new data to an already existing obj file (output can be saved as a different obj however).
+	  * Creates an ObjCreator factory for runtime Obj generation by loading the given *.obj model in it as a base and return the handle for the factory to extend this geometry.
+	  * Rem.: The file designated by path+fileName is not affected or changed, unless there is a save operation as that designation as its target!
+	  * Rem.: Useful when "appending" new data to an already existing obj file (output can be saved as a different obj however)
 	  */
 	int createObjFactoryWithBaseObj(const char* path, const char* fileName) {
-		// The index will be the current size
-		int ret = creators.size();
-		if(fileName != nullptr) {
-			// Create using the parsed *.obj as a basis to append data to
-			creators.push_back(std::move(ObjMaster::ObjCreator(std::move(ObjMaster::Obj(ObjMaster::FileAssetLibrary(), path, fileName)))));
-		}else{
-			// Create empty
-			creators.push_back(ObjMaster::ObjCreator());
+		try{
+			// The index will be the current size
+			int ret = creators.size();
+			if(fileName != nullptr) {
+				// Create using the parsed *.obj as a basis to append data to
+				creators.push_back(std::move(ObjMaster::ObjCreator(std::move(ObjMaster::Obj(ObjMaster::FileAssetLibrary(), path, fileName)))));
+			}else{
+				// Create empty
+				creators.push_back(ObjMaster::ObjCreator());
+			}
+
+			// Return the id of the creator (as a handle)
+			return ret;
+		} catch (...) {
+			return -1;	// -1 is always a bad handle and is a good indicator is failure
 		}
-
-		// Return the id of the creator (as a handle)
-		return ret;
 	}
 
 	/**
-	  * (!) CLOSE/reset THE FACTORY and save a *.obj file out created by the given factory handle to the given path.
-	  */
-	bool saveObjFromFactoryToFileAndPossiblyCloseFactory(int factoryHandle, const char* path, const char* fileName, bool closeFactory){
-		// TODO
-		return false;
+	 * Can be used to CLOSE/reset THE FACTORY and save a *.obj file out created by the given factory handle to the given path - in the same time.
+	 * - Return value of false indicates that there was some error in this operation!
+	 * Rem.: Really useful in case we just created a factory "temporally" (like we would do in case of a local stack-object if we were in C++ / OOP)
+	 *       and we want to have a method to release its resources immediately (for example generiting **lots** of *.obj files in bulk!)
+	 */
+	bool saveObjFromFactoryToFileAndPossiblyResetFactory(int factoryHandle, const char* path, const char* fileName, bool closeFactory = true){
+		// check if the handle exists at least...
+		CHECK_HANDLE
+		// Try to save the file
+		try{
+			ObjMaster::ObjCreator &creator = creators[factoryHandle];
+			// Rem.: Here we can safely refer to the owned data without making a copy
+			//       as we will just save the obj and would throw away the copy anyways!
+			ObjMaster::Obj *created = creator.getOwnedObj();
+			created->saveAs(ObjMaster::FileAssetLibrary(), path, fileName);
+
+			if(closeFactory) {
+				// Close and indicate also if closing was a success or not
+				return hintCloseFactory(factoryHandle);
+			}else{
+				// Indicate success
+				return true;
+			}
+		}catch(...){
+			return false;
+		}
 	}
 
 	/**
-	  * Save a *.obj file out created by the given factory handle to the given path.
-	  */
+	 * Save a *.obj file out created by the given factory handle to the given path.
+	 * - Return value of false indicates that there was some error in this operation!
+	 * Rem.: This keeps the factory open so beware of the memory leaking! If you don't want to reuse the factory, better reset it or close all factories!
+	 */
 	bool saveObjFromFactoryToFile(int factoryHandle, const char* path, const char* fileName){
-		// TODO
-		return false;
+		return saveObjFromFactoryToFileAndPossiblyResetFactory(factoryHandle, path, fileName, false);
 	}
 
 	/**
-	  * Closes all ObjCreator factories created by the ObjMasterIntegrationFacade
+	 * Resets the given factory to a minimal resource usage and an empty underlying Obj - if there is no such handle, the operation is undefined!
+	 * - Return value of false indicates that there was some error in this operation!
+	 */
+	bool resetFactory(int factoryHandle) {
+		// check if the handle exists at least...
+		CHECK_HANDLE
+		try{
+			// RAII is useful to "delete" the earlier factory if needed.
+			creators[factoryHandle] = ObjMaster::ObjCreator();
+			return true;
+		}catch(...){
+			return false;
+		}
+	}
+
+	/**
+	  * The system tries its best to release all resources aquired by the factory: it is not defined if leaks are possible of not - so if you do not want leaks then use closeAllFactories()!
+	  * This saves a bit of memory and makes the factory handle unusable! In good implementations it should be safe to rely on this method saving most resources that is possible.
+	 * - Return value of false indicates that there was some error in this operation!
 	  */
+	bool hintCloseFactory(int factoryHandle) {
+		// check if the handle exists at least...
+		CHECK_HANDLE
+		try{
+			// RAII is useful to "delete" the earlier factory if needed.
+			// Rem.: using nullptr here uses the Obj* constructor in which we
+			//       are saving the most memory by not creating any self-owned object!
+			// Rem.: This really makes the handle 
+			creators[factoryHandle] = ObjMaster::ObjCreator(nullptr);
+			return true;
+		}catch(...){
+			return false;
+		}
+	}
+
+	/**
+	 * Closes all ObjCreator factories created by the ObjMasterIntegrationFacade. Invalidates all factory handles!!!
+	 * - Return value of false indicates that there was some error in this operation!
+	 */
 	bool closeAllFactories() {
 		try{
+			// Seting the creators to an empty vector means releasing all resources with RAII.
 			creators = std::vector<ObjMaster::ObjCreator>();
 			return true;
 		}catch(...){
 			return false;
 		}
+	}
+
+	// 2.) Runtime generation of *.obj geometry and materials
+	// ------------------------------------------------------
+
+	/**
+	 * Adds the given runtime-generated material to the given factory - beware of filling "enabledFields" properly!
+	 * Rem.: texture names must be added directly to easy p/invoke or JNI and such integrations. The texture is only used, if the m.enabledFields says so however!
+	 * Rem.: Because the texture name goes unused for not enabled fields, in those cases they are better kept as nullptrs.
+	 */
+	bool addRuntimeGeneratedMaterial(int factoryHandle, SimpleMaterial m, const char *materialName,
+		       const char *map_ka, const char *map_kd, const char *map_ks, const char *map_bump) {
+		// check if the handle exists at least...
+		CHECK_HANDLE
+		// Create an ObjMaster-side Material object corresponding to the given data
+		ObjMaster::Material mat;
+		mat.enabledFields = m.enabledFields;
+		mat.ka = std::vector<float>{m.kar, m.kag, m.kab, m.kaa};
+		mat.kd = std::vector<float>{m.kdr, m.kdg, m.kdb, m.kda};
+		mat.ks = std::vector<float>{m.ksr, m.ksg, m.ksb, m.ksa};
+		mat.map_ka = map_ka;
+		mat.map_kd = map_kd;
+		mat.map_ks = map_ks;
+		mat.map_bump = map_bump;
+		// Add the material using the ObjCreator this factory refers to
+		creators[factoryHandle].addRuntimeGeneratedMaterial(std::move(mat));
+
+		// Indicate success
+		return true;
+	}
+
+	/**
+	  * Unsafe and fast: adds a vertex structure to the Obj
+	  * - We expect that the Obj is build only using this method and nothing else.
+	  * - The index of the added 'v' is returned - or in case of errors: (-1)
+	  * - This index can be used as a global index for everything in the vData (like uvs and normals too)
+	  * - However the latter only works if we do not use the objs support of "different indices per element" logic!
+	  *   This means that we can easily bulk-generate output for data already in a renderer-friendly format, but
+	  *   we better not mix generating data from that with "extending" already opened obj files for example!
+	  */
+	int addHomogenousVertexStructure(int factoryHandle, VertexStructure vData) {
+		// check if the handle exists at least - return -1 otherwise
+		CHECK_HANDLE_RETNEG
+		// delegate the call towards the selected factory handle
+		return creators[factoryHandle].unsafeAddVertexStructure(vData);
+	}
+
+	/**
+	  * Add a face with homogenous indices (v, vt, vn indices are the same).
+	  * Three index is necessary for forming a triangle!
+	  *
+	  * Returns the face-Index or (-1) in case of errors.
+	  */
+	int addFace(int factoryHandle, unsigned int aIndex, unsigned int bIndex, unsigned int cIndex) {
+		// check if the handle exists at least - return -1 otherwise
+		CHECK_HANDLE_RETNEG
+		// delegate the call towards the selected factory handle
+		return creators[factoryHandle].addFace(aIndex, bIndex, cIndex);
+	}
+
+	/** Use the given group-name from now on - every face will be in the group. */
+	int useGroup(int factoryHandle, const char *name) {
+		// check if the handle exists at least - return -1 otherwise
+		CHECK_HANDLE_RETNEG
+		// delegate the call towards the selected factory handle
+		return creators[factoryHandle].useGroup(std::string(name));
+	}
+
+	/** Use the given material-name from now on - every face will have the given material. If materialName not exists, an empty material gets generated! */
+	int useMaterial(int factoryHandle, const char *materialName) {
+		// check if the handle exists at least - return -1 otherwise
+		CHECK_HANDLE_RETNEG
+		// delegate the call towards the selected factory handle
+		return creators[factoryHandle].useMaterial(std::string(materialName));
 	}
 
 #pragma endregion
