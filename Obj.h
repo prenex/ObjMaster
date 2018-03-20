@@ -40,7 +40,7 @@ namespace ObjMaster {
         std::vector<FaceElement> fs;
 
 	/** The given path - saved on construction made nullptr in case of runtime generated or copied objects */
-	const char* objPath;
+	std::string objPath;
 
         /** The material library for this obj. It can be an empty material library. */
         MtlLib mtlLib;

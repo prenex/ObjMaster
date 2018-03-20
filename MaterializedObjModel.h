@@ -24,7 +24,7 @@ namespace ObjMaster {
     public:
 	bool inited = false;
 	std::vector<MaterializedObjMeshObject> meshes;
-	const char* path;
+	std::string path;
 
 	// Copies are defeaulted
 	MaterializedObjModel(const MaterializedObjModel &other) = default;
@@ -71,7 +71,7 @@ namespace ObjMaster {
 	 */
 	void loadAllTextures(const TexturePreparationLibrary &texLibrary) {
 		for(auto &mesh : meshes) {
-			mesh.material.loadTexturesIntoMemory(path, texLibrary);
+			mesh.material.loadTexturesIntoMemory(path.c_str(), texLibrary);
 			mesh.material.loadTexturesIntoGPU(gpuTexLibrary);
 			mesh.material.unloadTexturesFromMemory();
 		}
