@@ -37,6 +37,7 @@ namespace ObjMaster {
 			currentObjMatFaceGroupStart = other.currentObjMatFaceGroupStart;
 			currentGrpName = other.currentGrpName;
 			currentMatName = other.currentMatName;
+			createdWithBase = other.createdWithBase;
 			if(other.ownsObj) {
 				// Copy-construct our obj - based on the other one
 				obj = new Obj(*other.obj);
@@ -57,7 +58,8 @@ namespace ObjMaster {
 		}
 		// MovMove construction
 		void moveHelper(ObjCreator &&other){
-			// Mutable state for groups and materials - just copy these
+			// Mutable state for groups and materials - just copy these and swap these
+			createdWithBase = other.createdWithBase;
 			currentObjMatFaceGroupStart = other.currentObjMatFaceGroupStart;
 			std::swap(currentGrpName, other.currentGrpName);
 			std::swap(currentMatName, other.currentMatName);
@@ -77,6 +79,7 @@ namespace ObjMaster {
 		/** Create an empty factory. The underlying Obj is owned by the creator / factory */
 		ObjCreator() {
 			ownsObj = true;
+			createdWithBase = false;
 			obj = new Obj();
 			// Set start index for current group face index
 			currentObjMatFaceGroupStart = 0; //always zero: (int)(obj->fs.size());
@@ -85,6 +88,7 @@ namespace ObjMaster {
 		/** Use the obj-creator to "extend" and already existing Obj. Be careful with this shared way of working! Obj is owned by the caller! */
 		ObjCreator(Obj *notOwnedObj) {
 			ownsObj = false;
+			createdWithBase = true;
 			obj = notOwnedObj;
 			// Set start index for current group face index
 			// Rem.: Really is needed as we need to "append" in this case!
@@ -96,6 +100,7 @@ namespace ObjMaster {
 		/** Use the obj-creator to "extend" and already existing Obj. The provided Obj will be cloned and the original unaffected! */
 		ObjCreator(Obj &&objToCopy) {
 			ownsObj = true;
+			createdWithBase = true;
 			obj = new Obj();
 			*obj = std::move(objToCopy);
 			// Set start index for current group face index
@@ -334,8 +339,14 @@ namespace ObjMaster {
 			return currentObjMatFaceGroupStart;
 		}
 
+		/** True if this creator is owning the underlying Obj - false if it has been provided to it! */
 		inline bool isOwningObj() {
 			return ownsObj;
+		}
+
+		/** Returns true if the data in this object is originally once created from an Obj object and we are appending to it! */
+		inline bool isCreatedWithBase() {
+			return createdWithBase;
 		}
 
 	private:
@@ -346,6 +357,7 @@ namespace ObjMaster {
 
 		// Main representation
 		bool ownsObj;
+		bool createdWithBase;
 		Obj *obj;
 
 		/** Close down the currently opened group */

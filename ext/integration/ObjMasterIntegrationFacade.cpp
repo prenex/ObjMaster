@@ -690,14 +690,14 @@ extern "C" {
 		// check if the handle exists at least - return -1 otherwise
 		CHECK_HANDLE_RETNEG
 		// delegate the call towards the selected factory handle
-		if(creators[factoryHandle].isOwningObj()) {
-			// HAPPY-CASE: If the factory owns the Obj we can use unsafe and faster operations
-			//             This is possible only because we added the factory and this means
-			//             that all geometry data is added by us - where we always generate with addFace!
+		if(!creators[factoryHandle].isCreatedWithBase()) {
+			// HAPPY-CASE: If the factory was created with an empty Obj - then we can use unsafe and faster operations!
+			//             This is possible only because we are the ones in the facade who added the factory and this means
+			//             that all geometry data is added by us homogenously and can expect that!
 			return creators[factoryHandle].unsafeAddVertexStructure(vData);
 		} else {
-			// JUNK / SLOW-CASE: We are coming here if the underlying Obj was already existing and we are appending
-			//            in that case we cannot know if the geometry is homogenous or not - so we might add some junk :-(
+			// JUNK / SLOW-CASE: We are coming here if the underlying Obj was already existing and we are appending to it!
+			//                   In that case we cannot know if the geometry is homogenous or not - so we might add some junk..
 			return creators[factoryHandle].safejunkAddVertexStructure(vData);
 		}
 	}

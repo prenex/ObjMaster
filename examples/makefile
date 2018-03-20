@@ -1,9 +1,9 @@
 # TODO: Currently only compiles the showobj example
 
 # for gcc5.1+:
-#CC=g++
+CC=g++
 # for clang3.4+:
-CC=clang++
+#CC=clang++
 # for emscripten / webgl
 #CC=em++
 
@@ -21,7 +21,7 @@ ifeq ($(CC),em++)
 else
 	# clang++ (ver 3.4+ tested)
 	# clang uses 1y instead of 14 here, we need the LLVM libc so that streams are copyable (or a more recent gcc toolchain than the 4.9 at my work!)
-	CFLAGS=-c -stdlib=libc++ -std=c++1y -g -O0 -fno-omit-frame-pointer # -fsanitize=address -fno-omit-frame-pointer
+	CFLAGS=-c -stdlib=libc++ -std=c++1y -g #-O0 -fno-omit-frame-pointer # -fsanitize=address -fno-omit-frame-pointer
 	LDFLAGS=-lglut -lGLESv2 -lm -stdlib=libc++ -g -O2 # -fsanitize=address -fsanitize-memory-track-origins
 endif
 endif
