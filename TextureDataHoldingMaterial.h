@@ -77,7 +77,10 @@ namespace ObjMaster {
 		gpuHoldingState = TextureLoadState::NOT_LOADED;
 	}
 
-        TextureDataHoldingMaterial() {}
+        TextureDataHoldingMaterial() {
+		memoryHoldingState = TextureLoadState::NOT_LOADED;
+		gpuHoldingState = TextureLoadState::NOT_LOADED;
+	}
 
 	// Copies are defeaulted
 	TextureDataHoldingMaterial(const TextureDataHoldingMaterial &other) = default;

@@ -10,6 +10,8 @@ namespace ObjMaster {
 	TextureDataHoldingMaterial::TextureDataHoldingMaterial(std::string materialName,
 							   std::vector<std::string> descriptorLineFields)
 	    : Material(materialName, descriptorLineFields) {
+		memoryHoldingState = TextureLoadState::NOT_LOADED;
+		gpuHoldingState = TextureLoadState::NOT_LOADED;
 	}
 
 
