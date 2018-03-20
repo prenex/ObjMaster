@@ -79,7 +79,7 @@ namespace ObjMaster {
 	// ----------------------------------
 
 	if((int)saveMode == ObjSaveModeFlags::ONLY_UNGROUPED_GEOMETRY) {
-		// Simples case: only geometry - just write out faces
+		// Simplest case: only geometry - just write out faces
 		for(auto f : fs) {
 			auto line = f.asText();
 			output->write(line.c_str(), line.length())<<'\n';

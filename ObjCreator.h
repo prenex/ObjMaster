@@ -8,6 +8,7 @@
 
 #include<vector>
 #include<cassert>
+#include<algorithm> // for std::swap
 #include"Obj.h"
 #include"MtlLib.h"
 #include"Material.h"
@@ -30,6 +31,48 @@ namespace ObjMaster {
 
 		// Constructor / Destructor
 		// ------------------------
+		// Copy construction
+		void copyHelper(const ObjCreator &other) {
+			// Mutable state for groups and materials - just copy these
+			currentObjMatFaceGroupStart = other.currentObjMatFaceGroupStart;
+			currentGrpName = other.currentGrpName;
+			currentMatName = other.currentMatName;
+			if(other.ownsObj) {
+				// Copy-construct our obj - based on the other one
+				obj = new Obj(*other.obj);
+				ownsObj = true;
+			} else {
+				// We can copy the pointer and tell we do not own it
+				// - just like our source that we copy
+				obj = other.obj;
+				ownsObj = false;
+			}
+		}
+		ObjCreator(const ObjCreator &other) {
+			copyHelper(other);
+		}
+		ObjCreator& operator=(const ObjCreator &other) {
+			copyHelper(other);
+			return *this;
+		}
+		// MovMove construction
+		void moveHelper(ObjCreator &&other){
+			// Mutable state for groups and materials - just copy these
+			currentObjMatFaceGroupStart = other.currentObjMatFaceGroupStart;
+			std::swap(currentGrpName, other.currentGrpName);
+			std::swap(currentMatName, other.currentMatName);
+			std::swap(obj, other.obj); // just swap pointers to the Obj!
+			// Ensure that the other is not trying to release any resources!
+			// Rem.: Necessary as other might get destructed right in the moment!
+			other.ownsObj = false;
+		}
+		ObjCreator(ObjCreator &&other) {
+			moveHelper(std::move(other));
+		}
+		ObjCreator& operator=(ObjCreator &&other) {
+			moveHelper(std::move(other));
+			return *this;
+		}
 
 		/** Create an empty factory. The underlying Obj is owned by the creator / factory */
 		ObjCreator() {
@@ -176,13 +219,16 @@ namespace ObjMaster {
 				llAddVertex(0, 0, 0);
 			}
 			// 'vt'
-			for(int i = 0; i < vpad; ++i) {
+			for(int i = 0; i < vtpad; ++i) {
 				llAddVertexTexcoord(0, 0);
 			}
 			// 'vn'
-			for(int i = 0; i < vpad; ++i) {
+			for(int i = 0; i < vnpad; ++i) {
 				llAddVertexNormal(0, 0, 0);
 			}
+			OMLOGW("ObjCreator: %d padding vertices are added to reach common maxIndex = %d!", vpad, maxIndex);
+			OMLOGW("ObjCreator: %d padding textcoords are added to reach common maxIndex = %d!", vtpad, maxIndex);
+			OMLOGW("ObjCreator: %d padding normals are added to reach common maxIndex = %d!", vnpad, maxIndex);
 
 
 			// Add vertex data directly - finally
@@ -276,6 +322,10 @@ namespace ObjMaster {
 			}
 			// Just return the ealier group start index
 			return currentObjMatFaceGroupStart;
+		}
+
+		inline bool isOwningObj() {
+			return ownsObj;
 		}
 
 	private:

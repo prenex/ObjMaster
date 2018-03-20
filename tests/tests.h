@@ -473,7 +473,7 @@ namespace ObjMasterTest {
 		// Add two faces - the first "reuses" a material from the original file and the second has a new one
 		// TODO: material tests here!
 		int f1 = addFace(handle, a, b, c);
-		int f2 = addFace(handle, a, b, c);
+		int f2 = addFace(handle, a, c, d);
 
 		// also close the factory - because we are not reusing it
 		saveObjFromFactoryToFileAndPossiblyCloseFactory(handle, "", dstName, true);
