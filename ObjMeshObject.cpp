@@ -129,11 +129,50 @@ namespace ObjMaster {
 		copyHelper(other);
 	}
 
-	ObjMeshObject& ObjMeshObject::operator=(const ObjMeshObject& other) {
+	/**
+	 * The copy ctor - necessary because of the possible pointer sharing stuff!
+	 * In case of non-shared vectors we copy, in case of shared vectors we copy only the pointer!
+	 */
+	ObjMeshObject& ObjMeshObject::operator=(const ObjMeshObject &other) {
 		copyHelper(other);
 		return *this;
 	}
 
+	/**
+	 * The move ctor - necessary because of the possible pointer sharing stuff!
+	 * In case of non-shared vectors we move, in case of shared vectors we move only the pointer!
+	 */
+	ObjMeshObject::ObjMeshObject(ObjMeshObject &&other) {
+		moveHelper(std::move(other));
+	}
+
+	/**
+	 * The move ctor - necessary because of the possible pointer sharing stuff!
+	 * In case of non-shared vectors we move, in case of shared vectors we move only the pointer!
+	 */
+	ObjMeshObject& ObjMeshObject::operator=(ObjMeshObject &&other) {
+		moveHelper(std::move(other));
+		return *this;
+	}
+
+	void ObjMeshObject::moveHelper(ObjMeshObject &&other) {
+		// In case of a move, we can just move everything
+		this->baseVertexLocation = other.baseVertexLocation;
+		this->indexCount = other.indexCount;
+		this->indices = other.indices;
+		this->lastIndex = other.lastIndex;
+		this->ownsIndices = other.ownsIndices;
+		this->ownsVertexData = other.ownsVertexData;
+		this->startIndexLocation = other.startIndexLocation;
+		this->vertexCount = other.vertexCount;
+		this->vertexData = other.vertexData;
+		this->inited = other.inited;
+
+		// But ensure that the "other" thinks he does not own anything anymore!
+		// This is necessary because we might have got ownership and other should not delete pointers then!
+		other.ownsIndices = false;
+		other.ownsVertexData = false;
+	}
 	void ObjMeshObject::copyHelper(const ObjMeshObject &other) {
 		// The pointers to vectors are copied according to the ownership flags!
 		std::vector<uint32_t> *iPtr = nullptr;

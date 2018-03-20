@@ -115,6 +115,12 @@ namespace ObjMaster {
         Material(std::string materialName) { name = materialName; }
 	/** Create an empty material with no name */
         Material() {};
+	// Copies are defeaulted
+	Material(const Material &other) = default;
+	Material& operator=(const Material &other) = default;
+	// Moves are defaulted
+	Material(Material &&other) = default;
+	Material& operator=(Material &&other) = default;
 
 	/** Clones this material into the other */
 	inline void cloneInto(Material *other) {

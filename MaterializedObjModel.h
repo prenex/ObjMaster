@@ -22,9 +22,16 @@ namespace ObjMaster {
     template <class GpuTexturePreparationLibraryImpl>
     class MaterializedObjModel {
     public:
-		bool inited = false;
-		std::vector<MaterializedObjMeshObject> meshes;
-		const char* path;
+	bool inited = false;
+	std::vector<MaterializedObjMeshObject> meshes;
+	const char* path;
+
+	// Copies are defeaulted
+	MaterializedObjModel(const MaterializedObjModel &other) = default;
+	MaterializedObjModel& operator=(const MaterializedObjModel &other) = default;
+	// Moves are defaulted
+	MaterializedObjModel(MaterializedObjModel &&other) = default;
+	MaterializedObjModel& operator=(MaterializedObjModel &&other) = default;
 
 	/** Create a materialized obj model using the given obj representation */
 	MaterializedObjModel(const Obj &obj) {

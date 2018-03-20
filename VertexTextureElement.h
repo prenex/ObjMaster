@@ -15,6 +15,13 @@ namespace ObjMaster {
         float u;
         float v;
 
+	// Copies are defeaulted
+	VertexTextureElement(const VertexTextureElement &other) = default;
+	VertexTextureElement& operator=(const VertexTextureElement &other) = default;
+	// Moves are defaulted
+	VertexTextureElement(VertexTextureElement &&other) = default;
+	VertexTextureElement& operator=(VertexTextureElement &&other) = default;
+
         VertexTextureElement() {};
 
         VertexTextureElement(float uu, float vv) {u = uu; v = vv;};

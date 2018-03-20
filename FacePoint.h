@@ -20,6 +20,13 @@ namespace ObjMaster {
         unsigned int vtIndex;
         unsigned int vnIndex;
 
+	// Copies are defeaulted
+	FacePoint(const FacePoint &other) = default;
+	FacePoint& operator=(const FacePoint &other) = default;
+	// Moves are defaulted
+	FacePoint(FacePoint &&other) = default;
+	FacePoint& operator=(FacePoint &&other) = default;
+
         FacePoint();
 	FacePoint(unsigned int vvIndex, unsigned int vvtIndex, unsigned int vvnIndex) {
 		vIndex = vvIndex;

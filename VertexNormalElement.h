@@ -16,6 +16,13 @@ namespace ObjMaster {
         float y;
         float z;
 
+	// Copies are defeaulted
+	VertexNormalElement(const VertexNormalElement &other) = default;
+	VertexNormalElement& operator=(const VertexNormalElement &other) = default;
+	// Moves are defaulted
+	VertexNormalElement(VertexNormalElement &&other) = default;
+	VertexNormalElement& operator=(VertexNormalElement &&other) = default;
+
         VertexNormalElement() {};
 
         VertexNormalElement(float xx, float yy, float zz) { x = xx; y = yy; z = zz; };

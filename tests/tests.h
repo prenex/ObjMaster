@@ -123,18 +123,20 @@ namespace ObjMasterTest {
 		return 0;
 	}
 
-	/** Used in testMemoryLeakage */
+	/** Used in testMemoryLeakage - test move constructor */
 	int leakTest3() {
 		// Get memory usage in the beginning
 		OMLOGI("LEAKTEST 3) Memory at start: %ld", getMemoryUsage());
 		// Parse the obj once
 		ObjMaster::Obj obj = ObjMaster::Obj(ObjMaster::FileAssetLibrary(), TEST_MODEL_PATH, TEST_MODEL);
-		// Then try to create a local objects on the stack with copy constructor
+		// Then try to create a local objects on the stack with move constructor
 		for(int i = 0; i < OUTER_LOOPS; ++i) {
 			for(int j = 0; j < INNER_LOOPS; ++j) {
-				ObjMaster::Obj copyobj = obj;
-				int verticesNo = copyobj.vs.size();
+				auto mobj = std::move(obj);
+				int verticesNo = mobj.vs.size();
 				OMLOGI("Number of vertices in test: %d", verticesNo);
+				// "move back"
+				obj = std::move(mobj);
 			}
 			OMLOGI("LEAKTEST 3) Memory at iteration %d: %ld", i, getMemoryUsage());
 		}

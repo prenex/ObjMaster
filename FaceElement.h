@@ -23,6 +23,13 @@ namespace ObjMaster {
         static const int MAX_FACEPOINT_COUNT = 3;
         FacePoint facePoints[MAX_FACEPOINT_COUNT];
 
+	// Copies are defeaulted
+	FaceElement(const FaceElement &other) = default;
+	FaceElement& operator=(const FaceElement &other) = default;
+	// Moves are defaulted
+	FaceElement(FaceElement &&other) = default;
+	FaceElement& operator=(FaceElement &&other) = default;
+
 	/** Create empty FaceElement */
         FaceElement() {};
 	/** Create a triangle */

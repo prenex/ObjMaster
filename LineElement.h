@@ -15,6 +15,13 @@ namespace ObjMaster {
 		/** The end vertex */
 		int eVindex;
 
+		// Copies are defeaulted
+		LineElement(const LineElement &other) = default;
+		LineElement& operator=(const LineElement &other) = default;
+		// Moves are defaulted
+		LineElement(LineElement &&other) = default;
+		LineElement& operator=(LineElement &&other) = default;
+
 		/** Create an emtpy line element */
 		LineElement() {};
 

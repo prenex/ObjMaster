@@ -39,7 +39,7 @@ namespace ObjMaster {
         std::vector<VertexNormalElement> vns;
         std::vector<FaceElement> fs;
 
-	/** The given path - saved on construction */
+	/** The given path - saved on construction made nullptr in case of runtime generated or copied objects */
 	const char* objPath;
 
         /** The material library for this obj. It can be an empty material library. */
@@ -50,6 +50,13 @@ namespace ObjMaster {
 
 	/** Create an empty - non-loaded - obj representation */
 	Obj() {}
+
+	// Copies are defeaulted
+	Obj(const Obj &other) = default;
+	Obj& operator=(const Obj &other) = default;
+	// Moves are defaulted
+	Obj(Obj &&other) = default;
+	Obj& operator=(Obj &&other) = default;
 
         /**
          * Creates an Obj for the given asset. The given asset library is only used for construction

@@ -21,7 +21,7 @@ namespace ObjMaster {
          * !ONLY USE IF YOU KNOW WHAT YOU ARE DOING! Contains the names of the material library files that this library builds upon.
          */
         // TODO: In the *.obj file, they can be there as a CSV - currently not supported when reading *.obj files!
-        std::vector <std::string> libraryFiles;
+        std::vector<std::string> libraryFiles;
 
         /** Decides if the given fields can be parsed as an MtlLib element */
         static bool isParsable(const char *fields);
@@ -42,6 +42,13 @@ namespace ObjMaster {
         MtlLib(char *fields, const char *assetPath, const AssetLibrary &assetLibrary);
         /** The default constructor just create a completely empty library */
         MtlLib() {}
+
+	// Copies are defeaulted
+	MtlLib(const MtlLib &other) = default;
+	MtlLib& operator=(const MtlLib &other) = default;
+	// Moves are defaulted
+	MtlLib(MtlLib &&other) = default;
+	MtlLib& operator=(MtlLib &&other) = default;
 
 	/** The absolute textual reference to the *.mtl as it is references from the *.obj file - this should go into the *.obj output! */
 	inline std::string asText(const char *path, const char *fileName) {

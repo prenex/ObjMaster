@@ -19,6 +19,12 @@ namespace ObjMaster {
 			heigth(t_heigth),
 			bytepp(t_bytepp)
 		{}
+		// Copies are defeaulted
+		Texture(const Texture &other) = default;
+		Texture& operator=(const Texture &other) = default;
+		// Moves are defaulted
+		Texture(Texture &&other) = default;
+		Texture& operator=(Texture &&other) = default;
 
 		/**
 		 * The bitmap data of this texture when in the system memory.

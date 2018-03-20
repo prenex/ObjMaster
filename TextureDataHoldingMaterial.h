@@ -79,6 +79,13 @@ namespace ObjMaster {
 
         TextureDataHoldingMaterial() {}
 
+	// Copies are defeaulted
+	TextureDataHoldingMaterial(const TextureDataHoldingMaterial &other) = default;
+	TextureDataHoldingMaterial& operator=(const TextureDataHoldingMaterial &other) = default;
+	// Moves are defaulted
+	TextureDataHoldingMaterial(TextureDataHoldingMaterial &&other) = default;
+	TextureDataHoldingMaterial& operator=(TextureDataHoldingMaterial &&other) = default;
+
 	void loadTexturesIntoMemory(const char *texturePath, const TexturePreparationLibrary &textureLib);
 	void loadTexturesIntoGPU(const GpuTexturePreparationLibrary &textureLib);
 	void unloadTexturesFromMemory();

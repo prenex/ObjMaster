@@ -547,6 +547,7 @@ extern "C" {
 			int ret = creators.size();
 			if(fileName != nullptr) {
 				// Create using the parsed *.obj as a basis to append data to
+auto test = ObjMaster::Obj(ObjMaster::FileAssetLibrary(), path, fileName);
 				creators.push_back(std::move(ObjMaster::ObjCreator(std::move(ObjMaster::Obj(ObjMaster::FileAssetLibrary(), path, fileName)))));
 			}else{
 				// Create empty

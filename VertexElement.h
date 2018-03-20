@@ -16,6 +16,13 @@ namespace ObjMaster {
         float y;
         float z;
 
+	// Copies are defeaulted
+	VertexElement(const VertexElement &other) = default;
+	VertexElement& operator=(const VertexElement &other) = default;
+	// Moves are defaulted
+	VertexElement(VertexElement &&other) = default;
+	VertexElement& operator=(VertexElement &&other) = default;
+
         VertexElement() {};
 
         VertexElement(float xx, float yy, float zz) { x = xx; y = yy; z = zz; };

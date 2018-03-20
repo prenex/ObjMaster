@@ -124,6 +124,18 @@ namespace ObjMaster {
 	 */
 	ObjMeshObject& operator=(const ObjMeshObject& other);
 
+	/**
+	 * The move assignment op - necessary because of the possible pointer sharing stuff!
+	 * In case of non-shared vectors we move, in case of shared vectors we move only the pointer!
+	 */
+	ObjMeshObject(ObjMeshObject &&other);
+
+	/**
+	 * The move assignment op - necessary because of the possible pointer sharing stuff!
+	 * In case of non-shared vectors we move, in case of shared vectors we move only the pointer!
+	 */
+	ObjMeshObject& operator=(ObjMeshObject&& other);
+
 	// The destructor needs to delete the pointed vectors only in case we own them!
 	~ObjMeshObject() {
 		if (ownsVertexData) { delete vertexData; }
@@ -132,6 +144,7 @@ namespace ObjMaster {
     private:
         void creationHelper(const Obj& obj, const FaceElement *meshFaces, int meshFaceCount, std::vector<VertexStructure> *vertexVector, std::vector<uint32_t> *indexVector, uint32_t lastIndexBase);
 	void copyHelper(const ObjMeshObject &other);
+	void moveHelper(ObjMeshObject &&other);
     };
 }
 #endif
