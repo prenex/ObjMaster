@@ -78,12 +78,19 @@ namespace ObjMaster {
 		ObjCreator() {
 			ownsObj = true;
 			obj = new Obj();
+			// Set start index for current group face index
+			currentObjMatFaceGroupStart = 0; //always zero: (int)(obj->fs.size());
 		}
 
 		/** Use the obj-creator to "extend" and already existing Obj. Be careful with this shared way of working! Obj is owned by the caller! */
 		ObjCreator(Obj *notOwnedObj) {
 			ownsObj = false;
 			obj = notOwnedObj;
+			// Set start index for current group face index
+			// Rem.: Really is needed as we need to "append" in this case!
+			if(obj != nullptr) {
+				currentObjMatFaceGroupStart = (int)(obj->fs.size());
+			}
 		}
 
 		/** Use the obj-creator to "extend" and already existing Obj. The provided Obj will be cloned and the original unaffected! */
@@ -91,6 +98,9 @@ namespace ObjMaster {
 			ownsObj = true;
 			obj = new Obj();
 			*obj = std::move(objToCopy);
+			// Set start index for current group face index
+			// Rem.: Really is needed as we need to "append" in this case!
+			currentObjMatFaceGroupStart = (int)(obj->fs.size());
 		}
 
 		/** Delete the creator and release all owned resources - basically we delete the underlying Obj if we own that and is not shared */
@@ -330,7 +340,7 @@ namespace ObjMaster {
 
 	private:
 		// Mutable state for groups and materials
-		int currentObjMatFaceGroupStart = 0;
+		int currentObjMatFaceGroupStart;
 		std::string currentGrpName;
 		std::string currentMatName;
 
