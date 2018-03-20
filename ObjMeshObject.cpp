@@ -11,6 +11,7 @@
 #include <unordered_map> // for hashing
 #include <vector> // for list-handling
 #include "VertexStructure.h"
+#include <algorithm> // for std::swap
 
 // Used as key for hashing
 struct IndexTargetSlice {
@@ -157,16 +158,16 @@ namespace ObjMaster {
 
 	void ObjMeshObject::moveHelper(ObjMeshObject &&other) {
 		// In case of a move, we can just move everything
-		this->baseVertexLocation = other.baseVertexLocation;
-		this->indexCount = other.indexCount;
-		this->indices = other.indices;
-		this->lastIndex = other.lastIndex;
-		this->ownsIndices = other.ownsIndices;
-		this->ownsVertexData = other.ownsVertexData;
-		this->startIndexLocation = other.startIndexLocation;
-		this->vertexCount = other.vertexCount;
-		this->vertexData = other.vertexData;
-		this->inited = other.inited;
+		std::swap(this->baseVertexLocation, other.baseVertexLocation);
+		std::swap(this->indexCount, other.indexCount);
+		std::swap(this->indices, other.indices);
+		std::swap(this->lastIndex, other.lastIndex);
+		std::swap(this->ownsIndices, other.ownsIndices);
+		std::swap(this->ownsVertexData, other.ownsVertexData);
+		std::swap(this->startIndexLocation, other.startIndexLocation);
+		std::swap(this->vertexCount, other.vertexCount);
+		std::swap(this->vertexData, other.vertexData);
+		std::swap(this->inited, other.inited);
 
 		// But ensure that the "other" thinks he does not own anything anymore!
 		// This is necessary because we might have got ownership and other should not delete pointers then!
