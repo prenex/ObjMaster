@@ -47,6 +47,7 @@ namespace ObjMaster {
 			// We only log about failure. The stream we return will act as empty so we will end up parsing an empty obj
 			// If this is not what you wish for, you can implement your own similar asset library on your own...
 			strerror_secure(errMsgHolder, ERR_MSG_SIZE, errno);
+			OMLOGE("...Cannot open file because errno == %d", errno);
 			OMLOGE("...Cannot open file because: %s", errMsgHolder);
 		} else {
 			OMLOGI("...Successfully opened %s%s", path, assetFileName);
