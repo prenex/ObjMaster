@@ -20,7 +20,8 @@ using System.Collections.Generic;
 /// - At least you do not need to care about something being unloaded multiple times - we do not punish you for that. (without this, caching would be "pointless")
 /// - There is an operation to unload anything that the underlying c++ code had aquired. This free up more memory than unloading everything you once have loaded! There should be no leaks (just bugs haha), but there is some constant administrative cost otherwise.
 /// </summary>
-public class ObjMasterUnityFacade : MonoBehaviour {
+public class ObjMasterUnityFacade : MonoBehaviour
+{
 
     /// <summary>
     /// The separator character for "annotated" obj files
@@ -178,13 +179,15 @@ public class ObjMasterUnityFacade : MonoBehaviour {
     #endregion
     #region Imported DLL functions
 
+    const string DLL_NAME = "ObjMasterHololensUnity";
+
     /// <summary>
     /// Try loading the given model with the objmaster system. If the model is already loaded, the earlier handle is returned from cache!
     /// </summary>
     /// <param name="path">Path for the model - also search path of mtl file and relative names</param>
     /// <param name="fileName">Filename of the obj</param>
     /// <returns>A handle to reference this model or -1 in case of errors!</returns>
-    [DllImport("ObjMasterHololensUnity", EntryPoint = "loadObjModel", CallingConvention = CallingConvention.Cdecl)]
+    [DllImport(DLL_NAME, EntryPoint = "loadObjModel", CallingConvention = CallingConvention.Cdecl)]
     public static extern int loadObjModel(string path, string fileName);
 
     /// <summary>
@@ -192,7 +195,7 @@ public class ObjMasterUnityFacade : MonoBehaviour {
     /// </summary>
     /// <param name="handle">The reference handle for the model to unload</param>
     /// <returns>True on success, false otherwise</returns>
-    [DllImport("ObjMasterHololensUnity", EntryPoint = "unloadObjModel", CallingConvention = CallingConvention.Cdecl)]
+    [DllImport(DLL_NAME, EntryPoint = "unloadObjModel", CallingConvention = CallingConvention.Cdecl)]
     public static extern bool unloadObjModel(int handle);
 
     /// <summary>
@@ -202,7 +205,7 @@ public class ObjMasterUnityFacade : MonoBehaviour {
     /// be no memory leaks and left-overs unless there is a bug in the underlying library.
     /// </summary>
     /// <returns>false indicates that something went wrong and there might be a leak or inconsistency!</returns>
-    [DllImport("ObjMasterHololensUnity", EntryPoint = "unloadEverything", CallingConvention = CallingConvention.Cdecl)]
+    [DllImport(DLL_NAME, EntryPoint = "unloadEverything", CallingConvention = CallingConvention.Cdecl)]
     public static extern bool unloadEverything();
 
     /// <summary>
@@ -210,7 +213,7 @@ public class ObjMasterUnityFacade : MonoBehaviour {
     /// </summary>
     /// <param name="handle">The handle of the model</param>
     /// <returns>-1 in case of errors or bad handle</returns>
-    [DllImport("ObjMasterHololensUnity", EntryPoint = "getModelMeshNo", CallingConvention = CallingConvention.Cdecl)]
+    [DllImport(DLL_NAME, EntryPoint = "getModelMeshNo", CallingConvention = CallingConvention.Cdecl)]
     public static extern int getModelMeshNo(int handle);
 
     /// <summary>
@@ -220,7 +223,7 @@ public class ObjMasterUnityFacade : MonoBehaviour {
     /// <param name="meshIndex">The index of the mesh - should be smaller than getModelMeshNo</param>
     /// <returns>The material.</returns>
     // Maybe needed ", CallingConvention = CallingConvention.Cdecl)]" ???
-    [DllImport("ObjMasterHololensUnity", EntryPoint = "getModelMeshMaterial", CallingConvention = CallingConvention.Cdecl)]
+    [DllImport(DLL_NAME, EntryPoint = "getModelMeshMaterial", CallingConvention = CallingConvention.Cdecl)]
     public static extern SimpleMaterial getModelMeshMaterial(int handle, int meshIndex);
 
     /// <summary>
@@ -229,7 +232,7 @@ public class ObjMasterUnityFacade : MonoBehaviour {
     /// <param name="handle">The handle of the model</param>
     /// <param name="meshIndex">The index of the mesh - should be smaller than getModelMeshNo</param>
     /// <returns>Number of vertex data for the given mesh</returns>
-    [DllImport("ObjMasterHololensUnity", EntryPoint = "getModelMeshVertexDataCount", CallingConvention = CallingConvention.Cdecl)]
+    [DllImport(DLL_NAME, EntryPoint = "getModelMeshVertexDataCount", CallingConvention = CallingConvention.Cdecl)]
     public static extern int getModelMeshVertexDataCount(int handle, int meshIndex);
 
     /// <summary>
@@ -245,7 +248,7 @@ public class ObjMasterUnityFacade : MonoBehaviour {
     /// <param name="handle">The handle of the model</param>
     /// <param name="meshIndex">The index of the mesh of the model</param>
     /// <returns>Negative on errors - otherwise the offset value described above</returns>
-    [DllImport("ObjMasterHololensUnity", EntryPoint = "getModelMeshBaseVertexOffset", CallingConvention = CallingConvention.Cdecl)]
+    [DllImport(DLL_NAME, EntryPoint = "getModelMeshBaseVertexOffset", CallingConvention = CallingConvention.Cdecl)]
     public static extern int getModelMeshBaseVertexOffset(int handle, int meshIndex);
 
     /// <summary>
@@ -273,7 +276,7 @@ public class ObjMasterUnityFacade : MonoBehaviour {
     /// <param name="meshIndex">The index of the mesh - should be smaller than getModelMeshNo</param>
     /// <param name="pointer">Will hold pointer to the data as an IntPtr</param>
     /// <returns></returns>
-    [DllImport("ObjMasterHololensUnity", EntryPoint = "getModelMeshVertexData", CallingConvention = CallingConvention.Cdecl)]
+    [DllImport(DLL_NAME, EntryPoint = "getModelMeshVertexData", CallingConvention = CallingConvention.Cdecl)]
     public static extern int getModelMeshVertexData(int handle, int meshIndex, out IntPtr pointer);
 
     /// <summary>
@@ -282,7 +285,7 @@ public class ObjMasterUnityFacade : MonoBehaviour {
     /// <param name="handle">The handle of the model</param>
     /// <param name="meshIndex">The index of the mesh - should be smaller than getModelMeshNo</param>
     /// <returns> Returns -1 in case of errors and zero when there is no data at all!</returns>
-    [DllImport("ObjMasterHololensUnity", EntryPoint = "getModelMeshIndicesCount", CallingConvention = CallingConvention.Cdecl)]
+    [DllImport(DLL_NAME, EntryPoint = "getModelMeshIndicesCount", CallingConvention = CallingConvention.Cdecl)]
     public static extern int getModelMeshIndicesCount(int handle, int meshIndex);
 
     /// <summary>
@@ -294,7 +297,7 @@ public class ObjMasterUnityFacade : MonoBehaviour {
     /// <param name="meshIndex">The index of the mesh - should be smaller than getModelMeshNo</param>
     /// <param name="output">The pointer which will contain the location of the result</param>
     /// <returns>The number of indices of -1 in case of errors</returns>
-    [DllImport("ObjMasterHololensUnity", EntryPoint = "getModelMeshIndices", CallingConvention = CallingConvention.Cdecl)]
+    [DllImport(DLL_NAME, EntryPoint = "getModelMeshIndices", CallingConvention = CallingConvention.Cdecl)]
     public static extern int getModelMeshIndices(int handle, int meshIndex, out IntPtr output);
 
     /// <summary>
@@ -303,7 +306,7 @@ public class ObjMasterUnityFacade : MonoBehaviour {
     /// <param name="handle">The handle of the model</param>
     /// <param name="meshIndex">The index of the mesh - should be smaller than getModelMeshNo</param>
     /// <returns>The pointer to the c-style string or nullptr in case of errors</returns>
-    [DllImport("ObjMasterHololensUnity", EntryPoint = "getModelMeshAmbientTextureFileName", CallingConvention = CallingConvention.Cdecl)]
+    [DllImport(DLL_NAME, EntryPoint = "getModelMeshAmbientTextureFileName", CallingConvention = CallingConvention.Cdecl)]
     public static extern IntPtr getModelMeshAmbientTextureFileNamePtr(int handle, int meshIndex);
     /// <summary>
     /// Returns a pointer to the CSTR of the Diffuse texture filename. Returns nullptr in case of errors, and points to empty CSTR if there is no such texture.
@@ -311,7 +314,7 @@ public class ObjMasterUnityFacade : MonoBehaviour {
     /// <param name="handle">The handle of the model</param>
     /// <param name="meshIndex">The index of the mesh - should be smaller than getModelMeshNo</param>
     /// <returns>The pointer to the c-style string or nullptr in case of errors</returns>
-    [DllImport("ObjMasterHololensUnity", EntryPoint = "getModelMeshDiffuseTextureFileName", CallingConvention = CallingConvention.Cdecl)]
+    [DllImport(DLL_NAME, EntryPoint = "getModelMeshDiffuseTextureFileName", CallingConvention = CallingConvention.Cdecl)]
     public static extern IntPtr getModelMeshDiffuseTextureFileNamePtr(int handle, int meshIndex);
     /// <summary>
     /// Returns a pointer to the CSTR of the Specular texture filename. Returns nullptr in case of errors, and points to empty CSTR if there is no such texture.
@@ -319,7 +322,7 @@ public class ObjMasterUnityFacade : MonoBehaviour {
     /// <param name="handle">The handle of the model</param>
     /// <param name="meshIndex">The index of the mesh - should be smaller than getModelMeshNo</param>
     /// <returns>The pointer to the c-style string or nullptr in case of errors</returns>
-    [DllImport("ObjMasterHololensUnity", EntryPoint = "getModelMeshSpecularTextureFileName", CallingConvention = CallingConvention.Cdecl)]
+    [DllImport(DLL_NAME, EntryPoint = "getModelMeshSpecularTextureFileName", CallingConvention = CallingConvention.Cdecl)]
     public static extern IntPtr getModelMeshSpecularTextureFileNamePtr(int handle, int meshIndex);
     /// <summary>
     /// Returns a pointer to the CSTR of the Normal texture filename. Returns nullptr in case of errors, and points to empty CSTR if there is no such texture.
@@ -327,7 +330,7 @@ public class ObjMasterUnityFacade : MonoBehaviour {
     /// <param name="handle">The handle of the model</param>
     /// <param name="meshIndex">The index of the mesh - should be smaller than getModelMeshNo</param>
     /// <returns>The pointer to the c-style string or nullptr in case of errors</returns>
-    [DllImport("ObjMasterHololensUnity", EntryPoint = "getModelMeshNormalTextureFileName", CallingConvention = CallingConvention.Cdecl)]
+    [DllImport(DLL_NAME, EntryPoint = "getModelMeshNormalTextureFileName", CallingConvention = CallingConvention.Cdecl)]
     public static extern IntPtr getModelMeshNormalTextureFileNamePtr(int handle, int meshIndex);
 
     /// <summary>
@@ -336,7 +339,7 @@ public class ObjMasterUnityFacade : MonoBehaviour {
     /// <param name="handle">The handle of the *.obj file</param>
     /// <param name="meshIndex">The mesh index in that *.obj file</param>
     /// <returns>The pointer to the c-style string or nullptr in case of errors. An empty string might be returned too!</returns>
-    [DllImport("ObjMasterHololensUnity", EntryPoint = "getModelMeshMaterialName", CallingConvention = CallingConvention.Cdecl)]
+    [DllImport(DLL_NAME, EntryPoint = "getModelMeshMaterialName", CallingConvention = CallingConvention.Cdecl)]
     public static extern IntPtr getModelMeshMaterialNamePtr(int handle, int meshIndex);
 
     /// <summary>
@@ -346,14 +349,113 @@ public class ObjMasterUnityFacade : MonoBehaviour {
     /// <param name="handle">The handle of the *.obj file</param>
     /// <param name="meshIndex">The mesh index in that *.obj file</param>
     /// <returns>The pointer to the c-style string or nullptr in case of errors. An empty string should not be returned, but better expect that too as other side does not check!</returns>
-    [DllImport("ObjMasterHololensUnity", EntryPoint = "getModelMeshObjMatFaceGroupName", CallingConvention = CallingConvention.Cdecl)]
+    [DllImport(DLL_NAME, EntryPoint = "getModelMeshObjMatFaceGroupName", CallingConvention = CallingConvention.Cdecl)]
     public static extern IntPtr getModelMeshObjMatFaceGroupNamePtr(int handle, int meshIndex);
 
     #endregion
+    #region Imported DLL functions for *.obj output and creation
+    // Obj creation functions
+    // ======================
+
+    // 1.) Creation / closure
+    // ----------------------
+
+    /// <summary>
+    /// Creates an ObjCreator factory for runtime Obj generation and an empty *.obj model in it and return the handle for the factory.
+    /// Rem.: Useful when creating / saving models from scratch.
+    /// </summary>
+    [DllImport(DLL_NAME, EntryPoint = "createObjFactory", CallingConvention = CallingConvention.Cdecl)]
+    public static extern int createObjFactory();
+
+    /// <summary>
+    /// Creates an ObjCreator factory for runtime Obj generation by loading the given *.obj model in it as a base and return the handle for the factory to extend this geometry.
+    /// Rem.: The file designated by path+fileName is not affected or changed, unless there is a save operation as that designation as its target!
+    /// Rem.: Useful when "appending" new data to an already existing obj file (output can be saved as a different obj however)
+    /// </summary>
+    [DllImport(DLL_NAME, EntryPoint = "createObjFactoryWithBaseObj", CallingConvention = CallingConvention.Cdecl)]
+    public static extern int createObjFactoryWithBaseObj(string path, string fileName);
+
+    /// <summary>
+    /// (!) CLOSE/reset THE FACTORY and save a *.obj file out created by the given factory handle to the given path.
+    /// </summary>
+    [DllImport(DLL_NAME, EntryPoint = "saveObjFromFactoryToFileAndPossiblyCloseFactory", CallingConvention = CallingConvention.Cdecl)]
+    public static extern bool saveObjFromFactoryToFileAndPossiblyCloseFactory(int factoryHandle, string path, string fileName, bool closeFactory);
+
+    /// <summary>
+    /// Save a *.obj file out created by the given factory handle to the given path.
+    /// </summary>
+    [DllImport(DLL_NAME, EntryPoint = "saveObjFromFactoryToFile", CallingConvention = CallingConvention.Cdecl)]
+    public static extern bool saveObjFromFactoryToFile(int factoryHandle, string path, string fileName);
+
+    /// <summary>
+    /// Resets the given factory. This saves a bit memory - but keeps the factory handle **reusable**.
+    /// - Return value of false indicates that there was some error in this operation!
+    /// </summary>
+    [DllImport(DLL_NAME, EntryPoint = "resetFactory", CallingConvention = CallingConvention.Cdecl)]
+    public static extern bool resetFactory(int factoryHandle);
+
+    /// <summary>
+    /// The system tries its best to release all resources aquired by the factory: it is not defined if leaks are possible of not - so if you do not want leaks then use closeAllFactories()!
+    /// This saves a bit of memory and makes the factory handle unusable! In good implementations it should be safe to rely on this method saving most resources that is possible.
+    /// - Return value of false indicates that there was some error in this operation!
+    /// </summary>
+    [DllImport(DLL_NAME, EntryPoint = "hintCloseFactory", CallingConvention = CallingConvention.Cdecl)]
+    public static extern bool hintCloseFactory(int factoryHandle);
+
+    /// <summary>
+    /// A WAY TO SURELY RELEASE ALL RESOURCES for factories: Closes all ObjCreator factories created by the ObjMasterIntegrationFacade!
+    /// - Return value of false indicates that there was some error in this operation!
+    /// </summary>
+    [DllImport(DLL_NAME, EntryPoint = "closeAllFactories", CallingConvention = CallingConvention.Cdecl)]
+    public static extern bool closeAllFactories();
+
+    // 2.) Runtime generation of *.obj geometry and materials
+    // ------------------------------------------------------
+
+    /// <summary>
+    /// Adds the given runtime-generated material to the given factory - beware of filling "enabledFields" properly!
+    /// </summary>
+    [DllImport(DLL_NAME, EntryPoint = "addRuntimeGeneratedMaterial", CallingConvention = CallingConvention.Cdecl)]
+    public static extern bool addRuntimeGeneratedMaterial(int factoryHandle, SimpleMaterial m, string materialName,
+        string map_ka = null, string map_kd = null, string map_ks = null, string map_bump = null);
+
+    /// <summary>
+    /// Unsafe and fast: adds a vertex structure to the Obj
+    /// - We expect that the Obj is build only using this method and nothing else.
+    /// - The index of the added 'v' is returned - or in case of errors: (-1)
+    /// - This index can be used as a global index for everything in the vData (like uvs and normals too)
+    /// - However the latter only works if we do not use the objs support of "different indices per element" logic!
+    ///   This means that we can easily bulk-generate output for data already in a renderer-friendly format, but
+    ///   we better not mix generating data from that with "extending" already opened obj files for example!
+    /// </summary>
+    [DllImport(DLL_NAME, EntryPoint = "addHomogenousVertexStructure", CallingConvention = CallingConvention.Cdecl)]
+    public static extern int addHomogenousVertexStructure(int factoryHandle, VertexStructure vData);
+
+    /// <summary>
+    /// Add a face with homogenous indices (v, vt, vn indices are the same).
+    /// Three index is necessary for forming a triangle!
+    /// Returns the face-Index
+    /// </summary>
+    [DllImport(DLL_NAME, EntryPoint = "addFace", CallingConvention = CallingConvention.Cdecl)]
+    public static extern int addFace(int factoryHandle, uint aIndex, uint bIndex, uint cIndex);
+
+    /// <summary>
+    /// Use the given group-name from now on - every face will be in the group.
+    /// </summary>
+    [DllImport(DLL_NAME, EntryPoint = "useGroup", CallingConvention = CallingConvention.Cdecl)]
+    public static extern int useGroup(int factoryHandle, string name);
+
+    /// <summary>
+    /// Use the given material-name from now on - every face will have the given material. If materialName not exists, an empty material gets generated!
+    /// </summary>
+    [DllImport(DLL_NAME, EntryPoint = "useMaterial", CallingConvention = CallingConvention.Cdecl)]
+    public static extern int useMaterial(int factoryHandle, string materialName);
+    #endregion
     #region TEST
 #if TEST
+#if UNITY_EDITOR
     // The imported test function
-    [DllImport("ObjMasterHololensUnity", EntryPoint = "testSort", CallingConvention = CallingConvention.Cdecl)]
+    [DllImport(DLL_NAME, EntryPoint = "testSort", CallingConvention = CallingConvention.Cdecl)]
     public static extern void testSort(int[] a, int length);
 
     // Test stuff
@@ -369,7 +471,33 @@ public class ObjMasterUnityFacade : MonoBehaviour {
     [Tooltip("The name of the file for testing obj model loading on startup!")]
     public string testFileName = "test.obj";
 
-    void Start()
+    [Tooltip("Used for 'triggerTestExport'. This is the output file path!")]
+    public string testExportFilePath = "";
+
+    [Tooltip("Used for 'triggerTestExport'. This is the output filename!")]
+    public string testExportFileName = "test_out.obj";
+
+    [Tooltip("Used for 'triggerTestExport'. This is the name of the texture.")]
+    public string testExportTextureName = "";
+
+    [Tooltip("Unit test trigger for exporting a simple example *.obj as testOutFileName")]
+    public bool triggerTestExport = false;
+
+    private void doTestExport()
+    {
+        // TODO: implement unit test
+    }
+
+    private void Update()
+    {
+        if (triggerTestExport)
+        {
+            doTestExport();
+            triggerTestExport = false;
+        }
+    }
+
+    private void Start()
     {
         Debug.Log("DLL test array before sort: " + testArray.ToString());
         testSort(testArray, testArray.Length);
@@ -484,6 +612,7 @@ public class ObjMasterUnityFacade : MonoBehaviour {
         }
     }
 #endif
+#endif
     #endregion
     #region Helper methods
     /// <summary>
@@ -493,14 +622,16 @@ public class ObjMasterUnityFacade : MonoBehaviour {
     /// <returns>The total number of vertices in the model. Tries to return negative values on errors.</returns>
     public static int getModelVertexDataCount(int handle)
     {
-        if (handle >= 0) {
+        if (handle >= 0)
+        {
             int totalVertexNo = 0;
             for (int meshIndex = 0; meshIndex < getModelMeshNo(handle); ++meshIndex)
             {
                 totalVertexNo += getModelMeshVertexDataCount(handle, meshIndex);
             }
             return totalVertexNo;
-        } else
+        }
+        else
         {
             // Bad handle
             return -1;
@@ -658,7 +789,7 @@ public class ObjMasterUnityFacade : MonoBehaviour {
                 return Encoding.UTF8.GetString(buffer);
             }
         }
-        catch(Exception)
+        catch (Exception)
         {
             // Some extra defensivity
             return null;
@@ -809,7 +940,8 @@ public class ObjMasterUnityFacade : MonoBehaviour {
         // Copy data using struct-marshalling
         VertexStructure[] vertexArray = new VertexStructure[nativeDataLength];
         IntPtr p = ptrNativeData;
-        for (int i = 0; i < nativeDataLength; ++i) {
+        for (int i = 0; i < nativeDataLength; ++i)
+        {
             // Marshal data out as struct
             vertexArray[i] = (VertexStructure)Marshal.PtrToStructure(p, typeof(VertexStructure));
             // Increment pointer by the size of the vertex structure
@@ -860,26 +992,26 @@ public class ObjMasterUnityFacade : MonoBehaviour {
             // Just to give a little more endurance to the code. Should never happen to get zeroed here!
             baseVertexOffset = baseVertexOffset < 0 ? 0 : baseVertexOffset;
         }
-        for(int i = 0; i < nativeDataLength; ++i)
+        for (int i = 0; i < nativeDataLength; ++i)
         {
             // Calculate index expander value
             // this is for changing the winding order of the triangles when mirroring is in effect
             int indexpander = 0;
-            if(mirrorMode != MIRROR_MODE.NONE)
+            if (mirrorMode != MIRROR_MODE.NONE)
             {
                 // Possibly exchange the B and C point indices for the A-B-C triangle - we leave A always as it is:
-                if(currentTrianglePointNo > 0)
+                if (currentTrianglePointNo > 0)
                 {
                     //// A change should happen if we mirror odd times (so mirror over only X, only Y, only Z or all XYZ, etc)
                     //if(mirrorMode == MIRROR_MODE.MIRROR_X || mirrorMode == MIRROR_MODE.MIRROR_Y || mirrorMode == MIRROR_MODE.MIRROR_Z
                     //    || mirrorMode == MIRROR_MODE.MIRROR_XYZ)
                     //{
-                        // It becomes 0 here when we are at point B
-                        // and becomes 1 here when we are at point C
-                        indexpander = currentTrianglePointNo - 1;
-                        // It becomes 1 when we are at point B
-                        // and becomes -1 when we are at point C
-                        indexpander = -((indexpander * 2) - 1);
+                    // It becomes 0 here when we are at point B
+                    // and becomes 1 here when we are at point C
+                    indexpander = currentTrianglePointNo - 1;
+                    // It becomes 1 when we are at point B
+                    // and becomes -1 when we are at point C
+                    indexpander = -((indexpander * 2) - 1);
                     //}
                 }
             }
@@ -887,7 +1019,7 @@ public class ObjMasterUnityFacade : MonoBehaviour {
             // Get the pointed uint32_t value into our copy-array
             // Cast works here without data loss, see discussion at:
             // https://social.msdn.microsoft.com/Forums/vstudio/en-US/012d583d-dd88-45ac-ac81-abb72b54d6c5/marshalreadint32-returning-uint32?forum=csharpgeneral
-            indexArray[i + indexpander] =(UInt32) (Marshal.ReadInt32(p, i * size) - baseVertexOffset); // Rem.: The second ReadInt32 offset param is in bytes!
+            indexArray[i + indexpander] = (UInt32)(Marshal.ReadInt32(p, i * size) - baseVertexOffset); // Rem.: The second ReadInt32 offset param is in bytes!
 
             // update the indicator that holds information about which triangle we use
             currentTrianglePointNo = (currentTrianglePointNo + 1) % 3;
@@ -922,33 +1054,33 @@ public class ObjMasterUnityFacade : MonoBehaviour {
         /// Basically this is the prefix of the objMatFaceGroupName until the very first ':' character (or as whole if there is no such character)
         /// (*) Rem.: This way the field here groups together all *.obj groups that only differ after the first ':' characted encountered! This might be unexpected by some actually but this way we can use group-hidden meta-data!
         /// </summary>
-		public string objGroupName{ get{ return _objGroupName; }}
+		public string objGroupName { get { return _objGroupName; } }
         private string _materialName;
         /// <summary>
         /// The name of the material - it can be empty for the default materials!
         /// </summary>
-		public string materialName{ get{ return _materialName; }}
+		public string materialName { get { return _materialName; } }
         private SimpleMaterial _simpleMaterial;
         /// <summary>
         /// The data of the material
         /// </summary>
-		public SimpleMaterial simpleMaterial{ get{ return _simpleMaterial; }}
+		public SimpleMaterial simpleMaterial { get { return _simpleMaterial; } }
         protected string _ambientTexture;
-		public string ambientTexture{ get{ return _ambientTexture; }}
+        public string ambientTexture { get { return _ambientTexture; } }
         protected string _diffuseTexture;
-		public string diffuseTexture{ get{ return _diffuseTexture; }}
+        public string diffuseTexture { get { return _diffuseTexture; } }
         protected string _specularTexture;
-		public string specularTexture{ get{ return _specularTexture; }}
+        public string specularTexture { get { return _specularTexture; } }
         protected string _normalTexture;
-		public string normalTexture{ get{ return _normalTexture; }}
+        public string normalTexture { get { return _normalTexture; } }
         protected Vector3[] _vertices;
-		public Vector3[] vertices{ get{ return _vertices; }}
+        public Vector3[] vertices { get { return _vertices; } }
         protected Vector3[] _normals;
-		public Vector3[] normals{ get{ return _normals; }}
+        public Vector3[] normals { get { return _normals; } }
         protected Vector2[] _uv;
-		public Vector2[] uv{ get{ return _uv; }}
+        public Vector2[] uv { get { return _uv; } }
         protected int[] _triangles;
-		public int[] triangles{ get{ return _triangles; }}
+        public int[] triangles { get { return _triangles; } }
 
         /// <summary>
         /// Returns true if the given triangle at beginIndex is three short index according to the maxShortIndex value - false otherwise.
@@ -1036,7 +1168,7 @@ public class ObjMasterUnityFacade : MonoBehaviour {
                 uint increment = inca + incb + incc;
 
                 // Check if there is place for the ones we want to add now.
-                if(usedVertIndNo + increment > maxIndexNo)
+                if (usedVertIndNo + increment > maxIndexNo)
                 {
                     // Indicate that we could not add this triangle!
                     return false;
@@ -1046,17 +1178,17 @@ public class ObjMasterUnityFacade : MonoBehaviour {
                     // Add indices to our hash - this will not duplicate if it already exists!
                     // The key is the original index and the value can be used to construct a new verex data with indices.
 
-                    if(inca != 0)
+                    if (inca != 0)
                     {
                         vertIndexConvertor.Add(a, (int)usedVertIndNo);
                         ++usedVertIndNo;
                     }
-                    if(incb != 0)
+                    if (incb != 0)
                     {
                         vertIndexConvertor.Add(b, (int)usedVertIndNo);
                         ++usedVertIndNo;
                     }
-                    if(incc != 0)
+                    if (incc != 0)
                     {
                         vertIndexConvertor.Add(c, (int)usedVertIndNo);
                         ++usedVertIndNo;
@@ -1102,24 +1234,24 @@ public class ObjMasterUnityFacade : MonoBehaviour {
                 // All triangles that only have smaller indices than maxShortIndex go into the head.
                 // This way we collect a "starting-data" for the head in a way that they can be
                 // surely represented by indices less than the target value.
-                for(int i = 0; i < triangles.Length; i += 3)
+                for (int i = 0; i < triangles.Length; i += 3)
                 {
-                    if(isAllShortIndexTriangle(triangles, i, maxShortIndex))
+                    if (isAllShortIndexTriangle(triangles, i, maxShortIndex))
                     {
                         // Surely we can add this triangle with not using more varieties of indices than maxShortIndex later when indexing optimally.
                         // Just think about it!
                         origTrianglesToHead.Add(triangles[i]);
-                        origTrianglesToHead.Add(triangles[i+1]);
-                        origTrianglesToHead.Add(triangles[i+2]);
+                        origTrianglesToHead.Add(triangles[i + 1]);
+                        origTrianglesToHead.Add(triangles[i + 2]);
                         bool b = headCalculator.tryToAddTrivertIndex(triangles[i], triangles[i + 1], triangles[i + 2]);
-                        if(!b) throw new NotSupportedException("Code is broken! Should never happen!"); // Defensive coding assert
+                        if (!b) throw new NotSupportedException("Code is broken! Should never happen!"); // Defensive coding assert
                     }
                     else
                     {
                         // All other triangles are going to the tail initially
                         initialOriginalTrianglesToTail.Add(triangles[i]);
-                        initialOriginalTrianglesToTail.Add(triangles[i+1]);
-                        initialOriginalTrianglesToTail.Add(triangles[i+2]);
+                        initialOriginalTrianglesToTail.Add(triangles[i + 1]);
+                        initialOriginalTrianglesToTail.Add(triangles[i + 2]);
                     }
                 }
 
@@ -1133,15 +1265,15 @@ public class ObjMasterUnityFacade : MonoBehaviour {
                 // Try finding more candidates from the tail that we can add
                 // for those we add from the tail we create a skipping list.
                 List<int> tailSkippingList3 = new List<int>(); // "3": When we have an index in here we need to also skip the two ones after that one!!!! (also is automagically sorted)
-                for(int i = 0; i < initialOriginalTrianglesToTail.Count; i += 3)
+                for (int i = 0; i < initialOriginalTrianglesToTail.Count; i += 3)
                 {
                     // Add more if we can
-                    if(headCalculator.tryToAddTrivertIndex(initialOriginalTrianglesToTail[i], initialOriginalTrianglesToTail[i + 1], initialOriginalTrianglesToTail[i + 2]))
+                    if (headCalculator.tryToAddTrivertIndex(initialOriginalTrianglesToTail[i], initialOriginalTrianglesToTail[i + 1], initialOriginalTrianglesToTail[i + 2]))
                     {
                         // Add these to the head list (with source index values that can serve as keys in the calculator!)
                         origTrianglesToHead.Add(initialOriginalTrianglesToTail[i]);
-                        origTrianglesToHead.Add(initialOriginalTrianglesToTail[i+1]);
-                        origTrianglesToHead.Add(initialOriginalTrianglesToTail[i+2]);
+                        origTrianglesToHead.Add(initialOriginalTrianglesToTail[i + 1]);
+                        origTrianglesToHead.Add(initialOriginalTrianglesToTail[i + 2]);
                         // Update the skipping-list of the tail. So that we see which indexes in the tail we skip over
                         tailSkippingList3.Add(i);
                     }
@@ -1151,7 +1283,7 @@ public class ObjMasterUnityFacade : MonoBehaviour {
                         // The tail calculator is unconstrained so this should always return true and we should always be able to add
                         // We only do this here so that the old->new mapping is also constructed in this case that belong to the tail!
                         bool b = tailCalculator.tryToAddTrivertIndex(initialOriginalTrianglesToTail[i], initialOriginalTrianglesToTail[i + 1], initialOriginalTrianglesToTail[i + 2]);
-                        if(!b) throw new NotSupportedException("Code is broken! Should never happen!"); // Defensive coding assert
+                        if (!b) throw new NotSupportedException("Code is broken! Should never happen!"); // Defensive coding assert
                     }
                 }
 
@@ -1177,13 +1309,13 @@ public class ObjMasterUnityFacade : MonoBehaviour {
                 // With this map, we can "convert" where this or that old index's data will go in the new vertex datas.
                 // So basically we can tell where our corresponding new index is.
                 Dictionary<int, int> headConv = headCalculator.getVertIndexConvertor();
-                for(int i = 0; i < origTrianglesToHead.Count; i+=3)
+                for (int i = 0; i < origTrianglesToHead.Count; i += 3)
                 {
                     // Grab those triangles data that gets transferred to the head
                     // Origindices
                     int origa = origTrianglesToHead[i];
-                    int origb = origTrianglesToHead[i+1];
-                    int origc = origTrianglesToHead[i+2];
+                    int origb = origTrianglesToHead[i + 1];
+                    int origc = origTrianglesToHead[i + 2];
                     // New indices
                     int newa = headConv[origa];
                     int newb = headConv[origb];
@@ -1206,8 +1338,8 @@ public class ObjMasterUnityFacade : MonoBehaviour {
 
                     // Generate triangle indices pointing to the data vector properly.
                     headTriangles[i] = newa;
-                    headTriangles[i+1] = newb;
-                    headTriangles[i+2] = newc;
+                    headTriangles[i + 1] = newb;
+                    headTriangles[i + 2] = newc;
                 }
 
                 // If we are here, the data for the head mesh should have been already prepared
@@ -1238,7 +1370,7 @@ public class ObjMasterUnityFacade : MonoBehaviour {
                 // Into here we need converted index data
                 // Rem.: The size is like such becase we had an original list of tail triangles (that is what we still have) but we might need to skip elements in that.
                 //       The skipping list however only contains index for each second-run head-put triangles (3 consequtive indbuf elems) to spare some space and ensure skip integrity!
-                int[] tailTriangles = new int[initialOriginalTrianglesToTail.Count - 3*tailSkippingList3.Count];
+                int[] tailTriangles = new int[initialOriginalTrianglesToTail.Count - 3 * tailSkippingList3.Count];
 
                 // With this map, we can "convert" where this or that old index's data will go in the new vertex datas.
                 // So basically we can tell where our corresponding new index is.
@@ -1252,7 +1384,7 @@ public class ObjMasterUnityFacade : MonoBehaviour {
                 for (int i = 0, j = 0; i < initialOriginalTrianglesToTail.Count; i += 3) // j is incremented only when there is no skip, so it cannot be here!
                 {
                     // Skipping over:
-                    if(i == currentSkipIndex)
+                    if (i == currentSkipIndex)
                     {
                         // Move the skipping-list index to its next
                         ++currentSkipIndexIndex;
@@ -1265,8 +1397,8 @@ public class ObjMasterUnityFacade : MonoBehaviour {
                     // Grab those triangles data that gets transferred to the tail
                     // Origindices
                     int origa = initialOriginalTrianglesToTail[i];
-                    int origb = initialOriginalTrianglesToTail[i+1];
-                    int origc = initialOriginalTrianglesToTail[i+2];
+                    int origb = initialOriginalTrianglesToTail[i + 1];
+                    int origc = initialOriginalTrianglesToTail[i + 2];
                     // New indices
                     int newa = tailConv[origa];
                     int newb = tailConv[origb];
@@ -1289,8 +1421,8 @@ public class ObjMasterUnityFacade : MonoBehaviour {
 
                     // Generate triangle indices pointing to the data vector properly.
                     tailTriangles[j] = newa;
-                    tailTriangles[j+1] = newb;
-                    tailTriangles[j+2] = newc;
+                    tailTriangles[j + 1] = newb;
+                    tailTriangles[j + 2] = newc;
                     j += 3; // increment j (here because we only do this when there was no skip)
                 }
 
@@ -1367,7 +1499,7 @@ public class ObjMasterUnityFacade : MonoBehaviour {
             uint[] indices = getModelMeshIndicesCopy(handle, meshIndex, mirrorMode, true);
             // Unity seem to support only signed so I need this conversion code...
             int[] unitindices = new int[indices.Length];
-            for(int i = 0; i < indices.Length; ++i)
+            for (int i = 0; i < indices.Length; ++i)
             {
                 unitindices[i] = (int)indices[i];
             }
