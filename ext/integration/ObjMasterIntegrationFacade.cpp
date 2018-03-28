@@ -662,6 +662,8 @@ extern "C" {
 		CHECK_HANDLE
 		// Create an ObjMaster-side Material object corresponding to the given data
 		ObjMaster::Material mat;
+		if (materialName)
+			mat.name = materialName;
 		mat.enabledFields = m.enabledFields;
 		mat.ka = std::vector<float>{m.kar, m.kag, m.kab, m.kaa};
 		mat.kd = std::vector<float>{m.kdr, m.kdg, m.kdb, m.kda};
