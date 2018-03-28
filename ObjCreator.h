@@ -38,6 +38,7 @@ namespace ObjMaster {
 			currentGrpName = other.currentGrpName;
 			currentMatName = other.currentMatName;
 			createdWithBase = other.createdWithBase;
+			// Update the obj pointer
 			if(other.ownsObj) {
 				// Copy-construct our obj - based on the other one
 				obj = new Obj(*other.obj);
@@ -50,9 +51,15 @@ namespace ObjMaster {
 			}
 		}
 		ObjCreator(const ObjCreator &other) {
+			// Do what we used to do when copy assigning
 			copyHelper(other);
 		}
 		ObjCreator& operator=(const ObjCreator &other) {
+			// This is NECESSARY here to avoid leaks!
+			if(ownsObj) {
+				delete obj;
+			}
+
 			copyHelper(other);
 			return *this;
 		}
@@ -63,16 +70,23 @@ namespace ObjMaster {
 			currentObjMatFaceGroupStart = other.currentObjMatFaceGroupStart;
 			std::swap(currentGrpName, other.currentGrpName);
 			std::swap(currentMatName, other.currentMatName);
-			std::swap(obj, other.obj); // just swap pointers to the Obj!
+			obj = other.obj; // just get pointer
 			ownsObj = other.ownsObj;   // Copy ownership flag from other!
-			// Ensure that the other is not trying to release any resources!
-			// Rem.: Necessary as other might get destructed right in the moment!
+			// Ensure that the other is not trying to release any resources if not need to!
+			// Rem.: Necessary as other might get destructed right in the moment and must do it well!
 			other.ownsObj = false;
 		}
 		ObjCreator(ObjCreator &&other) {
+
+			// Do what we used to when move assigning
 			moveHelper(std::move(other));
 		}
 		ObjCreator& operator=(ObjCreator &&other) {
+			// This is NECESSARY here to avoid leaks!
+			if(ownsObj) {
+				delete obj;
+			}
+
 			moveHelper(std::move(other));
 			return *this;
 		}
