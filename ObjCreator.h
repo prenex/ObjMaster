@@ -64,6 +64,7 @@ namespace ObjMaster {
 			std::swap(currentGrpName, other.currentGrpName);
 			std::swap(currentMatName, other.currentMatName);
 			std::swap(obj, other.obj); // just swap pointers to the Obj!
+			ownsObj = other.ownsObj;   // Copy ownership flag from other!
 			// Ensure that the other is not trying to release any resources!
 			// Rem.: Necessary as other might get destructed right in the moment!
 			other.ownsObj = false;

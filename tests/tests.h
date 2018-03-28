@@ -491,6 +491,8 @@ namespace ObjMasterTest {
 
 		auto obj = createRuntimeTestObj();
 		errorCount += testSaveRuntimeCreatedObj(obj);
+		// Do this twice!
+		errorCount += testFacadeObjFactoryAppendResave(GENERATED_TEST_OUT_MODEL, GENERATED_APPEND_TEST_OUT_MODEL);
 		errorCount += testFacadeObjFactoryAppendResave(GENERATED_TEST_OUT_MODEL, GENERATED_APPEND_TEST_OUT_MODEL);
 
 		OMLOGI("...runtime *.obj generation tests had %d errors!", errorCount);
