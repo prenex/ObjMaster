@@ -666,10 +666,14 @@ extern "C" {
 		mat.ka = std::vector<float>{m.kar, m.kag, m.kab, m.kaa};
 		mat.kd = std::vector<float>{m.kdr, m.kdg, m.kdb, m.kda};
 		mat.ks = std::vector<float>{m.ksr, m.ksg, m.ksb, m.ksa};
-		mat.map_ka = map_ka;
-		mat.map_kd = map_kd;
-		mat.map_ks = map_ks;
-		mat.map_bump = map_bump;
+		if(map_ka != nullptr)
+			mat.map_ka = map_ka;
+		if(map_kd != nullptr)
+			mat.map_kd = map_kd;
+		if(map_ks != nullptr)
+			mat.map_ks = map_ks;
+		if(map_bump != nullptr)
+			mat.map_bump = map_bump;
 		// Add the material using the ObjCreator this factory refers to
 		creators[factoryHandle].addRuntimeGeneratedMaterial(std::move(mat));
 

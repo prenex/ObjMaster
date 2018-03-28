@@ -34,7 +34,9 @@
 
 namespace ObjMasterTest {
 
+	const char* EXT_TEST_MODEL_PATH = "objmaster/examples/extmodels/";
 	const char* TEST_MODEL_PATH = "objmaster/tests/models/";
+	const char* EXT_TEST_MODEL = "unityexport.obj"; //"test.obj";
 	const char* TEST_MODEL = "Rose_flower_tex3.obj"; //"test.obj";
 	const char* TEST_OUT_PATH = "";
 	const char* TEST_OUT_MTL = "out.mtl"; // This is to separate MtlLib.saveAs(..) testing from the full round-trip test

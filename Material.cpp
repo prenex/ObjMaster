@@ -2,7 +2,7 @@
 // Created by rthier on 2016.04.25..
 //
 
-#define DEBUG
+#define DEBUG 1
 
 #include "Material.h"
 #include "ObjCommon.h"        /* OBJ_DELIMITER */
