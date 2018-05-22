@@ -15,6 +15,7 @@
 #include"VertexElement.h"
 #include"VertexNormalElement.h"
 #include"VertexTextureElement.h"
+#include "VertexStructure.h"
 
 namespace ObjMaster {
 	/**
