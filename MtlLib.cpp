@@ -44,7 +44,7 @@ namespace ObjMaster {
             char *savePtr;
             char *key = strtok_r(fields, OBJ_DELIMITER, &savePtr);
             char *libFileCstr = strtok_r(nullptr, OBJ_DELIMITER, &savePtr);
-            // TODO: currently we only support one material library file... should split with ','
+            // TODO: currently we only support one material library file... should split with ' '
             // Also the below code should be a loop through all the files then...
             std::string libraryFile(libFileCstr);
             libraryFiles.push_back(libraryFile);
@@ -129,12 +129,14 @@ namespace ObjMaster {
 	// Rem.: input is closed with RAII ;-)
     }
 
-    void MtlLib::saveAs(const AssetOutputLibrary &assetOutputLibrary, const char* path, const char* fileName, bool alwaysGrowLibraryFilesList){
+    void MtlLib::saveAs(const AssetOutputLibrary &assetOutputLibrary, const char* path, const char* fileName, bool alwaysGrowLibraryFilesList, bool absoluteLibraryFileReferences){
 	// Add this mtl file to the list if the list is empty or if the user explicitly asks us to always grow the list
 	// The latter is useful when we deliberately want to add separate *.mtl files to the single *.obj for some reason...
 	// This latter functionality is not in widespread use...
 	if(alwaysGrowLibraryFilesList || (libraryFiles.size() == 0)) {
-		libraryFiles.push_back(std::string(path) + fileName);
+		// Here we decide if we reference this saved file absolutely or relatively
+		std::string pathPrefix = absoluteLibraryFileReferences ? std::string(path) : "";
+		libraryFiles.push_back(pathPrefix + fileName);
 	}
 	// open an output stream for us
 	OMLOGI("Opening (mtl) output stream for %s%s", path, fileName);

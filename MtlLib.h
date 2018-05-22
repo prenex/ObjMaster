@@ -83,8 +83,8 @@ namespace ObjMaster {
 	inline void saveAs(const AssetOutputLibrary &assetOutputLibrary, const char* fileName) {
 		saveAs(assetOutputLibrary, "", fileName);
 	}
-	/** Save this MtlLib as a *.mtl - using the path, fileName and the provided asset-out library */
-	void saveAs(const AssetOutputLibrary &assetOutputLibrary, const char* path, const char* fileName, bool alwaysGrowLibraryFilesList = false);
+	/** Save this MtlLib as a *.mtl - using the path, fileName and the provided asset-out library - absoluteLibraryFileReferences defines if we reference the already saved files absolutely or relatively! */
+	void saveAs(const AssetOutputLibrary &assetOutputLibrary, const char* path, const char* fileName, bool alwaysGrowLibraryFilesList = false, bool absoluteLibraryFileReferences = false);
 
 	/** Adds the given (runtime generated) material to the material library. If there is a material with the same name, it gets overwritten! */
 	inline void addRuntimeGeneratedMaterial(Material m) {
