@@ -3,9 +3,9 @@
 # for gcc5.1+:
 #CC=g++
 # for clang3.4+:
-CC=clang++
+#CC=clang++
 # for emscripten / webgl
-#CC=em++
+CC=em++
 
 ifeq ($(CC),g++)
 	# g++ (ver 5.1+ tested)
@@ -17,7 +17,7 @@ ifeq ($(CC),em++)
 	# TODO: added debug symbols
 	# use 1y instead of 14 here, we need the LLVM libc so that streams are copyable (or a more recent gcc toolchain than the 4.9 at my work!)
 	CFLAGS=-c -stdlib=libc++ -std=c++1y -O2
-	LDFLAGS=--shell-file shell_minimal.html --preload-file models -lglut -stdlib=libc++ -O2 
+	LDFLAGS=--shell-file shell_minimal.html --preload-file models -lglut -stdlib=libc++ -O2 -s TOTAL_MEMORY=167772160
 else
 	# clang++ (ver 3.4+ tested)
 	# clang uses 1y instead of 14 here, we need the LLVM libc so that streams are copyable (or a more recent gcc toolchain than the 4.9 at my work!)

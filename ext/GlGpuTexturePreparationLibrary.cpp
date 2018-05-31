@@ -22,7 +22,7 @@ namespace ObjMasterExt {
 				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, t.width, t.heigth, 0, mode, GL_UNSIGNED_BYTE, &(t.bitmap[0]));
 				// TODO: mip-mapping?
 
-				OMLOGD("GlGpuTexturePreparationLibrary - glTexImage2D loaded %d bytes to the GPU!", (int)t.bitmap.size());
+				OMLOGD("GlGpuTexturePreparationLibrary - glTexImage2D loaded %d bytes to the GPU to handle %u!", (int)t.bitmap.size(), handle);
 #ifdef DEBUG
 if(bitmap.size() > 0) {
 	for(int i = 4; i < bitmap.size(); i+=4) {
