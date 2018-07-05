@@ -248,6 +248,7 @@ OMLOGI(" - Added VertexElement: (%f, %f, %f)", v.x, v.y, v.z);
                 // vn
                 vns.push_back(VertexNormalElement((const char*)line));
             } else if(FaceElement::isParsable(line)) {
+		// TODO: implement N-gons here 
                 // f
                 fs.push_back(FaceElement((const char*)line));
             } else if(MtlLib::isParsable(line)) {
