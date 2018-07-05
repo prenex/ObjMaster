@@ -32,7 +32,7 @@ double elapsedMsec(const struct timeval *start, const struct timeval *stop) {
             (stop->tv_usec - start->tv_usec) / 1000.0);
 }
 
-void displayCB() {
+void draw() {
     glClear(GL_COLOR_BUFFER_BIT);
     glLoadIdentity();
     gluLookAt(0.0, 0.0, 5.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
@@ -262,7 +262,7 @@ void mainLoop() {
     while (1) {
         /* Redraw window (after it's mapped) */
         if (Win.displayed)
-            displayCB();
+            draw();
 
         /* Update frame rate */
         struct timeval last_xcheck = {0, 0};
