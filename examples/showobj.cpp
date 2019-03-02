@@ -26,8 +26,6 @@
 #define GL_GLEXT_PROTOTYPES
 #define EGL_EGLEXT_PROTOTYPES
 
-//#define USE_EGL // Not implemented yet
-
 //#define _GNU_SOURCE
 
 #include "gles2helper/mathelper.h"
@@ -41,9 +39,6 @@
 #ifdef __APPLE__
 #include <OpenGL/gl.h>
 #include <Glut/glut.h>
-#elif USE_EGL
-#include <EGL/egl.h>
-#include <GLES/gl.h>
 #else
 #include <GL/gl.h>
 #include <GL/glut.h>
@@ -557,4 +552,4 @@ int main(int argc, char *argv[]) {
 	return 0;
 }
 
-// vim: tabstop=4 noexpandtab shiftwidth=4 softtabstop=4
+/* vim: tabstop=4 noexpandtab shiftwidth=4 softtabstop=4: */
