@@ -10,7 +10,7 @@
 
 #define USE_FULL_GL 0
 
-
+#include "gles2helper/gles2helper.h"
 
 #include <assert.h>
 #include <math.h>

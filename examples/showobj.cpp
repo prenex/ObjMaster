@@ -555,4 +555,4 @@ int main(int argc, char *argv[]) {
 	return 0;
 }
 
-/* vim: tabstop=4 noexpandtab shiftwidth=4 softtabstop=4: */
+/* vim: set ts=4 sw=4 tw=0 noet : */
