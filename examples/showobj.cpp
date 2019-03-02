@@ -28,7 +28,7 @@
 
 //#define _GNU_SOURCE
 
-#define USE_FULL_GL
+#define USE_FULL_GL 1
 #include "gles2helper/mathelper.h"
 #include <cstdio>
 #include <cstring>
@@ -37,7 +37,7 @@
 #include <vector>
 #include <utility>
 
-#ifdef USE_FULL_GL
+#if USE_FULL_GL
 #ifdef __APPLE__
 #include <OpenGL/gl.h>
 #include <Glut/glut.h>

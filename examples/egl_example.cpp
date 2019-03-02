@@ -219,7 +219,7 @@ static void init(void) {
  * Create an RGB, double-buffered X window.
  * Return the window and context handles.
  */
-static void make_x_window(Display *x_dpy, EGLDisplay egl_dpy,
+static void make_window(Display *x_dpy, EGLDisplay egl_dpy,
               const char *name,
               int x, int y, int width, int height,
               Window *winRet,
@@ -469,7 +469,7 @@ int main(int argc, char *argv[]) {
    s = eglQueryString(egl_dpy, EGL_CLIENT_APIS);
    printf("EGL_CLIENT_APIS = %s\n", s);
 
-   make_x_window(x_dpy, egl_dpy,
+   make_window(x_dpy, egl_dpy,
                  "OpenGL ES 2.x tri", 0, 0, winWidth, winHeight,
                  &win, &egl_ctx, &egl_surf);
 
