@@ -1,6 +1,6 @@
 /*
  * ObjMaster/examples/showobj
- *  
+ *	
  * Example obj model renderer using the library.
  * 
  * This example uses a subset of GLESv2 and EGL
@@ -8,19 +8,19 @@
  * gcc, clang and emscripten (to provide webgl html)
  * 
  * Prerequisite:
- *   freeglut3, freeglut3-dev (both)
- *   libegl1-mesa-dev, libgles2-mesa-dev (EGL/GLES2)
- *   emsdk (JS/WEBGL - full toolchain: nodejs, LLVM, etc.)
+ *	 freeglut3, freeglut3-dev (both)
+ *	 libegl1-mesa-dev, libgles2-mesa-dev (EGL/GLES2)
+ *	 emsdk (JS/WEBGL - full toolchain: nodejs, LLVM, etc.)
  * Compilations:
- *   - make
- *   - In case you want to change the compiler/target, change the CC parameter
- *     between em++, clang++ and g++ accordingly. You can provide this to make
- *     as a command line parameter or change the top of the makefile to set the
- *     default one. The makefile has comments about tested compiler versions.
+ *	 - make
+ *	 - In case you want to change the compiler/target, change the CC parameter
+ *		between em++, clang++ and g++ accordingly. You can provide this to make
+ *		as a command line parameter or change the top of the makefile to set the
+ *		default one. The makefile has comments about tested compiler versions.
  * Usage:
- *   ./showobj <model>     - shows the given model
- *   ./showobj             - shows models/default.obj (as the html build)
- *   palemoon showobj.html - open webgl build to show embedded models/default.obj
+ *	 ./showobj <model>		- shows the given model
+ *	 ./showobj			- shows models/default.obj (as the html build)
+ *	 palemoon showobj.html - open webgl build to show embedded models/default.obj
  */
 
 #define GL_GLEXT_PROTOTYPES
@@ -30,7 +30,7 @@
 
 //#define _GNU_SOURCE
 
-#include "mathelper.h"
+#include "gles2helper/mathelper.h"
 #include <cstdio>
 #include <cstring>
 #include <sys/time.h>
@@ -73,10 +73,10 @@
 static GLfloat view_rot[3] = { 20.0, 30.0, 0.0 };
 /** The location of the shader uniforms */
 static GLuint ModelViewProjectionMatrix_location,
-              NormalMatrix_location,
-              LightSourcePosition_location,
-              MaterialColor_location,
-	      TextureSampler_location;
+			NormalMatrix_location,
+			LightSourcePosition_location,
+			MaterialColor_location,
+			TextureSampler_location;
 /** The projection matrix */
 static GLfloat ProjectionMatrix[16];
 /** The direction of the directional light for the scene */
@@ -86,16 +86,16 @@ static const GLfloat LightSourcePosition[4] = { 5.0, 5.0, 10.0, 1.0};
 static ObjMaster::MaterializedObjModel<ObjMasterExt::GlGpuTexturePreparationLibrary> model;
 
 static void printGlError(std::string where) {
-   GLenum err = glGetError();
-   if(err != GL_NO_ERROR) {
-   	OMLOGE((where + " - glError: 0x%x").c_str(), err);
-   }
+	GLenum err = glGetError();
+	if(err != GL_NO_ERROR) {
+	OMLOGE((where + " - glError: 0x%x").c_str(), err);
+	}
 }
 
 /** Setup various vertex and index buffers for the given model to get ready for rendering - call only once! */
 static void setup_buffers(GLuint positionLoc, GLuint normalLoc, GLuint texCoordLoc, const ObjMaster::ObjMeshObject &model,
 		std::pair<bool, std::pair<GLuint, GLuint>> &indVertBufIdPair) {
-   	printGlError("Before setup_buffers");
+	printGlError("Before setup_buffers");
 	if(model.inited && (model.vertexCount > 0) && (model.indexCount > 0)) {
 		// This little program is really a one-shot renderer so we do not save
 		// the object handles. In a bigger application you should handle them properly!
@@ -115,9 +115,9 @@ static void setup_buffers(GLuint positionLoc, GLuint normalLoc, GLuint texCoordL
 			glGenBuffers(1, &s_indexObject);
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, s_indexObject);
 			glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-				     model.indexCount * sizeof((*(model.indices))[0]),
-				     &((*(model.indices))[0]),
-				     GL_STATIC_DRAW);
+					 model.indexCount * sizeof((*(model.indices))[0]),
+					 &((*(model.indices))[0]),
+					 GL_STATIC_DRAW);
 			// Save generated buffers
 			indVertBufIdPair.second.first = s_vertexPosObject;
 			indVertBufIdPair.second.second = s_indexObject; 
@@ -149,7 +149,7 @@ static void setup_buffers(GLuint positionLoc, GLuint normalLoc, GLuint texCoordL
 
 		// Bind the index buffer object we have created
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, s_indexObject);
-   		printGlError("after setup_buffers");
+		printGlError("after setup_buffers");
 
 #ifdef DEBUG_EXTRA
 OMLOGI("Vertex data sent to the GPU:");
@@ -184,87 +184,87 @@ for(int i = 0; i < model.indices->size() / 3; ++i) {
 /** Draw the mesh of the obj file - first version, no material handling */
 static void draw_model(const ObjMaster::MaterializedObjMeshObject &model, GLfloat *transform, const GLfloat color[4]){
 
-   GLfloat model_view[16];
-   GLfloat normal_matrix[16];
-   GLfloat model_view_projection[16];
+	GLfloat model_view[16];
+	GLfloat normal_matrix[16];
+	GLfloat model_view_projection[16];
 
-   /* creating model_view */
-   memcpy(model_view, transform, sizeof (model_view));
-   // translate and rotate a little bit to "animate" the thing
-   //translate(model_view, x, y, 0);
-   //rotate(model_view, 2 * M_PI * angle / 360.0, 0, 0, 1);
+	/* creating model_view */
+	memcpy(model_view, transform, sizeof (model_view));
+	// translate and rotate a little bit to "animate" the thing
+	//translate(model_view, x, y, 0);
+	//rotate(model_view, 2 * M_PI * angle / 360.0, 0, 0, 1);
 
-   /* Create and set the ModelViewProjectionMatrix */
-   memcpy(model_view_projection, ProjectionMatrix, sizeof(model_view_projection));
-   multiply(model_view_projection, model_view);
+	/* Create and set the ModelViewProjectionMatrix */
+	memcpy(model_view_projection, ProjectionMatrix, sizeof(model_view_projection));
+	multiply(model_view_projection, model_view);
 
-   glUniformMatrix4fv(ModelViewProjectionMatrix_location, 1, GL_FALSE,
-                      model_view_projection);
+	glUniformMatrix4fv(ModelViewProjectionMatrix_location, 1, GL_FALSE,
+				model_view_projection);
 
-   /*
-    * Create and set the NormalMatrix. It's the inverse transpose of the
-    * ModelView matrix.
-    */
-   memcpy(normal_matrix, model_view, sizeof (normal_matrix));
-   invert(normal_matrix);
-   transpose(normal_matrix);
-   glUniformMatrix4fv(NormalMatrix_location, 1, GL_FALSE, normal_matrix);
+	/*
+	* Create and set the NormalMatrix. It's the inverse transpose of the
+	* ModelView matrix.
+	*/
+	memcpy(normal_matrix, model_view, sizeof (normal_matrix));
+	invert(normal_matrix);
+	transpose(normal_matrix);
+	glUniformMatrix4fv(NormalMatrix_location, 1, GL_FALSE, normal_matrix);
 
-   glUniform4fv(MaterialColor_location, 1, color);
+	glUniform4fv(MaterialColor_location, 1, color);
 
-   // Pass the texture sampler uniform
-   glUniform1i(TextureSampler_location, 0);
+	// Pass the texture sampler uniform
+	glUniform1i(TextureSampler_location, 0);
 
-   // TODO: ensure this is the place for this code
-   glBindTexture(GL_TEXTURE_2D, model.material.tex_kd.handle);
+	// TODO: ensure this is the place for this code
+	glBindTexture(GL_TEXTURE_2D, model.material.tex_kd.handle);
 
-   glDrawElements(GL_TRIANGLES, model.indexCount, GL_UNSIGNED_INT, 0);
+	glDrawElements(GL_TRIANGLES, model.indexCount, GL_UNSIGNED_INT, 0);
 }
 
 /**
  * Main drawing routine
  */
 static void draw() {
-   const static GLfloat red[4] = { 0.8, 0.1, 0.0, 1.0 };
-   const static GLfloat green[4] = { 0.0, 0.8, 0.2, 1.0 };
-   const static GLfloat blue[4] = { 0.2, 0.2, 1.0, 1.0 };
-   GLfloat transform[16];
-   identity(transform);
+	const static GLfloat red[4] = { 0.8, 0.1, 0.0, 1.0 };
+	const static GLfloat green[4] = { 0.0, 0.8, 0.2, 1.0 };
+	const static GLfloat blue[4] = { 0.2, 0.2, 1.0, 1.0 };
+	GLfloat transform[16];
+	identity(transform);
 
-   // Cornflowerblue for having a retro feeling from my XNA years :-)
-   glClearColor(0.3921, 0.5843, 0.9294, 1.0);
-   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	// Cornflowerblue for having a retro feeling from my XNA years :-)
+	glClearColor(0.3921, 0.5843, 0.9294, 1.0);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-   /* Translate and rotate the view */
-   translate(transform, 0, 0, -40);
-   rotate(transform, 2 * M_PI * view_rot[0] / 360.0, 1, 0, 0);
-   rotate(transform, 2 * M_PI * view_rot[1] / 360.0, 0, 1, 0);
-   rotate(transform, 2 * M_PI * view_rot[2] / 360.0, 0, 0, 1);
+	/* Translate and rotate the view */
+	translate(transform, 0, 0, -40);
+	rotate(transform, 2 * M_PI * view_rot[0] / 360.0, 1, 0, 0);
+	rotate(transform, 2 * M_PI * view_rot[1] / 360.0, 0, 1, 0);
+	rotate(transform, 2 * M_PI * view_rot[2] / 360.0, 0, 0, 1);
 
-   // Create vector object for holding data buffers
-   static std::vector<std::pair<bool, std::pair<GLuint, GLuint>>> indVertBufIdPairs(model.meshes.size());
-   // Render the model
-   if(model.inited && model.meshes.size() > 0) {
+	// Create vector object for holding data buffers
+	static std::vector<std::pair<bool, std::pair<GLuint, GLuint>>> indVertBufIdPairs(model.meshes.size());
+	// Render the model
+	if(model.inited && model.meshes.size() > 0) {
 	int i = 0;
- 	for(auto mesh : model.meshes) {
- 		// TODO: remove the "color" parameter
+	for(auto mesh : model.meshes) {
+		// TODO: remove the "color" parameter
 		// TODO: This is really suboptimal! The VBOs should
 		// not be always overwritten I think but this little
 		// example is not performance critical so it is ookay...
 		// I mean... the data copy in setup buffers is too much!
 		// Setup buffers for rendering the first mesh
-	 	setup_buffers(0, 1, 2, mesh, indVertBufIdPairs[i]); 
+		setup_buffers(0, 1, 2, mesh, indVertBufIdPairs[i]); 
 		draw_model(mesh, transform, red);
- 		printGlError("after draw_model");
+		printGlError("after draw_model");
 		++i;
 	}
-   }
+	}
 
-   // Render the scene
-   glutSwapBuffers();
+	// Render the scene
+	glutSwapBuffers();
 
 #ifdef LONGTEST
-   glutPostRedisplay(); // check for issues with not throttling calls
+	glutPostRedisplay(); // check for issues with not throttling calls
 #endif
 }
 
@@ -275,11 +275,11 @@ static void draw() {
  * @param height the window height
  */
 static void handleViewportReshape(int width, int height) {
-   /* Update the projection matrix */
-   perspective(ProjectionMatrix, 60.0, width / (float)height, 1.0, 64.0);
+	/* Update the projection matrix */
+	perspective(ProjectionMatrix, 60.0, width / (float)height, 1.0, 64.0);
 
-   /* Set the viewport */
-   glViewport(0, 0, (GLint) width, (GLint) height);
+	/* Set the viewport */
+	glViewport(0, 0, (GLint) width, (GLint) height);
 }
 
 /**
@@ -289,67 +289,67 @@ static void handleViewportReshape(int width, int height) {
  */
 static void handleSpecialGlutEvents(int special, int crap, int morecrap)
 {
-   switch (special) {
-      case GLUT_KEY_LEFT:
-         view_rot[1] += 5.0;
-         break;
-      case GLUT_KEY_RIGHT:
-         view_rot[1] -= 5.0;
-         break;
-      case GLUT_KEY_UP:
-         view_rot[0] += 5.0;
-         break;
-      case GLUT_KEY_DOWN:
-         view_rot[0] -= 5.0;
-         break;
-      case GLUT_KEY_F11:
-         glutFullScreen();
-         break;
-   }
+	switch (special) {
+		case GLUT_KEY_LEFT:
+	 view_rot[1] += 5.0;
+	 break;
+		case GLUT_KEY_RIGHT:
+	 view_rot[1] -= 5.0;
+	 break;
+		case GLUT_KEY_UP:
+	 view_rot[0] += 5.0;
+	 break;
+		case GLUT_KEY_DOWN:
+	 view_rot[0] -= 5.0;
+	 break;
+		case GLUT_KEY_F11:
+	 glutFullScreen();
+	 break;
+	}
 }
 
 static void idle(void) {
-   static int frames = 0;
-   static double tRot0 = -1.0, tRate0 = -1.0;
-   double dt, t = glutGet(GLUT_ELAPSED_TIME) / 1000.0;
+	static int frames = 0;
+	static double tRot0 = -1.0, tRate0 = -1.0;
+	double dt, t = glutGet(GLUT_ELAPSED_TIME) / 1000.0;
 
-   if (tRot0 < 0.0)
-      tRot0 = t;
-   dt = t - tRot0;
-   tRot0 = t;
+	if (tRot0 < 0.0)
+		tRot0 = t;
+	dt = t - tRot0;
+	tRot0 = t;
 
 #ifdef TEST_MEMORYPROFILER_ALLOCATIONS_MAP
-   // This file is used to test --memoryprofiler linker flag, in which case
-   // add some allocation noise.
-   static void *allocatedPtr = 0;
-   free(allocatedPtr);
-   allocatedPtr = malloc(rand() % 10485760);
+	// This file is used to test --memoryprofiler linker flag, in which case
+	// add some allocation noise.
+	static void *allocatedPtr = 0;
+	free(allocatedPtr);
+	allocatedPtr = malloc(rand() % 10485760);
 #endif
 
-   glutPostRedisplay();
-   frames++;
+	glutPostRedisplay();
+	frames++;
 
-   if (tRate0 < 0.0)
-      tRate0 = t;
-   if (t - tRate0 >= 5.0) {
-      GLfloat seconds = t - tRate0;
-      GLfloat fps = frames / seconds;
-      printf("%d frames in %3.1f seconds = %6.3f FPS\n", frames, seconds,
-            fps);
-      tRate0 = t;
-      frames = 0;
+	if (tRate0 < 0.0)
+		tRate0 = t;
+	if (t - tRate0 >= 5.0) {
+		GLfloat seconds = t - tRate0;
+		GLfloat fps = frames / seconds;
+		printf("%d frames in %3.1f seconds = %6.3f FPS\n", frames, seconds,
+		fps);
+		tRate0 = t;
+		frames = 0;
 #ifdef LONGTEST
-      static runs = 0;
-      runs++;
-      if (runs == 4) {
-        int result = fps;
+		static runs = 0;
+		runs++;
+		if (runs == 4) {
+	int result = fps;
 #ifdef TEST_MEMORYPROFILER_ALLOCATIONS_MAP
-        result = 0;
+	result = 0;
 #endif
-        REPORT_RESULT();
-      }
+	REPORT_RESULT();
+		}
 #endif
-   }
+	}
 }
 
 static const char vertex_shader[] =
@@ -367,21 +367,21 @@ static const char vertex_shader[] =
 "\n"
 "void main(void)\n"
 "{\n"
-"    // Transform the normal to eye coordinates\n"
-"    vec3 N = normalize(vec3(NormalMatrix * vec4(normal, 1.0)));\n"
+"	 // Transform the normal to eye coordinates\n"
+"	 vec3 N = normalize(vec3(NormalMatrix * vec4(normal, 1.0)));\n"
 "\n"
-"    // The LightSourcePosition is actually its direction for directional light\n"
-"    vec3 L = normalize(LightSourcePosition.xyz);\n"
+"	 // The LightSourcePosition is actually its direction for directional light\n"
+"	 vec3 L = normalize(LightSourcePosition.xyz);\n"
 "\n"
-"    // Multiply the diffuse value by the vertex color (which is fixed in this case)\n"
-"    // to get the actual color that we will use to draw this vertex with\n"
-"    float diffuse = max(dot(N, L), 0.0);\n"
-"    Color = diffuse * MaterialColor;\n"
+"	 // Multiply the diffuse value by the vertex color (which is fixed in this case)\n"
+"	 // to get the actual color that we will use to draw this vertex with\n"
+"	 float diffuse = max(dot(N, L), 0.0);\n"
+"	 Color = diffuse * MaterialColor;\n"
 "\n"
-"    // Transform the position to clip coordinates\n"
-"    gl_Position = ModelViewProjectionMatrix * vec4(position, 1.0);\n"
-"    // Fill the varying textcoord for the fragment shader\n"
-"    fragTex = texcoord;\n"
+"	 // Transform the position to clip coordinates\n"
+"	 gl_Position = ModelViewProjectionMatrix * vec4(position, 1.0);\n"
+"	 // Fill the varying textcoord for the fragment shader\n"
+"	 fragTex = texcoord;\n"
 "}";
 
 static const char fragment_shader[] =
@@ -394,71 +394,71 @@ static const char fragment_shader[] =
 "\n"
 "void main(void)\n"
 "{\n"
-"    vec4 texel = texture2D(texSampler2D, fragTex);\n"
-//"    gl_FragColor = vec4(Color.rgb * texel.rgb, texel.a);\n"
-//"    gl_FragColor = Color;\n"
-"    gl_FragColor = texel;\n"
+"	 vec4 texel = texture2D(texSampler2D, fragTex);\n"
+//"	 gl_FragColor = vec4(Color.rgb * texel.rgb, texel.a);\n"
+//"	 gl_FragColor = Color;\n"
+"	 gl_FragColor = texel;\n"
 // For testing texture indices
-//"    gl_FragColor = (Color + texel) + vec4(fragTex, 0.5, 1.0);\n"
+//"	 gl_FragColor = (Color + texel) + vec4(fragTex, 0.5, 1.0);\n"
 "}";
 
 static void init(char* modelFileNameAndPath) {
-   GLuint v, f, program;
-   const char *p;
-   char msg[512];
+	GLuint v, f, program;
+	const char *p;
+	char msg[512];
 
-   glDisable(GL_CULL_FACE);
-   glEnable(GL_DEPTH_TEST);
+	glDisable(GL_CULL_FACE);
+	glEnable(GL_DEPTH_TEST);
 
-   /* Compile the vertex shader */
-   p = vertex_shader;
-   v = glCreateShader(GL_VERTEX_SHADER);
-   glShaderSource(v, 1, &p, NULL);
-   glCompileShader(v);
-   glGetShaderInfoLog(v, sizeof msg, NULL, msg);
-   printf("vertex shader info: %s\n", msg);
+	/* Compile the vertex shader */
+	p = vertex_shader;
+	v = glCreateShader(GL_VERTEX_SHADER);
+	glShaderSource(v, 1, &p, NULL);
+	glCompileShader(v);
+	glGetShaderInfoLog(v, sizeof msg, NULL, msg);
+	printf("vertex shader info: %s\n", msg);
 
-   /* Compile the fragment shader */
-   p = fragment_shader;
-   f = glCreateShader(GL_FRAGMENT_SHADER);
-   glShaderSource(f, 1, &p, NULL);
-   glCompileShader(f);
-   glGetShaderInfoLog(f, sizeof msg, NULL, msg);
-   printf("fragment shader info: %s\n", msg);
+	/* Compile the fragment shader */
+	p = fragment_shader;
+	f = glCreateShader(GL_FRAGMENT_SHADER);
+	glShaderSource(f, 1, &p, NULL);
+	glCompileShader(f);
+	glGetShaderInfoLog(f, sizeof msg, NULL, msg);
+	printf("fragment shader info: %s\n", msg);
 
-   /* Create and link the shader program */
-   program = glCreateProgram();
-   glAttachShader(program, v);
-   glAttachShader(program, f);
-   // Attribute location handling is simple enough for this app
-   // We just use manual values for the shader variables...
-   glBindAttribLocation(program, 0, "position");
-   glBindAttribLocation(program, 1, "normal");
-   glBindAttribLocation(program, 2, "texcoord");
+	/* Create and link the shader program */
+	program = glCreateProgram();
+	glAttachShader(program, v);
+	glAttachShader(program, f);
+	// Attribute location handling is simple enough for this app
+	// We just use manual values for the shader variables...
+	glBindAttribLocation(program, 0, "position");
+	glBindAttribLocation(program, 1, "normal");
+	glBindAttribLocation(program, 2, "texcoord");
 
-   glLinkProgram(program);
-   glGetProgramInfoLog(program, sizeof msg, NULL, msg);
-   printf("info: %s\n", msg);
+	glLinkProgram(program);
+	glGetProgramInfoLog(program, sizeof msg, NULL, msg);
+	printf("info: %s\n", msg);
 
-   /* Enable the shaders */
-   glUseProgram(program);
+	/* Enable the shaders */
+	glUseProgram(program);
 
-   /* Get the locations of the uniforms so we can access them */
-   ModelViewProjectionMatrix_location = glGetUniformLocation(program, "ModelViewProjectionMatrix");
-   NormalMatrix_location = glGetUniformLocation(program, "NormalMatrix");
-   LightSourcePosition_location = glGetUniformLocation(program, "LightSourcePosition");
-   MaterialColor_location = glGetUniformLocation(program, "MaterialColor");
-   TextureSampler_location = glGetUniformLocation(program, "texSampler2D");
-   /* Set the LightSourcePosition uniform which is constant throught the program */
-   glUniform4fv(LightSourcePosition_location, 1, LightSourcePosition);
+	/* Get the locations of the uniforms so we can access them */
+	ModelViewProjectionMatrix_location = glGetUniformLocation(program, "ModelViewProjectionMatrix");
+	NormalMatrix_location = glGetUniformLocation(program, "NormalMatrix");
+	LightSourcePosition_location = glGetUniformLocation(program, "LightSourcePosition");
+	MaterialColor_location = glGetUniformLocation(program, "MaterialColor");
+	TextureSampler_location = glGetUniformLocation(program, "texSampler2D");
+	/* Set the LightSourcePosition uniform which is constant throught the program */
+	glUniform4fv(LightSourcePosition_location, 1, LightSourcePosition);
 
-   // Activate texture unit0 for basic texturing
-   glActiveTexture(GL_TEXTURE0);
+	// Activate texture unit0 for basic texturing
+	glActiveTexture(GL_TEXTURE0);
 
-   // Load models
-   // In this example this should never be inited at this point, but wanted to show how to do that check
-   // For example in case of android applications with complex app life-cycles it is better to have this...
-   if(!model.inited) {
+	// Load models
+	// In this example this should never be inited at this point, but wanted to show how to do that check
+	// For example in case of android applications with complex app life-cycles it is better to have this...
+	if(!model.inited) {
 	ObjMaster::Obj obj; 
 	if(modelFileNameAndPath == nullptr) {
 		obj = ObjMaster::Obj(ObjMaster::FileAssetLibrary(), "./models/", "default.obj");
@@ -493,14 +493,14 @@ static void init(char* modelFileNameAndPath) {
 	}
 	model = ObjMaster::MaterializedObjModel<ObjMasterExt::GlGpuTexturePreparationLibrary>(obj);
  
- 	// Load data onto the GPU and setup buffers for rendering
+	// Load data onto the GPU and setup buffers for rendering
 	if(model.inited && model.meshes.size() > 0) {
 		// Load textures for the model meshes
 		// TODO: Remove unload! This is to test the gl texture lib if unload is possible before load!
 		model.unloadAllTextures();
 		model.loadAllTextures(ObjMaster::StbImgTexturePreparationLibrary());
 	}
-   }
+	}
 }
 
 int main(int argc, char *argv[]) {
@@ -515,44 +515,46 @@ int main(int argc, char *argv[]) {
 		}
 		if(std::string(argv[1]) == "--help") {
 			printf("USAGES:\n");
-			printf("   ./showobj my_model.obj        - show the given obj file.\n");
-			printf("   ./showobj                     - show the default test model (for emscripten build).\n");
-			printf("   ./showobj --help              - show this help message and quit.\n");
+			printf("	 ./showobj my_model.obj	 - show the given obj file.\n");
+			printf("	 ./showobj			 - show the default test model (for emscripten build).\n");
+			printf("	 ./showobj --help		 - show this help message and quit.\n");
 #ifdef TEST
-			printf("   ./showobj --test              - run all possible unit tests.\n");
+			printf("	 ./showobj --test		 - run all possible unit tests.\n");
 #endif
 			return 0;	// quit
 		}
 	}
 #endif
-   // Otherwise start application!
+	// Otherwise start application!
 #ifdef TEST_MEMORYPROFILER_ALLOCATIONS_MAP
-   printf("You should see an interactive CPU profiler graph below, and below that an allocation map of the Emscripten main HEAP, with a long blue block of allocated memory.\n");
+	printf("You should see an interactive CPU profiler graph below, and below that an allocation map of the Emscripten main HEAP, with a long blue block of allocated memory.\n");
 #endif // PROFILER
-   printf("argc:%d\n", argc);
-   /* Initialize the window */
-   glutInit(&argc, argv);
-   glutInitWindowSize(300, 300);
-   glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
+	printf("argc:%d\n", argc);
+	/* Initialize the window */
+	glutInit(&argc, argv);
+	glutInitWindowSize(300, 300);
+	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
 
-   glutCreateWindow("showobj");
+	glutCreateWindow("showobj");
 
-   /* Set up glut callback functions */
-   //glutSetKeyRepeat(GLUT_KEY_REPEAT_OFF);
-   glutIdleFunc (idle);
-   glutReshapeFunc(handleViewportReshape);
-   glutDisplayFunc(draw);
-   glutSpecialFunc(handleSpecialGlutEvents);
+	/* Set up glut callback functions */
+	//glutSetKeyRepeat(GLUT_KEY_REPEAT_OFF);
+	glutIdleFunc (idle);
+	glutReshapeFunc(handleViewportReshape);
+	glutDisplayFunc(draw);
+	glutSpecialFunc(handleSpecialGlutEvents);
 
-   /* Do our initialization */
-   if(argc == 2) {
+	/* Do our initialization */
+	if(argc == 2) {
 		// User provided the model to load
 		init(argv[1]);
-   } else {
+	} else {
 	init(nullptr);
-   }
+	}
 
-   glutMainLoop();
+	glutMainLoop();
 
-   return 0;
+	return 0;
 }
+
+// vim: tabstop=4 noexpandtab shiftwidth=4 softtabstop=4

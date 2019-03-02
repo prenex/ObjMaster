@@ -1,9 +1,7 @@
 /**************************************************************************
+ * EGL based example code
  *
- * Copyright 2008 VMware, Inc.
- * All Rights Reserved.
- *
- * g++ egl_showobj.cpp -o egl_showobj -lGLESv2 -lEGL -lX11
+ * g++ egl_example.cpp -o egl_example -lGLESv2 -lEGL -lX11
  **************************************************************************/
 
 /*
@@ -211,18 +209,8 @@ create_shaders(void)
 }
 
 
-static void
-init(void)
-{
-   typedef void (*proc)();
-
-#if 1 /* test code */
-   //proc p = eglGetProcAddress("glMapBufferOES");
-   //assert(p);
-#endif
-
+static void init(void) {
    glClearColor(0.4, 0.4, 0.4, 0.0);
-
    create_shaders();
 }
 
@@ -231,14 +219,12 @@ init(void)
  * Create an RGB, double-buffered X window.
  * Return the window and context handles.
  */
-static void
-make_x_window(Display *x_dpy, EGLDisplay egl_dpy,
+static void make_x_window(Display *x_dpy, EGLDisplay egl_dpy,
               const char *name,
               int x, int y, int width, int height,
               Window *winRet,
               EGLContext *ctxRet,
-              EGLSurface *surfRet)
-{
+              EGLSurface *surfRet) {
    static const EGLint attribs[] = {
       EGL_RED_SIZE, 1,
       EGL_GREEN_SIZE, 1,
@@ -363,10 +349,8 @@ make_x_window(Display *x_dpy, EGLDisplay egl_dpy,
 }
 
 
-static void
-event_loop(Display *dpy, Window win,
-           EGLDisplay egl_dpy, EGLSurface egl_surf)
-{
+static void event_loop(Display *dpy, Window win,
+           EGLDisplay egl_dpy, EGLSurface egl_surf) {
    while (1) {
       int redraw = 0;
       XEvent event;
@@ -420,8 +404,7 @@ event_loop(Display *dpy, Window win,
 }
 
 
-static void
-usage(void)
+static void usage(void)
 {
    printf("Usage:\n");
    printf("  -display <displayname>  set the display to run on\n");
@@ -429,9 +412,7 @@ usage(void)
 }
 
 
-int
-main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
    const int winWidth = 300, winHeight = 300;
    Display *x_dpy;
    Window win;
