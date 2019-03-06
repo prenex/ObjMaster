@@ -200,6 +200,30 @@ static void usage(void)
 	printf("	-info					 display OpenGL renderer info\n");
 }
 
+int keyevent(int code, int fields) {
+	if(fields & KEYEVENT_IS_SPECIAL) {
+		// Use special (named) key codes
+		if (code == GLES2H_LEFT) {
+			view_roty += 5.0;
+		}
+		else if (code == GLES2H_RIGHT) {
+			view_roty -= 5.0;
+		}
+		else if (code == GLES2H_UP) {
+			view_rotx += 5.0;
+		}
+		else if (code == GLES2H_DOWN) {
+			view_rotx -= 5.0;
+		}
+		return 0;
+	} else {
+		// Use ascii codes
+		if(code == 27) {
+			// App will return (1-1=0)
+			return 1;
+		}
+	}
+}
 
 int main(int argc, char *argv[]) {
 	char *dpyName = NULL;
@@ -222,7 +246,7 @@ int main(int argc, char *argv[]) {
 	}
 
 	/* TODO: handle keyevents or idle */
-	retval = gles2run(init,draw, reshape, NULL, NULL, "GLES2-helper test code", 300, 300, GL_TRUE, NULL);
+	retval = gles2run(init,draw, reshape, NULL, keyevent, "GLES2-helper test code", 300, 300, GL_TRUE, NULL);
 
 	return retval;
 }
