@@ -1,13 +1,18 @@
 #ifndef GL_GPU_TEXTURE_PREPARATION_LIBRARY_H
 #define GL_GPU_TEXTURE_PREPARATION_LIBRARY_H
 
-#ifdef __APPLE__
+#if USE_GLES2
+#include <GLES2/gl2.h>	/* use OpenGL ES 2.x */
+#else
+#ifdef __APPLE__        /* use FULL GL headers */
 #include <OpenGL/gl.h>
 #include <Glut/glut.h>
 #else
 #include <GL/gl.h>
 #include <GL/glut.h>
-#endif
+#endif /* __APPLE__ */
+#endif /* USE_GELS2 */
+
 #include "../GpuTexturePreparationLibrary.h"
 #include "../Texture.h"
 
