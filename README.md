@@ -71,13 +71,15 @@ An application called **showobj** is provided as a simple example. The whole lib
 * clang_old_egl: Uses older clang 3.9+ and EGL
 * html: Uses a later amscripten
 * html_old: Uses an older emsripten
-* pi: Uses g++, EGL, X11 only for GLES2 and sets to use 16 bit indices only!
+* pi: Works on armbian and raspbian (Pi). Uses g++, EGL, X11 only for GLES2 and sets to use 16 bit indices only!
 
 The example is based on the header-only gles2helper library from me. It is used as a git submodule:
 
 	git submodule update --init --recursive
 
-(you can also check the whole repo out recursively too)
+or for first cloning
+
+	git clone --recursive [url]
 
 This application also contains some ad-hoc **"unit tests":** you can run these with **showobj --test**. These are only semi-automatic testing and run various codes that are in the tests/test.h file. This is a headless run, while the showobj application as a whole is an opengl application that uses the common subset of opengl and opengl ES2 and webgl so it runs on every tested GL-related platforms.
 
