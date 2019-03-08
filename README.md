@@ -10,7 +10,7 @@ Please keep attention to the licence as that is why I can push backport updates 
 Try out the emscripten webgl example
 ------------------------------------
 
-A (not so new) build of the emscripten example build can be found and tested here:
+A (not latest) build of the emscripten example build can be found and tested here:
 
 http://ballmerpeak.web.elte.hu/graphics/showobj.html
 
@@ -60,7 +60,24 @@ Why it is not LGPLv3, how it is modified?
 Examples and unit tests
 -----------------------
 
-An application called **showobj** is provided as a simple example. The whole library is provided as-is and you are not supposed to build it in complicated ways (just add the sources to your project) however this example contains a makefile for emscripten, g++ and cland build possibilities. These can be changed by commenting out the proper choices in the makefile of the examples.
+An application called **showobj** is provided as a simple example. The whole library is provided as-is and you are not supposed to build it in any complicated ways (just add the sources to your project) however this example contains a makefile for emscripten, g++ and cland build possibilities with different parameters. These can be changed by calling make with different parameters (there is a default though):
+
+* default: uses gnu_glut
+* gnu_glut: Uses g++ for compilation and GLUT for window and I/O.
+* gnu_egl: Uses g++ for compilation and EGL with X11 only!
+* clang_glut: Uses clang 4.9+ and GLUT
+* clang_egl: Uses clang 4.9+ and EGL
+* clang_old_glut: Uses older clang 3.9+ and GLUT
+* clang_old_egl: Uses older clang 3.9+ and EGL
+* html: Uses a later amscripten
+* html_old: Uses an older emsripten
+* pi: Uses g++, EGL, X11 only for GLES2 and sets to use 16 bit indices only!
+
+The example is based on the header-only gles2helper library from me. It is used as a git submodule:
+
+	git submodule update --init --recursive
+
+(you can also check the whole repo out recursively too)
 
 This application also contains some ad-hoc **"unit tests":** you can run these with **showobj --test**. These are only semi-automatic testing and run various codes that are in the tests/test.h file. This is a headless run, while the showobj application as a whole is an opengl application that uses the common subset of opengl and opengl ES2 and webgl so it runs on every tested GL-related platforms.
 
