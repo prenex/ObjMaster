@@ -3,7 +3,7 @@ Modern LGPLv3(ext) C++14 library for handling .obj/mtl 3D model files - original
 
 Remark: Both **import and export is supported** now!
 
-Works quite well for obj files exported from Blender with triangulize-faces and generate-normals turned on in the exporter. Also contains a simple .obj thresholded-diff tool which is useful for creating animations (obj2obd.jar). Code is tested on android, emscripten/js/webgl, linux/opengl, hololens/directx11. The library should be easy to set up, use and found out its inner workings when something goes wrong - it is not fool-safe at all though.
+Works quite well for obj files exported from Blender with triangulize-faces and generate-normals turned on in the exporter. Also contains a simple .obj thresholded-diff tool which is useful for creating animations (obj2obd.jar). Code is tested on android, emscripten/js/webgl, linux/opengl, hololens/directx11 and **this even works on a raspberry or orange pi**. The library should be easy to set up, use and found out its inner workings when something goes wrong - it is not fool-safe at all though.
 
 Please keep attention to the licence as that is why I can push backport updates to this codebase when I change something that I need for my work and not only for my home purposes!
 
