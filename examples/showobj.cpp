@@ -8,7 +8,7 @@
  * gcc, clang and emscripten (to provide webgl html)
  * 
  * Prerequisite:
- *	 freeglut3, freeglut3-dev (both)
+ *	 freeglut3, freeglut3-dev (both) OR EGL (see makefile)
  *	 libegl1-mesa-dev, libgles2-mesa-dev (EGL/GLES2)
  *	 emsdk (JS/WEBGL - full toolchain: nodejs, LLVM, etc.)
  * Compilations:
@@ -22,13 +22,19 @@
  *	 ./showobj			- shows models/default.obj (as the html build)
  *	 palemoon showobj.html - open webgl build to show embedded models/default.obj
  */
+#define MODEL_PATH_MAX_LEN 512
 
 #define GL_GLEXT_PROTOTYPES
 #define EGL_EGLEXT_PROTOTYPES
 
 //#define _GNU_SOURCE
 
-#define USE_FULL_GL 1
+#define USE_GLES2 1
+/*
+#define USE_FULL_GL 0
+#define GLES2_HELPER_USE_GLUT
+*/
+#include "gles2helper/gles2helper.h"
 #include "gles2helper/mathelper.h"
 #include <cstdio>
 #include <cstring>
@@ -37,6 +43,7 @@
 #include <vector>
 #include <utility>
 
+/*
 #if USE_FULL_GL
 #ifdef __APPLE__
 #include <OpenGL/gl.h>
@@ -45,7 +52,8 @@
 #include <GL/gl.h>
 #include <GL/glut.h>
 #endif
-#endif /* USE_FULL_GL */
+#endif // USE_FULL_GL
+*/
 
 // Debug settings
 #define DEBUG 1
@@ -243,27 +251,27 @@ static void draw() {
 	static std::vector<std::pair<bool, std::pair<GLuint, GLuint>>> indVertBufIdPairs(model.meshes.size());
 	// Render the model
 	if(model.inited && model.meshes.size() > 0) {
-	int i = 0;
-	for(auto mesh : model.meshes) {
-		// TODO: remove the "color" parameter
-		// TODO: This is really suboptimal! The VBOs should
-		// not be always overwritten I think but this little
-		// example is not performance critical so it is ookay...
-		// I mean... the data copy in setup buffers is too much!
-		// Setup buffers for rendering the first mesh
-		setup_buffers(0, 1, 2, mesh, indVertBufIdPairs[i]); 
-		draw_model(mesh, transform, red);
-		printGlError("after draw_model");
-		++i;
+		int i = 0;
+		for(auto mesh : model.meshes) {
+			// TODO: remove the "color" parameter
+			// TODO: This is really suboptimal! The VBOs should
+			// not be always overwritten I think but this little
+			// example is not performance critical so it is ookay...
+			// I mean... the data copy in setup buffers is too much!
+			// Setup buffers for rendering the first mesh
+			setup_buffers(0, 1, 2, mesh, indVertBufIdPairs[i]); 
+			draw_model(mesh, transform, red);
+			printGlError("after draw_model");
+			++i;
+		}
 	}
+}
+
+int drawUpdate(int hintDraw) {
+	// TODO: Update functionality
+	if(hintDraw) {
+		draw();
 	}
-
-	// Render the scene
-	glutSwapBuffers();
-
-#ifdef LONGTEST
-	glutPostRedisplay(); // check for issues with not throttling calls
-#endif
 }
 
 /**
@@ -280,11 +288,7 @@ static void handleViewportReshape(int width, int height) {
 	glViewport(0, 0, (GLint) width, (GLint) height);
 }
 
-/**
- * Handles special glut events.
- *
- * @param special the event to handle.
- */
+/*
 static void handleSpecialGlutEvents(int special, int crap, int morecrap)
 {
 	switch (special) {
@@ -305,7 +309,9 @@ static void handleSpecialGlutEvents(int special, int crap, int morecrap)
 	 break;
 	}
 }
+*/
 
+/*
 static void idle(void) {
 	static int frames = 0;
 	static double tRot0 = -1.0, tRate0 = -1.0;
@@ -349,6 +355,7 @@ static void idle(void) {
 #endif
 	}
 }
+*/
 
 static const char vertex_shader[] =
 "attribute vec3 position;\n"
@@ -400,7 +407,7 @@ static const char fragment_shader[] =
 //"	 gl_FragColor = (Color + texel) + vec4(fragTex, 0.5, 1.0);\n"
 "}";
 
-static void init(char* modelFileNameAndPath) {
+static void init_with_model(char* modelFileNameAndPath) {
 	GLuint v, f, program;
 	const char *p;
 	char msg[512];
@@ -500,6 +507,17 @@ static void init(char* modelFileNameAndPath) {
 	}
 	}
 }
+//
+// These are necessary as the gles2helper is not handling init parameters.
+static char modelFileNameAndPath[MODEL_PATH_MAX_LEN+1];
+static void init() {
+	if(modelFileNameAndPath[0] == 0) {
+		init_with_model(nullptr);
+	} else {
+		init_with_model(modelFileNameAndPath);
+	}
+}
+
 
 int main(int argc, char *argv[]) {
 #ifdef TEST
@@ -528,29 +546,36 @@ int main(int argc, char *argv[]) {
 	printf("You should see an interactive CPU profiler graph below, and below that an allocation map of the Emscripten main HEAP, with a long blue block of allocated memory.\n");
 #endif // PROFILER
 	printf("argc:%d\n", argc);
+
+	/* Prepare our initialization function */
+	if(argc == 2) {
+		// User provided the model to load
+		strncpy(modelFileNameAndPath, argv[1], MODEL_PATH_MAX_LEN+1);
+	} else {
+		// Will indicate that we send a nullptr
+		modelFileNameAndPath[0] = 0;
+	}
+
 	/* Initialize the window */
+	/*
 	glutInit(&argc, argv);
 	glutInitWindowSize(300, 300);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
 
 	glutCreateWindow("showobj");
 
-	/* Set up glut callback functions */
+	// Set up glut callback functions
 	//glutSetKeyRepeat(GLUT_KEY_REPEAT_OFF);
 	glutIdleFunc (idle);
 	glutReshapeFunc(handleViewportReshape);
 	glutDisplayFunc(draw);
 	glutSpecialFunc(handleSpecialGlutEvents);
 
-	/* Do our initialization */
-	if(argc == 2) {
-		// User provided the model to load
-		init(argv[1]);
-	} else {
-	init(nullptr);
-	}
-
 	glutMainLoop();
+	*/
+
+	int ret = gles2run(init, drawUpdate, handleViewportReshape, NULL /*idle*/, NULL /*keyevent*/, 
+			"showobj"/*title*/, 300/*w*/, 300 /*h*/, true /*printinfo*/, NULL /*dpyname*/);
 
 	return 0;
 }

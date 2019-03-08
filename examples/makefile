@@ -1,5 +1,3 @@
-# TODO: Currently only compiles the showobj example
-
 # for gcc5.1+:
 CC=g++
 # for clang3.4+:
@@ -10,7 +8,7 @@ CC=g++
 ifeq ($(CC),g++)
 	# g++ (ver 5.1+ tested)
 	CFLAGS=-c -std=c++14 -g # -O0 #-Wall # sadly we are having a lot of unused functions for tests so this is undesirable...
-	LDFLAGS=-lglut -lGLESv2 -lm -g # -O0
+	LDFLAGS=-lglut -lEGL -lX11 -lGLEW -lGLESv2 -lm -g # -O0 # TODO: added glew2 only for testing now!!!
 else 
 ifeq ($(CC),em++)
 	# em++ (ver 1.3+ tested)
