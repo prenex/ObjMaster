@@ -29,11 +29,6 @@
 
 //#define _GNU_SOURCE
 
-#define USE_GLES2 1
-/*
-#define USE_FULL_GL 0
-#define GLES2_HELPER_USE_GLUT
-*/
 #include "gles2helper/gles2helper.h"
 #include "gles2helper/mathelper.h"
 #include <cstdio>
@@ -42,18 +37,6 @@
 #include <unistd.h>
 #include <vector>
 #include <utility>
-
-/*
-#if USE_FULL_GL
-#ifdef __APPLE__
-#include <OpenGL/gl.h>
-#include <Glut/glut.h>
-#else
-#include <GL/gl.h>
-#include <GL/glut.h>
-#endif
-#endif // USE_FULL_GL
-*/
 
 // Debug settings
 #define DEBUG 1
@@ -271,6 +254,9 @@ int drawUpdate(int hintDraw) {
 	// TODO: Update functionality
 	if(hintDraw) {
 		draw();
+		return 1;
+	} else {
+		return 0;
 	}
 }
 
@@ -577,7 +563,7 @@ int main(int argc, char *argv[]) {
 	int ret = gles2run(init, drawUpdate, handleViewportReshape, NULL /*idle*/, NULL /*keyevent*/, 
 			"showobj"/*title*/, 300/*w*/, 300 /*h*/, true /*printinfo*/, NULL /*dpyname*/);
 
-	return 0;
+	return ret;
 }
 
 /* vim: set ts=4 sw=4 tw=0 noet : */

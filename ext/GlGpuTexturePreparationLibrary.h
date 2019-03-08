@@ -11,7 +11,7 @@
 #include <GL/gl.h>
 #include <GL/glut.h>
 #endif /* __APPLE__ */
-#endif /* USE_GELS2 */
+#endif /* USE_GLES2 */
 
 #include "../GpuTexturePreparationLibrary.h"
 #include "../Texture.h"
