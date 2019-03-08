@@ -207,7 +207,10 @@ static void draw_model(const ObjMaster::MaterializedObjMeshObject &model, GLfloa
 	// TODO: ensure this is the place for this code
 	glBindTexture(GL_TEXTURE_2D, model.material.tex_kd.handle);
 
-	glDrawElements(GL_TRIANGLES, model.indexCount, GL_UNSIGNED_INT, 0);
+	printGlError("Before glDrawElements");
+	//glDrawElements(GL_TRIANGLES, model.indexCount, GL_UNSIGNED_SHORT, 0);
+	glDrawElements(GL_TRIANGLES, model.indexCount, GL_UNSIGNED_INT, 0); // Some devices does not support 32 bit indices (orange pi, raspberry pi, etc)
+	printGlError("After glDrawElements");
 }
 
 /**
