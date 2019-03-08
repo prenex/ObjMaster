@@ -12,6 +12,17 @@
 #include <vector>
 #include <stdint.h>
 
+// Define this if your device only handles 16 bit indices and want to build like that!
+// This means that less model data will fit in the per-group or per-mesh memory, but
+// devices like Raspberry or Orange Pis and old phones will not complain. Of course 
+// you can also save graphics memory this way or let the 32 bit indices work and do 
+// post-processing on your own (for example you can cut a too big object to fit).
+#if USE_16BIT_INDICES
+#define OM_INDEX_TYPE uint16_t
+#else
+#define OM_INDEX_TYPE uint32_t
+#endif /* USE_16BIT_INDICES */
+
 namespace ObjMaster {
     /**
      * A 3d mesh out of a *.OBJ file. This can be used to show the object in a scene as it has proper
@@ -50,7 +61,7 @@ namespace ObjMaster {
 	 *  - Because of this, one should use startIndexLocation to find the start index and indexCount
 	 *    for the mesh-specific size! (the vector would return the whole model index-count otherwise)
 	 */
-	std::vector<uint32_t> *indices;
+	std::vector<OM_INDEX_TYPE> *indices;
 
 	// Helper variables to aid optimized one-vbo rendering of multi-mesh models
 	/**
@@ -82,7 +93,7 @@ namespace ObjMaster {
 	/** The number of vertices (the per-mesh value - not the vertexData.size() which might be bigger because of sharing!!!) */
 	unsigned int vertexCount;
 	/** The biggest index value that belongs to this mesh */
-	uint32_t lastIndex;
+	OM_INDEX_TYPE lastIndex;
         // Empty constructor
         ObjMeshObject() {};
 
@@ -110,7 +121,7 @@ namespace ObjMaster {
 	 * defining from which point the indices should start. Basically this should be max(indexVector)
 	 * if the indexVector is a non-null and non-empty pointer and zero otherwise!!!
          */
-        ObjMeshObject(const Obj& obj, const FaceElement *meshFaces, int meshFaceCount, std::vector<VertexStructure> *vertexVector, std::vector<uint32_t> *indexVector, uint32_t lastIndexBase);
+        ObjMeshObject(const Obj& obj, const FaceElement *meshFaces, int meshFaceCount, std::vector<VertexStructure> *vertexVector, std::vector<OM_INDEX_TYPE> *indexVector, OM_INDEX_TYPE lastIndexBase);
 
 	/**
 	 * The copy ctor - necessary because of the possible pointer sharing stuff!
@@ -142,7 +153,7 @@ namespace ObjMaster {
 		if (ownsIndices) { delete indices; }
 	}
     private:
-        void creationHelper(const Obj& obj, const FaceElement *meshFaces, int meshFaceCount, std::vector<VertexStructure> *vertexVector, std::vector<uint32_t> *indexVector, uint32_t lastIndexBase);
+        void creationHelper(const Obj& obj, const FaceElement *meshFaces, int meshFaceCount, std::vector<VertexStructure> *vertexVector, std::vector<OM_INDEX_TYPE> *indexVector, OM_INDEX_TYPE lastIndexBase);
 	void copyHelper(const ObjMeshObject &other);
 	void moveHelper(ObjMeshObject &&other);
     };

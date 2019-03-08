@@ -19,11 +19,18 @@
 
 #include "../../VertexStructure.h"
 
+// (!) We might build the facade with 16 bit indices thus we need to change output bit width (!)
+#if USE_16BIT_INDICES
+#define OM_OUT_INDICES_TYPE unsigned short int /* TODO: This is actually implementation dependent too! */
+#else
+#define OM_OUT_INDICES_TYPE unsigned int /* TODO: This is actually implementation dependent too! */
+#endif /* USE_16BIT_INDICES */
+
 #ifndef NO_OBJMASTER_FACADE_DLL
 	#define DLL_API __declspec(dllexport) 
 #else
 	#define DLL_API extern
-#endif // NO_OBJMASTER_FACADE_DLL
+#endif /* NO_OBJMASTER_FACADE_DLL */
 
 extern "C" {
 
@@ -136,7 +143,7 @@ extern "C" {
 	 *
 	 * See: getModelMeshIndicesCount
 	 */
-	DLL_API int getModelMeshIndices(int handle, int meshIndex, unsigned int** output);
+	DLL_API int getModelMeshIndices(int handle, int meshIndex, OM_OUT_INDICES_TYPE** output);
 
 	/**
 	 * Returns the pointer to the null terminated fileName or nullptr in case of errors. If there is no texture file for the one asked for, we return an empty string!

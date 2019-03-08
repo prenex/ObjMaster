@@ -24,6 +24,17 @@
  */
 #define MODEL_PATH_MAX_LEN 512
 
+// Define this if your device only handles 16 bit indices and want to build like that!
+// This means that less model data will fit in the per-group or per-mesh memory, but
+// devices like Raspberry or Orange Pis and old phones will not complain. Of course 
+// you can also save graphics memory this way or let the 32 bit indices work and do 
+// post-processing on your own (for example you can cut a too big object to fit).
+#if USE_16BIT_INDICES
+#define OM_GL_INDEX_TYPE_ENUM GL_UNSIGNED_SHORT
+#else
+#define OM_GL_INDEX_TYPE_ENUM GL_UNSIGNED_INT
+#endif /* USE_16BIT_INDICES */
+
 #define GL_GLEXT_PROTOTYPES
 #define EGL_EGLEXT_PROTOTYPES
 
@@ -208,8 +219,9 @@ static void draw_model(const ObjMaster::MaterializedObjMeshObject &model, GLfloa
 	glBindTexture(GL_TEXTURE_2D, model.material.tex_kd.handle);
 
 	printGlError("Before glDrawElements");
+	// Some devices does not support 32 bit indices (orange pi, raspberry pi, etc)
 	//glDrawElements(GL_TRIANGLES, model.indexCount, GL_UNSIGNED_SHORT, 0);
-	glDrawElements(GL_TRIANGLES, model.indexCount, GL_UNSIGNED_INT, 0); // Some devices does not support 32 bit indices (orange pi, raspberry pi, etc)
+	glDrawElements(GL_TRIANGLES, model.indexCount, OM_GL_INDEX_TYPE_ENUM, 0);
 	printGlError("After glDrawElements");
 }
 

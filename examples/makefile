@@ -60,6 +60,13 @@ gnu_egl: CFLAGS=-c -std=c++14 -DUSE_GLES2=1 -DGLES2_HELPER_USE_EGL -g
 gnu_egl: LDFLAGS=-lGLESv2 -lEGL -lX11 -lm -g
 gnu_egl: build_exec
 
+# !!! 16bin INDICES !!! #
+# Orange and Raspberry Pi: They work only with 16bit indices. Used g++ (ver 5.1+ tested)
+pi: CC=g++
+pi: CFLAGS=-c -std=c++14 -DUSE_GLES2=1 -DGLES2_HELPER_USE_EGL -DUSE_16BIT_INDICES=1 -g
+pi: LDFLAGS=-lGLESv2 -lEGL -lX11 -lm -g
+pi: build_exec
+
 # clang++ (ver 4.9+)
 clang_egl: CC=clang++
 clang_egl: CFLAGS=-c -std=c++1y -DUSE_GLES2=1 -DGLES2_HELPER_USE_EGL -g

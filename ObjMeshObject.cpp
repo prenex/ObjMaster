@@ -176,7 +176,7 @@ namespace ObjMaster {
 	}
 	void ObjMeshObject::copyHelper(const ObjMeshObject &other) {
 		// The pointers to vectors are copied according to the ownership flags!
-		std::vector<uint32_t> *iPtr = nullptr;
+		std::vector<OM_INDEX_TYPE> *iPtr = nullptr;
 		std::vector<VertexStructure> *vPtr = nullptr;
 		if (other.ownsIndices) {
 			// If the other owns the pointed vector
@@ -186,7 +186,7 @@ namespace ObjMaster {
 			// this handles a lot of common cases and
 			// ensures that the desctuctor does not tries
 			// to delete memory that is not owned by us!
-			iPtr = new std::vector<uint32_t>(*other.indices);
+			iPtr = new std::vector<OM_INDEX_TYPE>(*other.indices);
 		} else {
 			// If the other do not own the pointed vector
 			// we can just use a pointer to it and we also
@@ -222,12 +222,12 @@ namespace ObjMaster {
 		this->inited = other.inited;
 	}
 
-	ObjMeshObject::ObjMeshObject(const Obj& obj, const FaceElement *meshFaces, int meshFaceCount, std::vector<VertexStructure> *vertexVector, std::vector<uint32_t> *indexVector, uint32_t lastIndexBase) {
+	ObjMeshObject::ObjMeshObject(const Obj& obj, const FaceElement *meshFaces, int meshFaceCount, std::vector<VertexStructure> *vertexVector, std::vector<OM_INDEX_TYPE> *indexVector, OM_INDEX_TYPE lastIndexBase) {
 		creationHelper(obj, meshFaces, meshFaceCount, vertexVector, indexVector, lastIndexBase);
 	}
 
     void ObjMeshObject::creationHelper(const Obj& obj, const FaceElement *meshFaces, int meshFaceCount,
-		std::vector<VertexStructure> *vertexVector, std::vector<uint32_t> *indexVector, uint32_t lastIndexBase) {
+		std::vector<VertexStructure> *vertexVector, std::vector<OM_INDEX_TYPE> *indexVector, OM_INDEX_TYPE lastIndexBase) {
 
 		// Handle the difference between the case when they provide the vectors to us
 		// and cases when we create and own the vectors by ourselves!
@@ -245,7 +245,7 @@ namespace ObjMaster {
 
 		// Index vector
 		if (indexVector == nullptr) {
-			this->indices = new std::vector<uint32_t>();
+			this->indices = new std::vector<OM_INDEX_TYPE>();
 			this->ownsIndices = true;
 			this->startIndexLocation = 0;
 		}
@@ -257,7 +257,7 @@ namespace ObjMaster {
 
         // The map is used to make the index buffer refer to duplications properly
         // without re-creating the data slice for the duplications
-        std::unordered_map<IndexTargetSlice, uint32_t> alreadyHandledFacePointTargets;
+        std::unordered_map<IndexTargetSlice, OM_INDEX_TYPE> alreadyHandledFacePointTargets;
 
         // The reservations here are really just heuristics:
         // - It would be pointless to think the indices always point at different things

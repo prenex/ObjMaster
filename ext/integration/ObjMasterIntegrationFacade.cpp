@@ -337,7 +337,7 @@ extern "C" {
 	 *
 	 * See: getModelMeshIndicesCount
 	 */
-	int getModelMeshIndices(int handle, int meshIndex, unsigned int** output) {
+	int getModelMeshIndices(int handle, int meshIndex, OM_OUT_INDICES_TYPE** output) {
 		try {
 			if ((int)models.size() > handle && (int)models[handle].meshes.size() > meshIndex) {
 				// Rem.: A models mesh can share their vector with the other meshes for optimization
@@ -348,7 +348,7 @@ extern "C" {
 
 				//// Copy the relevant part of the vector for the user
 				//for (int i = iBase; i < iBase + iCount; ++i) {
-				//	uint32_t index = (*(models[handle].meshes[meshIndex].indices))[i];
+				//	OM_INDEX_TYPE index = (*(models[handle].meshes[meshIndex].indices))[i];
 				//	output[i - iBase] = (unsigned int) index;
 				//}
 
