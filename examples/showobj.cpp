@@ -42,6 +42,8 @@
 
 #include "gles2helper/gles2helper.h"
 #include "gles2helper/mathelper.h"
+#define _DEFINE_GAMETIME
+#include "gles2helper/gametime.h"
 #include <cstdio>
 #include <cstring>
 #include <sys/time.h>
@@ -272,11 +274,12 @@ static void draw() {
 
 int drawUpdate(int hintDraw) {
 	// TODO: Update functionality
+	gametime gt = gametime::mainloop_get_current();
 
-	view_rot[1] += (float)left;
-	view_rot[1] -= (float)right;
-	view_rot[0] += (float)up;
-	view_rot[0] -= (float)down;
+	view_rot[1] += (float)left * gt.delta()*60;
+	view_rot[1] -= (float)right* gt.delta()*60;
+	view_rot[0] += (float)up * gt.delta()*60;
+	view_rot[0] -= (float)down * gt.delta()*60;
 	// Hintdraw only comes on key events, but if I keep it pressed nothing comes!
 	int moved = left | right | up | down;
 
@@ -571,6 +574,9 @@ int keyevent(int code, int fields) {
 }
 
 int main(int argc, char *argv[]) {
+	// Initialize timing
+	gametime::init();
+
 #ifdef TEST
 	if(argc == 2) {
 		if(std::string(argv[1]) == "--test") {
