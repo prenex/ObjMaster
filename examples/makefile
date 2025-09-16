@@ -82,7 +82,7 @@ clang_old_egl: build_exec
 # em++ (later toolchains)
 # Rem: Change TOTAL_MEMORY for the value it is best for you (faster load time)
 html: CC=em++
-html: CFLAGS=-c -std=c++1y -DUSE_FULL_GL=1 -DGLES2_HELPER_USE_GLUT -O2
+html: CFLAGS=-c -std=c++1y -DUSE_FULL_GL=1 -DGLES2_HELPER_USE_GLUT -DGLES2_HELPER_EMSCRIPTEN_QUIRKS -O2
 html: LDFLAGS=--shell-file shell_minimal.html --preload-file models -lglut -O2 -s TOTAL_MEMORY=167772160
 html: EXTENSION=.html
 html: build_exec
@@ -90,7 +90,7 @@ html: build_exec
 # em++ (ver 1.3+ tested)
 # Rem: Change TOTAL_MEMORY for the value it is best for you (faster load time)
 html_old: CC=em++
-html_old: CFLAGS=-c -stdlib=libc++ -std=c++1y -DUSE_FULL_GL=1 -DGLES2_HELPER_USE_GLUT -O2
+html_old: CFLAGS=-c -stdlib=libc++ -std=c++1y -DUSE_FULL_GL=1 -DGLES2_HELPER_USE_GLUT -DGLES2_HELPER_EMSCRIPTEN_QUIRKS -O2
 html_old: LDFLAGS=--shell-file shell_minimal.html --preload-file models -lglut -stdlib=libc++ -O2 -s TOTAL_MEMORY=167772160
 html_old: EXTENSION=.html
 html_old: build_exec

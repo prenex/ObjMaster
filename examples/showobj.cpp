@@ -69,6 +69,11 @@
 #include "objmaster/tests/tests.h"
 #endif
 
+static int left = 0;
+static int right = 0;
+static int up = 0;
+static int down = 0;
+
 /** The view rotation [x, y, z] */
 static GLfloat view_rot[3] = { 20.0, 30.0, 0.0 };
 /** The location of the shader uniforms */
@@ -267,7 +272,15 @@ static void draw() {
 
 int drawUpdate(int hintDraw) {
 	// TODO: Update functionality
-	if(hintDraw) {
+
+	view_rot[1] += (float)left;
+	view_rot[1] -= (float)right;
+	view_rot[0] += (float)up;
+	view_rot[0] -= (float)down;
+	// Hintdraw only comes on key events, but if I keep it pressed nothing comes!
+	int moved = left | right | up | down;
+
+	if(hintDraw || moved) {
 		draw();
 		return 1;
 	} else {
@@ -288,29 +301,6 @@ static void handleViewportReshape(int width, int height) {
 	/* Set the viewport */
 	glViewport(0, 0, (GLint) width, (GLint) height);
 }
-
-/*
-static void handleSpecialGlutEvents(int special, int crap, int morecrap)
-{
-	switch (special) {
-		case GLUT_KEY_LEFT:
-	 view_rot[1] += 5.0;
-	 break;
-		case GLUT_KEY_RIGHT:
-	 view_rot[1] -= 5.0;
-	 break;
-		case GLUT_KEY_UP:
-	 view_rot[0] += 5.0;
-	 break;
-		case GLUT_KEY_DOWN:
-	 view_rot[0] -= 5.0;
-	 break;
-		case GLUT_KEY_F11:
-	 glutFullScreen();
-	 break;
-	}
-}
-*/
 
 /*
 static void idle(void) {
@@ -521,11 +511,6 @@ static void init() {
 
 
 int keyevent(int code, int fields) {
-	float left = 0;
-	float right = 0;
-	float up = 0;
-	float down = 0;
-
 	bool isPress = (bool)(fields & KEYEVENT_ONPRESS);
 	bool isRelease = (bool)(fields & KEYEVENT_ONRELEASE);
 	bool isSpecial = (bool)(fields & KEYEVENT_IS_SPECIAL);
@@ -580,11 +565,6 @@ int keyevent(int code, int fields) {
 		}
 		return 0;
 	}
-
-	view_rot[1] += left;
-	view_rot[1] -= right;
-	view_rot[0] += up;
-	view_rot[0] -= down;
 
 	// Keep the app main loop running!
 	return 0;
