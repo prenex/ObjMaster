@@ -1,0 +1,3 @@
+[submodule "examples/gles2helper"]
+	path = examples/gles2helper
+	url = git@github.com:prenex/gles2helper.git
