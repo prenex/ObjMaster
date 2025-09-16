@@ -520,6 +520,76 @@ static void init() {
 }
 
 
+int keyevent(int code, int fields) {
+	float left = 0;
+	float right = 0;
+	float up = 0;
+	float down = 0;
+
+	bool isPress = (bool)(fields & KEYEVENT_ONPRESS);
+	bool isRelease = (bool)(fields & KEYEVENT_ONRELEASE);
+	bool isSpecial = (bool)(fields & KEYEVENT_IS_SPECIAL);
+	printf("c:%d s:%d p:%d r:%d\n",
+		code,
+		isSpecial,
+		isPress,
+		isRelease);
+	if(isSpecial) {
+		// Use special (named) key codes
+		// ARROWS
+		if (code == GLES2H_LEFT) {
+			if(isPress) left = 1;
+			if(isRelease) left = 0;
+		}
+		else if (code == GLES2H_RIGHT) {
+			if(isPress) right = 1;
+			if(isRelease) right = 0;
+		}
+		else if (code == GLES2H_UP) {
+			if(isPress) up = 1;
+			if(isRelease) up = 0;
+		}
+		else if (code == GLES2H_DOWN) {
+			if(isPress) down = 1;
+			if(isRelease) down = 0;
+		}
+	} else {
+		// Use ascii codes
+		// ESC
+		if(code == 27) {
+			// EXIT on ESC!
+			// App will return (1-1=0)
+			return 1;
+		}
+		// WASD
+		if (code == 'a') {
+			if(isPress) left = 1;
+			if(isRelease) left = 0;
+		}
+		else if (code == 'd') {
+			if(isPress) right = 1;
+			if(isRelease) right = 0;
+		}
+		else if (code == 'w') {
+			if(isPress) up = 1;
+			if(isRelease) up = 0;
+		}
+		else if (code == 's') {
+			if(isPress) down = 1;
+			if(isRelease) down = 0;
+		}
+		return 0;
+	}
+
+	view_rot[1] += left;
+	view_rot[1] -= right;
+	view_rot[0] += up;
+	view_rot[0] -= down;
+
+	// Keep the app main loop running!
+	return 0;
+}
+
 int main(int argc, char *argv[]) {
 #ifdef TEST
 	if(argc == 2) {
@@ -575,7 +645,8 @@ int main(int argc, char *argv[]) {
 	glutMainLoop();
 	*/
 
-	int ret = gles2run(init, drawUpdate, handleViewportReshape, NULL /*idle*/, NULL /*keyevent*/, 
+	// TODO: -sEXPORTED_RUNTIME_METHODS=requestFullscreen
+	int ret = gles2run(init, drawUpdate, handleViewportReshape, NULL /*idle*/, keyevent /*keyevent*/, 
 			"showobj"/*title*/, 300/*w*/, 300 /*h*/, true /*printinfo*/, NULL /*dpyname*/);
 
 	return ret;
