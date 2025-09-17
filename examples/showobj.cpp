@@ -65,6 +65,7 @@
 #include "objmaster/FileAssetLibrary.h"
 #include "objmaster/StbImgTexturePreparationLibrary.h"
 #include "objmaster/ext/GlGpuTexturePreparationLibrary.h"
+#include "objmaster/ext/printGlError.h"
 
 // Only include tests when it is really needed
 #ifdef TEST
@@ -91,13 +92,6 @@ static const GLfloat LightSourcePosition[4] = { 5.0, 5.0, 10.0, 1.0};
 
 /** Holds the model of the obj */
 static ObjMaster::MaterializedObjModel<ObjMasterExt::GlGpuTexturePreparationLibrary> model;
-
-static void printGlError(std::string where) {
-	GLenum err = glGetError();
-	if(err != GL_NO_ERROR) {
-	OMLOGE((where + " - glError: 0x%x").c_str(), err);
-	}
-}
 
 /** Setup various vertex and index buffers for the given model to get ready for rendering - call only once! */
 static void setup_buffers(GLuint positionLoc, GLuint normalLoc, GLuint texCoordLoc, const ObjMaster::ObjMeshObject &model,
@@ -188,7 +182,7 @@ for(int i = 0; i < model.indices->size() / 3; ++i) {
 }
 
 
-/** Draw the mesh of the obj file - first version, no material handling */
+/** Draw the mesh of the obj file - first version */
 static void draw_model(const ObjMaster::MaterializedObjMeshObject &model, GLfloat *transform, const GLfloat color[4]){
 
 	GLfloat model_view[16];
@@ -273,20 +267,14 @@ static void draw() {
 }
 
 int drawUpdate(int hintDraw) {
-	// TODO: Update functionality
-	static unsigned long long framecunt = 0;
-	++framecunt;
+	// TODO: Update functionality if needed
 	gametime gt = gametime::mainloop_get_current();
 
-	// FPS counter
-	static unsigned long long last_fps_shown_at_ms = gt.get_ms();
-	unsigned long long now = gt.get_ms();
-	unsigned long long diff = now - last_fps_shown_at_ms;
-	if(diff >= 1000) {
-		last_fps_shown_at_ms = now;
-		printf("FPS: %f, framecount: %zd, diff: %zd\n", gt.fps(), framecunt, diff);
-		framecunt = 0;
+	static fpscounter fps;
+	if(unsigned long long fraps = fps.get(gt)) {
+		printf("------------------FPS: %zd\n", fraps);
 	}
+	printf("frametime: %llu\n", gt.get_diff_ms());
 
 	view_rot[1] += (float)left * gt.delta()*60;
 	view_rot[1] -= (float)right* gt.delta()*60;

@@ -39,7 +39,7 @@ default: gnu_glut
 # g++ (ver 5.1+ tested)
 gnu_glut: CC=g++
 gnu_glut: CFLAGS=-c -std=c++14 -DUSE_FULL_GL=1 -DGLES2_HELPER_USE_GLUT -g
-gnu_glut: LDFLAGS=-lGLESv2 -lGLEW -lglut -lm -g
+gnu_glut: LDFLAGS=-lGLESv2 -lGLEW -lglut -lm -g -Wall -Wconversion -Wextra
 gnu_glut: build_exec
 
 # clang++ (ver 4.9+)
@@ -82,7 +82,7 @@ clang_old_egl: build_exec
 # em++ (later toolchains)
 # Rem: Change TOTAL_MEMORY for the value it is best for you (faster load time)
 html: CC=em++
-html: CFLAGS=-c -std=c++1y -DUSE_FULL_GL=1 -DGLES2_HELPER_USE_GLUT -DGLES2_HELPER_EMSCRIPTEN_QUIRKS -O2
+html: CFLAGS=-c -std=c++1y -DGLES2_HELPER_USE_GLUT -DGLES2_HELPER_EMSCRIPTEN_QUIRKS -O2
 html: LDFLAGS=--shell-file shell_minimal.html --preload-file models -lglut -O2 -s TOTAL_MEMORY=167772160
 html: EXTENSION=.html
 html: build_exec
