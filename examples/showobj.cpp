@@ -274,7 +274,19 @@ static void draw() {
 
 int drawUpdate(int hintDraw) {
 	// TODO: Update functionality
+	static unsigned long long framecunt = 0;
+	++framecunt;
 	gametime gt = gametime::mainloop_get_current();
+
+	// FPS counter
+	static unsigned long long last_fps_shown_at_ms = gt.get_ms();
+	unsigned long long now = gt.get_ms();
+	unsigned long long diff = now - last_fps_shown_at_ms;
+	if(diff >= 1000) {
+		last_fps_shown_at_ms = now;
+		printf("FPS: %f, framecount: %zd, diff: %zd\n", gt.fps(), framecunt, diff);
+		framecunt = 0;
+	}
 
 	view_rot[1] += (float)left * gt.delta()*60;
 	view_rot[1] -= (float)right* gt.delta()*60;
