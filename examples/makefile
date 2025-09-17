@@ -34,12 +34,18 @@ EXECUTABLE=showobj
 #       is made to build for these targets. Feel free to add further examples, I cannot share company code!
 
 # A probably good default target for most
-default: gnu_glut
+default: gnu_glut_debug
+
+# g++ (ver 5.1+ tested)
+gnu_glut_debug: CC=g++
+gnu_glut_debug: CFLAGS=-c -std=c++14 -DUSE_FULL_GL=1 -DGLES2_HELPER_USE_GLUT -DDEBUG_GL -g
+gnu_glut_debug: LDFLAGS=-lGLESv2 -lGLEW -lglut -lm -g -Wall -Wconversion -Wextra
+gnu_glut_debug: build_exec
 
 # g++ (ver 5.1+ tested)
 gnu_glut: CC=g++
 gnu_glut: CFLAGS=-c -std=c++14 -DUSE_FULL_GL=1 -DGLES2_HELPER_USE_GLUT -g
-gnu_glut: LDFLAGS=-lGLESv2 -lGLEW -lglut -lm -g -Wall -Wconversion -Wextra
+gnu_glut: LDFLAGS=-lGLESv2 -lGLEW -lglut -lm -g -O2
 gnu_glut: build_exec
 
 # clang++ (ver 4.9+)

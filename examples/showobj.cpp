@@ -163,7 +163,7 @@ static void draw() {
 
 	// Create vector object for holding data buffers
 	static bool firstRun = true;
-	static std::vector<ObjMaster::GlMesh> renderables(model.meshes.size());
+	static std::vector<ObjMaster::GlMesh> renderables;
 
 	// Prepare renderables by uploading to GPU  (only first run)
 	if(model.inited && model.meshes.size() > 0 && firstRun) {
@@ -177,12 +177,6 @@ static void draw() {
 	if(model.inited && model.meshes.size() > 0) {
 		int i = 0;
 		for(auto &glmesh : renderables) {
-			// TODO: remove the "color" parameter
-			// TODO: This is really suboptimal! The VBOs should
-			// not be always overwritten I think but this little
-			// example is not performance critical so it is ookay...
-			// I mean... the data copy in setup buffers is too much!
-			// Setup buffers for rendering the first mesh
 			draw_model(glmesh, transform, red);
 			++i;
 		}
@@ -197,7 +191,7 @@ int drawUpdate(int hintDraw) {
 	if(unsigned long long fraps = fps.get(gt)) {
 		printf("------------------FPS: %zd\n", fraps);
 	}
-	printf("frametime: %llu\n", gt.get_diff_ms());
+	// printf("frametime: %llu\n", gt.get_diff_ms());
 
 	view_rot[1] += (float)left * gt.delta()*60;
 	view_rot[1] -= (float)right* gt.delta()*60;
