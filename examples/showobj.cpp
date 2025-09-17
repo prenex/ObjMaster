@@ -66,6 +66,7 @@
 #include "objmaster/StbImgTexturePreparationLibrary.h"
 #include "objmaster/ext/GlGpuTexturePreparationLibrary.h"
 #include "objmaster/ext/printGlError.h"
+#include "objmaster/ext/GlMesh.h"
 
 // Only include tests when it is really needed
 #ifdef TEST
@@ -93,97 +94,11 @@ static const GLfloat LightSourcePosition[4] = { 5.0, 5.0, 10.0, 1.0};
 /** Holds the model of the obj */
 static ObjMaster::MaterializedObjModel<ObjMasterExt::GlGpuTexturePreparationLibrary> model;
 
-/** Setup various vertex and index buffers for the given model to get ready for rendering - call only once! */
-static void setup_buffers(GLuint positionLoc, GLuint normalLoc, GLuint texCoordLoc, const ObjMaster::ObjMeshObject &model,
-		std::pair<bool, std::pair<GLuint, GLuint>> &indVertBufIdPair) {
-	printGlError("Before setup_buffers");
-	if(model.inited && (model.vertexCount > 0) && (model.indexCount > 0)) {
-		// This little program is really a one-shot renderer so we do not save
-		// the object handles. In a bigger application you should handle them properly!
-		// Rem.: This is why you call the method at most only once...
-		bool notFirstRun = indVertBufIdPair.first; // ensure we do not setup buffers too many times
-		GLuint s_vertexPosObject = indVertBufIdPair.second.first;
-		GLuint s_indexObject = indVertBufIdPair.second.second;
-
-		if(!notFirstRun) {
-			// Generate vertex buffer object
-			glGenBuffers(1, &s_vertexPosObject);
-			glBindBuffer(GL_ARRAY_BUFFER, s_vertexPosObject );
-			glBufferData(GL_ARRAY_BUFFER, model.vertexCount * sizeof(VertexStructure),
-					&((*(model.vertexData))[0].x), GL_STATIC_DRAW);
-
-			// Generate index buffer object
-			glGenBuffers(1, &s_indexObject);
-			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, s_indexObject);
-			glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-					 model.indexCount * sizeof((*(model.indices))[0]),
-					 &((*(model.indices))[0]),
-					 GL_STATIC_DRAW);
-			// Save generated buffers
-			indVertBufIdPair.second.first = s_vertexPosObject;
-			indVertBufIdPair.second.second = s_indexObject; 
-			// Stop doing extra bullshit every frame!
-			indVertBufIdPair.first = true;
-			//firstRun = false;
-		}
-
-		// Bind the vertex buffer object and create two vertex attributes from the bound buffer
-		glBindBuffer(GL_ARRAY_BUFFER, s_vertexPosObject);
-		// By design, we know that the positions are the first elements in the VertexStructure
-		// so we can use zero as the pointer/index in the vertex data!
-		glVertexAttribPointer(positionLoc, 3, GL_FLOAT, GL_FALSE, sizeof(VertexStructure), 0);
-		// Calculate the offset where the normal vector data starts in the vertex data
-		// This is much better than writing "3" as this handles changes in the structure...
-		auto normalOffset = (&((*(model.vertexData))[0].i) - &((*(model.vertexData))[0].x));
-		// Use the calculated offset for getting the pointer to the normals in the vertex data
-		glVertexAttribPointer(normalLoc, 3, GL_FLOAT, GL_FALSE, sizeof(VertexStructure), (const GLvoid *)(normalOffset * 4));
-		// Calculate the offset where the normal vector data starts in the vertex data
-		// This is much better than writing "3" as this handles changes in the structure...
-		auto texCoordOffset = (&((*(model.vertexData))[0].u) - &((*(model.vertexData))[0].x));
-		// Use the calculated offset for getting the pointer to the texcoords in the vertex data
-		glVertexAttribPointer(texCoordLoc, 2, GL_FLOAT, GL_FALSE, sizeof(VertexStructure), (const GLvoid *)(texCoordOffset * 4));
-
-		// Enable the vertex attributes as arrays
-		glEnableVertexAttribArray(positionLoc);
-		glEnableVertexAttribArray(normalLoc);
-		glEnableVertexAttribArray(texCoordLoc);
-
-		// Bind the index buffer object we have created
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, s_indexObject);
-		printGlError("after setup_buffers");
-
-#ifdef DEBUG_EXTRA
-OMLOGI("Vertex data sent to the GPU:");
-if(model.vertexData != nullptr) {
-for(int i = 0; i < model.vertexData->size(); ++i) {
-	OMLOGI("v(%f, %f, %f) vn(%f, %f, %f) vt(%f, %f)", 
-			(*model.vertexData)[i].x,
-			(*model.vertexData)[i].y,
-			(*model.vertexData)[i].z,
-			(*model.vertexData)[i].i,
-			(*model.vertexData)[i].j,
-			(*model.vertexData)[i].k,
-			(*model.vertexData)[i].u,
-			(*model.vertexData)[i].v
-	);
-}
-}
-OMLOGI("Index data sent to the GPU:");
-if(model.indices != nullptr) {
-for(int i = 0; i < model.indices->size() / 3; ++i) {
-	OMLOGI("f %d %d %d", (*model.indices)[3*i], (*model.indices)[3*i+1], (*model.indices)[3*i+2]);
-}
-}
-#endif
-	} else {
-		fprintf(stderr, "No available model, vertex data or indices to setup!\n");
-		fprintf(stderr, "vertexCount: %d; indexCount: %d; inited: %d\n", model.vertexCount, model.indexCount, model.inited);
-	}
-}
-
-
 /** Draw the mesh of the obj file - first version */
-static void draw_model(const ObjMaster::MaterializedObjMeshObject &model, GLfloat *transform, const GLfloat color[4]){
+static void draw_model(ObjMaster::GlMesh &mesh, GLfloat *transform, const GLfloat color[4]) {
+
+	// bind the mesh for draw
+	auto binding = ObjMaster::GlMeshBinding(mesh);
 
 	GLfloat model_view[16];
 	GLfloat normal_matrix[16];
@@ -217,12 +132,12 @@ static void draw_model(const ObjMaster::MaterializedObjMeshObject &model, GLfloa
 	glUniform1i(TextureSampler_location, 0);
 
 	// TODO: ensure this is the place for this code
-	glBindTexture(GL_TEXTURE_2D, model.material.tex_kd.handle);
+	glBindTexture(GL_TEXTURE_2D, binding.material->tex_kd.handle);
 
 	printGlError("Before glDrawElements");
 	// Some devices does not support 32 bit indices (orange pi, raspberry pi, etc)
-	//glDrawElements(GL_TRIANGLES, model.indexCount, GL_UNSIGNED_SHORT, 0);
-	glDrawElements(GL_TRIANGLES, model.indexCount, OM_GL_INDEX_TYPE_ENUM, 0);
+	//glDrawElements(GL_TRIANGLES, binding.indexCount, GL_UNSIGNED_SHORT, 0);
+	glDrawElements(GL_TRIANGLES, binding.indexCount, OM_GL_INDEX_TYPE_ENUM, 0);
 	printGlError("After glDrawElements");
 }
 
@@ -247,20 +162,28 @@ static void draw() {
 	rotate(transform, 2 * M_PI * view_rot[2] / 360.0, 0, 0, 1);
 
 	// Create vector object for holding data buffers
-	static std::vector<std::pair<bool, std::pair<GLuint, GLuint>>> indVertBufIdPairs(model.meshes.size());
+	static bool firstRun = true;
+	static std::vector<ObjMaster::GlMesh> renderables(model.meshes.size());
+
+	// Prepare renderables by uploading to GPU  (only first run)
+	if(model.inited && model.meshes.size() > 0 && firstRun) {
+		firstRun = false;
+		for(auto &mesh : model.meshes) {
+			renderables.emplace_back(0, 1, 2, &mesh.material, mesh);
+		}
+	}
+
 	// Render the model
 	if(model.inited && model.meshes.size() > 0) {
 		int i = 0;
-		for(auto mesh : model.meshes) {
+		for(auto &glmesh : renderables) {
 			// TODO: remove the "color" parameter
 			// TODO: This is really suboptimal! The VBOs should
 			// not be always overwritten I think but this little
 			// example is not performance critical so it is ookay...
 			// I mean... the data copy in setup buffers is too much!
 			// Setup buffers for rendering the first mesh
-			setup_buffers(0, 1, 2, mesh, indVertBufIdPairs[i]); 
-			draw_model(mesh, transform, red);
-			printGlError("after draw_model");
+			draw_model(glmesh, transform, red);
 			++i;
 		}
 	}
