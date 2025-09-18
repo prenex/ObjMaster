@@ -93,6 +93,14 @@ html: LDFLAGS=--shell-file shell_minimal.html --preload-file models -lglut -O2 -
 html: EXTENSION=.html
 html: build_exec
 
+# em++ (later toolchains)
+# Rem: Change TOTAL_MEMORY for the value it is best for you (faster load time)
+html_vao: CC=em++
+html_vao: CFLAGS=-c -std=c++1y -DGLES2_HELPER_USE_GLUT -DGLES2_HELPER_EMSCRIPTEN_QUIRKS -DUSE_VAO -O2
+html_vao: LDFLAGS=--shell-file shell_minimal.html --preload-file models -lglut -O2 -s TOTAL_MEMORY=167772160
+html_vao: EXTENSION=.html
+html_vao: build_exec
+
 # em++ (ver 1.3+ tested)
 # Rem: Change TOTAL_MEMORY for the value it is best for you (faster load time)
 html_old: CC=em++
