@@ -38,7 +38,7 @@ default: gnu_glut_debug
 
 # g++ (ver 5.1+ tested)
 gnu_glut_debug: CC=g++
-gnu_glut_debug: CFLAGS=-c -std=c++14 -DUSE_FULL_GL=1 -DGLES2_HELPER_USE_GLUT -DDEBUG_GL -g
+gnu_glut_debug: CFLAGS=-c -std=c++14 -DUSE_FULL_GL=1 -DGLES2_HELPER_USE_GLUT -DDEBUG_GL -DPRE_33_GL -g
 gnu_glut_debug: LDFLAGS=-lGLESv2 -lGLEW -lglut -lm -g -Wall -Wconversion -Wextra
 gnu_glut_debug: build_exec
 
